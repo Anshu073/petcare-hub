@@ -11,12 +11,16 @@ from datetime import datetime, timedelta, date
 import re
 
 # Create your views here.
+from django.db.models import Avg, Count # Ye do cheezein import karna mat bhoolna
+
 def show(request):
-    vets = Vet.objects.filter(status=1)[:4]
+    # Annotate se har doctor ke liye average rating aur total reviews calculate honge
+    vets = Vet.objects.filter(status=1).annotate(
+        avg_rating=Avg('feedback__rating'), # Feedback table se rating ka average
+        review_count=Count('feedback')      # Total kitne feedbacks hain
+    )[:4]
     
     total_vets = Vet.objects.filter(status=1).count()
-    
-    # 3. Counter ke liye total products ka count
     total_products = Product.objects.count()
     
     context = {
@@ -24,7 +28,7 @@ def show(request):
         'total_vets': total_vets,
         'total_products': total_products,
     }
-    return render(request,'index.html',context)
+    return render(request, 'index.html', context)
 
 def register(request):
     # Fetching all areas to populate the dropdown for GET requests

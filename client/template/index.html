@@ -436,13 +436,19 @@
                                 </div>
                             </div>
                             <div class="team__social">
-                                <ul class="list-wrap">
-                                    <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
-                                    <li><a href="#"><i class="fab fa-twitter"></i></a></li>
-                                    <li><a href="#"><i class="fab fa-whatsapp"></i></a></li>
-                                    <li><a href="#"><i class="fab fa-instagram"></i></a></li>
-                                </ul>
+                            {% with rating=item.avg_rating|default:0 %}
+                            <div class="overlay-stars">
+                                <i class="{% if rating >= 1 %}fas{% else %}far{% endif %} fa-star"></i>
+                                <i class="{% if rating >= 2 %}fas{% else %}far{% endif %} fa-star"></i>
+                                <i class="{% if rating >= 3 %}fas{% else %}far{% endif %} fa-star"></i>
+                                <i class="{% if rating >= 4 %}fas{% else %}far{% endif %} fa-star"></i>
+                                <i class="{% if rating >= 5 %}fas{% else %}far{% endif %} fa-star"></i>
                             </div>
+                            <span class="overlay-rating-num">
+                                {{ rating|stringformat:".1f" }} ({{ item.review_count }} Reviews)
+                            </span>
+                            {% endwith %}
+                        </div>
                         </div>
                         <div class="team__item-content text-center">
                             <h4 class="title"><a href="{% url 'vet_details' item.vet_id %}"> {{ item.vet_name }}</a></h4>
@@ -467,6 +473,97 @@
             <img src="{% static 'assets/img/team/team_shape.png' %}" alt="img" class="ribbonRotate">
         </div>
     </section>
+    <style>
+    /* Custom Availability Badges for PetPal Theme */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 14px;
+        border-radius: 30px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #ffffff;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+
+    .status-online {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    }
+
+    .status-on-leave {
+        background: linear-gradient(135deg, #17a2b8 0%, #007bff 100%);
+    }
+
+    .status-offline {
+        background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    }
+
+    .status-badge i {
+        font-size: 10px;
+        margin-right: 6px;
+    }
+
+    /* Subtle pulse for Online status */
+    .status-online i {
+        animation: pulse-green 2s infinite;
+    }
+
+    @keyframes pulse-green {
+        0% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.4;
+        }
+
+        100% {
+            opacity: 1;
+        }
+    }
+   /* Restores the circular white badge style from your screenshot */
+/* Removes the white background and styles the stars on the blue overlay */
+/* Container for the 5 stars on the blue overlay */
+.team__social {
+    background: transparent !important; 
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    opacity: 0; /* HIDDEN BY DEFAULT */
+    visibility: hidden;
+    transition: all 0.4s ease-in-out !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* SHOW STARS ONLY ON HOVER */
+.team__item:hover .team__social {
+    opacity: 1;
+    visibility: visible;
+}
+
+.overlay-stars {
+    color: #ffc107; /* Gold stars */
+    font-size: 20px;
+    letter-spacing: 2px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.overlay-rating-num {
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    margin-top: 8px;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+</style>
     <!-- team-area-end -->
 
 
