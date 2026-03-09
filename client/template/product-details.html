@@ -137,34 +137,45 @@
                                         <h4 class="title">Customer Reviews ({{ reviews.count }})</h4>
 
                                         {% for review in reviews %}
-                                        <div class="review__item d-flex align-items-start mb-20"
-                                            style="border-bottom: 1px solid #eee; padding-bottom: 15px;">
-                                            <div class="review__avatar me-3">
-                                                {% if review.cust_id.user_profile %}
-                                                <img src="{% static review.cust_id.user_profile %}" alt="Profile"
-                                                    style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
-                                                {% else %}
-                                                <img src="{% static 'assets/img/icon/user_default.png' %}" alt="Default"
-                                                    style="width: 50px; height: 50px; border-radius: 50%;">
-                                                {% endif %}
-                                            </div>
-                                            <div class="review__body">
-                                                <div class="review__info">
-                                                    <strong>{{ review.cust_id.cust_name }}</strong>
-                                                    <span style="color: #ffb400; margin-left: 10px;">
-                                                        {% for i in "12345"|make_list %}
-                                                        {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
-                                                            {% endfor %} </span>
-                                                            <br>
-                                                            <small class="text-muted">{{ review.feedback_date|date:"M
-                                                                d,Y" }}</small>
-                                                </div>
-                                                <p class="mt-2">{{ review.comments }}</p>
-                                            </div>
-                                        </div>
-                                        {% empty %}
-                                        <p>No reviews yet for this product. Be the first to review! 🐾</p>
-                                        {% endfor %}
+<div class="review__item d-flex align-items-start mb-20" 
+     style="border-bottom: 1px solid #f1f1f1; padding-bottom: 20px; transition: all 0.3s ease;">
+    
+    <div class="review__avatar me-3">
+        {% if review.cust_id.user_profile %}
+            <img src="{{ review.cust_id.user_profile.url }}" alt="{{ review.cust_id.cust_name }}"
+                 style="width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid #eee;">
+        {% else %}
+            <img src="{% static 'assets/img/icon/user_default.png' %}" alt="Default Avatar"
+                 style="width: 55px; height: 55px; border-radius: 50%; border: 2px solid #eee;">
+        {% endif %}
+    </div>
+
+    <div class="review__body w-100">
+        <div class="review__info d-flex align-items-center justify-content-between mb-1">
+            <div class="user-meta">
+                <strong style="font-size: 16px; color: #4b2c4d;">{{ review.cust_id.cust_name }}</strong>
+                <span class="ms-2" style="color: #ffb400; font-size: 14px;">
+                    {% for i in "12345"|make_list %}
+                        {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
+                    {% endfor %}
+                </span>
+            </div>
+            <small class="text-muted" style="font-size: 12px;">{{ review.feedback_date|date:"M d, Y" }}</small>
+        </div>
+        
+        <p class="mt-2" style="color: #666; line-height: 1.6; font-size: 14px; margin-bottom: 0;">
+            {{ review.comments }}
+        </p>
+    </div>
+</div>
+
+{% empty %}
+<div class="text-center py-4" style="background: #fdfafb; border-radius: 10px; border: 1px dashed #e5dbe6;">
+    <p class="mb-0" style="color: #894B8D; font-weight: 500;">
+        No reviews yet for this product. Be the first to share your experience! 🐾
+    </p>
+</div>
+{% endfor %}
 
                                         <div class="review__form-wrap mt-40 p-4"
                                             style="background: #fdfafb; border-radius: 15px; border: 1px solid #f1e9f2;">
@@ -179,15 +190,14 @@
 
                                                 <div class="d-flex align-items-center mb-20">
                                                     <div class="user-avatar me-3">
-                                                        {% if current_user.user_profile %}
-                                                        <img src="{% static current_user.user_profile %}" alt="Profile"
-                                                            style="width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 3px solid #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                                                        {% else %}
-                                                        <img src="{% static 'assets/img/icon/user_default.png' %}"
-                                                            alt="Default"
-                                                            style="width: 55px; height: 55px; border-radius: 50%; border: 2px solid #ddd;">
-                                                        {% endif %}
-                                                    </div>
+    {% if current_user.user_profile %}
+        <img src="{{ current_user.user_profile.url }}" alt="My Profile"
+             style="width: 55px; height: 55px; border-radius: 50%; object-fit: cover;">
+    {% else %}
+        <img src="{% static 'assets/img/users/default.png' %}" alt="Default"
+             style="width: 55px; height: 55px; border-radius: 50%;">
+    {% endif %}
+</div>
 
                                                     <div class="rating-selection">
                                                         <label class="form-label mb-0 d-block"

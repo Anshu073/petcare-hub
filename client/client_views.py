@@ -101,6 +101,7 @@ def register(request):
     
     return render(request, 'register.html', {'areas': areas})
 
+# client_views.py
 def login(request):
     if request.method == "POST":
         email_val = request.POST.get('email', '').strip()
@@ -110,11 +111,20 @@ def login(request):
             customer = Customer.objects.get(email=email_val)
             
             if check_password(password_val, customer.password):
+                # Basic session data
                 request.session['cust_id'] = customer.cust_id
                 request.session['cust_name'] = customer.cust_name
                 request.session['is_admin'] = customer.is_admin
                 
-                messages.success(request, f"Welcome back, {customer.cust_name}! 🐾",extra_tags='login_home')
+                # PROFILE PHOTO RESTORE: Permanent path database se uthana
+                if customer.user_profile:
+                    # Database se asli URL (e.g., /media/customer_profiles/abc.jpg)
+                    request.session['cust_profile'] = customer.user_profile.url
+                else:
+                    # Default photo agar upload nahi ki hai
+                    request.session['cust_profile'] = "/static/assets/img/users/default.png"
+                
+                messages.success(request, f"Welcome back, {customer.cust_name}! 🐾", extra_tags='login_home')
                 return redirect('home') 
             else:
                 messages.error(request, "Invalid Password. Please try again.")
@@ -664,53 +674,44 @@ def submit_vet_feedback(request):
  
 # done by vraj
 # client_views.py
+# client_views.py
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
-from django.conf import settings # Add setting import
-from test2.models import Customer #
+from django.conf import settings 
+from test2.models import Customer 
 
 def edit_profile(request):
     cust_id = request.session.get('cust_id')
-    if not cust_id: return redirect('login1')
+    if not cust_id: 
+        return redirect('login1')
         
-    customer = get_object_or_404(Customer, cust_id=cust_id) #
+    customer = get_object_or_404(Customer, cust_id=cust_id)
     
     if request.method == "POST":
-        # Details Save Karein
+        # Details update
         customer.cust_name = request.POST.get('name')
         customer.contact = request.POST.get('contact')
         customer.address = request.POST.get('address')
         
-        #
+        # Photo Remove Logic
         if request.POST.get('remove_photo_flag') == "1":
-            if customer.user_profile:
-                # Optional: Delete old file
-                # customer.user_profile.delete() # Un-comment to physically delete file
-                customer.user_profile = None #
+            customer.user_profile = None 
         
-        #
+        # Photo Upload (Isse file permanent folder mein save hogi)
         elif 'profile_pic' in request.FILES:
-            if customer.user_profile:
-                # Optional: Delete old file
-                # customer.user_profile.delete() # Un-comment to physically delete old file
-                pass
-            customer.user_profile = request.FILES['profile_pic'] #
+            customer.user_profile = request.FILES['profile_pic']
             
-        customer.save()
+        # DATABASE MEIN SAVE: Ye line file ko media root mein move kar degi
+        customer.save() 
         
-        #
-        request.session['cust_name'] = customer.cust_name # Sync Name
-        
-        #
+        # Session Sync (Permanent URL uthane ke liye)
+        request.session['cust_name'] = customer.cust_name 
         if customer.user_profile:
-            # Sync session with MEDIA_URL (upload complete)
-            request.session['cust_profile'] = f"{settings.MEDIA_URL}{customer.user_profile}"
+            request.session['cust_profile'] = customer.user_profile.url
         else:
-            # Revert session to static wallpaper path (upload removed)
             request.session['cust_profile'] = f"{settings.STATIC_URL}assets/img/users/default.png"
             
         messages.success(request, "Profile updated successfully! 🐾")
-        # Redirect to Home
         return redirect('home')
 
     return render(request, 'edit_profile.html', {'customer': customer})
