@@ -93,7 +93,7 @@ class Vet(models.Model):
         close_time = models.TimeField(null=True, blank=True)
         last_timing_update = models.DateTimeField(null=True, blank=True) # Lock check ke liye
         is_first_login = models.BooleanField(default=True) # To show mandatory timing pop-up
-        availability_status = models.IntegerField(default=0) # 0:Offline, 1:Online, 2:Vacation/Leave
+        availability_status = models.IntegerField(default=0) # 0:Offline, 1:Online
         cancel_count = models.IntegerField(default=0) # Hidden counter to track vet cancellations
         
         class Meta:

@@ -223,13 +223,24 @@
         </div>
 
         <div class="mb-4">
-            <label class="small fw-bold mb-1">Problem Description</label>
-            <textarea name="description" class="form-control rounded-4" rows="3" placeholder="Briefly describe the issue..." required></textarea>
-        </div>
+    <label class="small fw-bold mb-1">Problem Description</label>
+    <textarea 
+        name="description" 
+        id="appointment_description"
+        class="form-control rounded-4" 
+        rows="3" 
+        placeholder="E.g. My dog has a fever since morning..." 
+        required
+    ></textarea>
+    <div id="desc-error" class="text-danger small mt-2" style="display:none; font-weight: 600;">
+        <i class="fas fa-exclamation-circle me-1"></i> Please enter at least 3 letters. Only numbers or dots are not allowed.
+    </div>
+</div>
 
-        <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold" style="background-color: #894B8D; border: none;">
-            Send Request 🚀
-        </button>
+<button type="submit" id="submitBtn" name="book_appointment" class="btn btn-primary w-100 rounded-pill py-2 fw-bold" 
+        style="background-color: #894B8D; border: none; opacity: 0.5; cursor: not-allowed;" disabled>
+    Send Request 🚀
+</button>
     </form>
 
        <script>
@@ -288,10 +299,9 @@
       <div class="product-desc-review mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div class="d-flex align-items-center gap-2">
-            <h4 class="title mb-0">Client Feedbacks 🐾</h4>
+            <h4 class="title mb-0">Customer Feedbacks 🐾</h4>
             <span class="badge rounded-pill" style="background-color: #894B8D; font-size: 12px;">{{ feedbacks.count }}</span>
         </div>
-        <small class="text-muted italic" style="font-size: 11px;">Latest reviews on top</small>
     </div>
 
     <div class="review-scroll-container" style="max-height: 480px; overflow-y: auto; padding-right: 10px; scrollbar-width: thin;">
@@ -347,17 +357,53 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    document.getElementById('review-form').onsubmit = function (e) {
-        if (!document.querySelector('input[name="rating"]:checked')) {
-            e.preventDefault();
-            Swal.fire({
-                title: 'Rating Required!',
-                text: 'Please select at least one star to rate this vet. 🐾',
-                icon: 'warning',
-                confirmButtonColor: '#F86048'
-            });
-            return false;
+document.addEventListener('DOMContentLoaded', function() {
+    const descField = document.getElementById('appointment_description');
+    const submitBtn = document.getElementById('submitBtn');
+    const errorDiv = document.getElementById('desc-error');
+
+    function validateDescription() {
+        const descValue = descField.value.trim();
+        
+        // 1. Alphanumeric count (Kam se kam 3 letters/numbers)
+        const alnumMatches = descValue.match(/[a-zA-Z0-9]/g) || [];
+        const alnumCount = alnumMatches.length;
+
+        // 2. Kam se kam ek letter hona chahiye (Sirf numbers block karne ke liye)
+        const hasLetters = /[a-zA-Z]/.test(descValue);
+
+        // Validation Logic
+        const isValid = alnumCount >= 3 && hasLetters;
+
+        if (descValue.length > 0 && !isValid) {
+            // Agar user ne likhna shuru kiya aur galat hai
+            errorDiv.style.display = 'block';
+            descField.style.borderColor = 'red';
+            
+            // Button ko unclickable aur transparent rakho
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = "0.5";
+            submitBtn.style.cursor = "not-allowed";
+        } else if (isValid) {
+            // Agar validation pass ho gaya
+            errorDiv.style.display = 'none';
+            descField.style.borderColor = '#28a745'; // Green border
+            
+            // Button ko clickable aur solid banao
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = "1";
+            submitBtn.style.cursor = "pointer";
+        } else {
+            // Agar field bilkul khali hai
+            errorDiv.style.display = 'none';
+            descField.style.borderColor = '#ced4da';
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = "0.5";
         }
-    };
+    }
+
+    // Har ek key press par validate karega
+    descField.addEventListener('input', validateDescription);
+});
 </script>
 {% endblock %}

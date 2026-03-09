@@ -365,12 +365,12 @@ def team(request):
     )
     return render(request, 'team.html', {'vets': vets})
 
+import re  # Top par regex import karna mat bhulna
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from datetime import datetime, timedelta
 from django.contrib import messages
-# Import feedback from test2 as you mentioned
-from test2.models import Vet, VetSchedule, Appointment, Customer , Feedback
+from test2.models import Vet, VetSchedule, Appointment, Customer, Feedback
 
 def vet_details(request, pk):
     # 1. Basic Setup & Data Fetching
@@ -378,17 +378,14 @@ def vet_details(request, pk):
     cust_id = request.session.get('cust_id')
     current_customer = Customer.objects.filter(pk=cust_id).first() if cust_id else None
 
-    # FEEDBACK FETCHING: Specific vet ke reviews, latest first
+    # FEEDBACK FETCHING
     feedbacks = Feedback.objects.filter(vet_id=vet).select_related('cust_id').order_by('-feedback_date')
 
-    # Timezone aware 'now' and 'today'
     now_aware = timezone.now()
     today_obj = now_aware.date()
-    
-    # Check if Vet is actually available
     is_vet_vacation = (vet.availability_status == 0)
 
-    # 2. Helper function to get available slots (FIXED FOR SQLITE)
+    # 2. Helper function to get available slots
     def get_slots_for_date(target_date):
         if is_vet_vacation: 
             return []
@@ -398,7 +395,6 @@ def vet_details(request, pk):
         slots_list = []
         
         if schedule:
-            # RANGE FIX: SQLite safe date range
             d_start = timezone.make_aware(datetime.combine(target_date, datetime.min.time()))
             d_end = timezone.make_aware(datetime.combine(target_date, datetime.max.time()))
 
@@ -423,7 +419,7 @@ def vet_details(request, pk):
                 current_slot += timedelta(hours=1)
         return slots_list
 
-    # 3. POST Method: Booking Logic (FIXED FOR SQLITE)
+    # 3. POST Method: Booking Logic
     if request.method == "POST" and 'book_appointment' in request.POST:
         if not current_customer: 
             messages.error(request, "Please login to book an appointment.")
@@ -432,6 +428,16 @@ def vet_details(request, pk):
         if is_vet_vacation:
             messages.error(request, "Sorry, this Vet is currently on vacation.")
             return redirect('vet_details', pk=pk)
+
+        # --- DESCRIPTION VALIDATION START ---
+        raw_description = request.POST.get('description', '').strip()
+        
+        # Validation: Khali nahi hona chahiye, sirf spaces nahi, sirf dots nahi.
+        # Kam se kam ek letter ya number hona chahiye.
+        if not raw_description or not re.search(r'[a-zA-Z0-9]', raw_description):
+            messages.error(request, "Description cannot be empty or contain only symbols/dots. Please explain the issue.")
+            return redirect('vet_details', pk=pk)
+        # --- DESCRIPTION VALIDATION END ---
             
         app_date = request.POST.get('app_date')
         app_slot = request.POST.get('app_slot')
@@ -443,8 +449,6 @@ def vet_details(request, pk):
         try:
             naive_dt = datetime.strptime(f"{app_date} {app_slot}", "%Y-%m-%d %I:%M %p")
             check_datetime = timezone.make_aware(naive_dt)
-            
-            # RANGE FIX for Duplicate Check
             c_date = check_datetime.date()
             c_start = timezone.make_aware(datetime.combine(c_date, datetime.min.time()))
             c_end = timezone.make_aware(datetime.combine(c_date, datetime.max.time()))
@@ -462,7 +466,6 @@ def vet_details(request, pk):
             messages.error(request, "Sorry, this slot was just booked. Please pick another.")
             return redirect('vet_details', pk=pk)
 
-        # RANGE FIX: Customer check
         already_booked_today = Appointment.objects.filter(
             cust_id=current_customer,
             vet_id=vet,
@@ -478,14 +481,17 @@ def vet_details(request, pk):
             cust_id=current_customer,
             vet_id=vet,
             app_for=request.POST.get('app_for'),
-            description=request.POST.get('description'),
+            description=raw_description, # Cleaned description
             appointment_date=check_datetime,
             appointment_status=0
         )
-        messages.success(request, "Appointment request sent successfully! 🚀")
+        
+        # Photo wala message hatane ke liye is line ko comment kar diya hai:
+        # messages.success(request, "Appointment request sent successfully! 🚀")
+        
         return redirect('my_appointments')
 
-    # 4. GET Method: Display Logic (FIXED FOR SQLITE)
+    # 4. GET Method: Display Logic
     available_days = VetSchedule.objects.filter(vet_id=vet).values_list('day_of_week', flat=True)
     booking_range = []
     all_slots_dict = {}
@@ -500,7 +506,6 @@ def vet_details(request, pk):
                 booking_range.append(temp_date)
                 continue
 
-            # RANGE FIX: Display logic check
             t_start = timezone.make_aware(datetime.combine(temp_date, datetime.min.time()))
             t_end = timezone.make_aware(datetime.combine(temp_date, datetime.max.time()))
 
@@ -523,7 +528,7 @@ def vet_details(request, pk):
     context = {
         'vet': vet,
         'customer': current_customer,
-        'feedbacks': feedbacks, # Pass reviews to template
+        'feedbacks': feedbacks,
         'booking_range': booking_range,
         'today': today_obj.strftime('%Y-%m-%d'),
         'all_slots_data': all_slots_dict,
