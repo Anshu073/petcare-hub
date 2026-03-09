@@ -725,3 +725,6 @@ def my_orders(request):
     # Latest orders top par dikhane ke liye order_by('-order_id')
     orders = Order.objects.filter(cust_id=cust_id).order_by('-order_id')
     return render(request, 'my_orders.html', {'orders': orders})
+
+def order_success(request):
+    return render(request, 'order_success.html')

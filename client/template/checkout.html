@@ -131,7 +131,7 @@
                     <div class="premium-payment-wrapper">
                         <h4 class="section-h">3. Secure Payment 🔒</h4>
 
-                        <form class="text-center payment-form-custom" action="/client/placeorder1/" method="POST">
+                        <form class="text-center payment-form-custom" action="{% url 'order_success' %}" method="POST">
                             {% csrf_token %}
                             <input type="hidden" name="name" id="name" required class="form-control mb-4"
                                 placeholder="Name">

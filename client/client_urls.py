@@ -40,4 +40,5 @@ urlpatterns = [
    path('submit-vet-feedback/', client_views.submit_vet_feedback, name='submit_vet_feedback'),
     path('edit-profile/', client_views.edit_profile, name='edit_profile'),
     path('my-orders/', client_views.my_orders, name='my_orders'),
+    path('order-success/', client_views.order_success, name='order_success'),
 ]
