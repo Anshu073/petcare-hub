@@ -454,14 +454,33 @@
                             <h4 class="title"><a href="{% url 'vet_details' item.vet_id %}"> {{ item.vet_name }}</a></h4>
                             <span>{{ item.specialization }}</span>
                         </div>
+                        <div class="mb-2" style="color: #ffc107; font-size: 13px;">
+                            {% with rating=item.avg_rating|default:0 %}
+                                <i class="{% if rating >= 1 %}fas{% else %}far{% endif %} fa-star"></i>
+                                <i class="{% if rating >= 2 %}fas{% else %}far{% endif %} fa-star"></i>
+                                <i class="{% if rating >= 3 %}fas{% else %}far{% endif %} fa-star"></i>
+                                <i class="{% if rating >= 4 %}fas{% else %}far{% endif %} fa-star"></i>
+                                <i class="{% if rating >= 5 %}fas{% else %}far{% endif %} fa-star"></i>
+                            {% endwith %}
+                        </div>
+
+                        <div class="availability-container">
+                            {% if item.availability_status == 1 %}
+                                <div class="status-badge status-online"><i class="fas fa-circle"></i> Online</div>
+                            {% else %}
+                                <div class="status-badge status-offline"><i class="fas fa-moon"></i> Offline</div>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
+                
                 {% empty %}
                 <div class="col-12 text-center">
                     <p>No verified doctors are currently available. Check back soon!</p>
                 </div>
                 {% endfor %}
             </div>
+            
 
             <div class="team__bottom-content">
                 <p>Our Valuable Expert Doctors Team</p>
