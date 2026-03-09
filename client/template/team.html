@@ -167,7 +167,9 @@
                             <a href="{% url 'vet_details' item.vet_id %}">{{ item.vet_name }}</a>
                         </h4>
                         <span class="d-block mb-2 text-muted small">{{ item.specialization }}</span>
-
+                        <span class="d-block mb-2 text-primary fw-bold" style="font-size: 12px; letter-spacing: 0.5px;">
+                            <i class="fas fa-map-marker-alt me-1 text-danger"></i> {{ item.area_id.area_name|upper }}
+                        </span>
                         <div class="mb-2" style="color: #ffc107; font-size: 13px;">
                             {% with rating=item.avg_rating|default:0 %}
                                 <i class="{% if rating >= 1 %}fas{% else %}far{% endif %} fa-star"></i>

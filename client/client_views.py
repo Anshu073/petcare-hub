@@ -359,17 +359,27 @@ def wishlist_view(request):
     return render(request, 'wishlist.html', {'items': items})    
 
 def team(request):
-    vets = Vet.objects.filter(status=1).annotate(
+    vets = Vet.objects.filter(status=1).select_related('area_id').annotate(
         avg_rating=Avg('feedback__rating'),
         review_count=Count('feedback')    
     )
     return render(request, 'team.html', {'vets': vets})
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.utils import timezone
+from datetime import datetime, timedelta
+from django.contrib import messages
+# Import feedback from test2 as you mentioned
+from test2.models import Vet, VetSchedule, Appointment, Customer , Feedback
 
 def vet_details(request, pk):
     # 1. Basic Setup & Data Fetching
     vet = get_object_or_404(Vet, vet_id=pk)
     cust_id = request.session.get('cust_id')
     current_customer = Customer.objects.filter(pk=cust_id).first() if cust_id else None
+
+    # FEEDBACK FETCHING: Specific vet ke reviews, latest first
+    feedbacks = Feedback.objects.filter(vet_id=vet).select_related('cust_id').order_by('-feedback_date')
 
     # Timezone aware 'now' and 'today'
     now_aware = timezone.now()
@@ -394,7 +404,7 @@ def vet_details(request, pk):
 
             booked_appointments = Appointment.objects.filter(
                 vet_id=vet,
-                appointment_date__range=(d_start, d_end), # Range lookup
+                appointment_date__range=(d_start, d_end),
                 appointment_status__in=[0, 1, 3, 6] 
             ).values_list('appointment_date', flat=True)
             
@@ -456,7 +466,7 @@ def vet_details(request, pk):
         already_booked_today = Appointment.objects.filter(
             cust_id=current_customer,
             vet_id=vet,
-            appointment_date__range=(c_start, c_end), # Range lookup
+            appointment_date__range=(c_start, c_end),
             appointment_status__in=[0, 1, 3, 6]
         ).exists()
 
@@ -497,7 +507,7 @@ def vet_details(request, pk):
             has_appt = Appointment.objects.filter(
                 cust_id=current_customer,
                 vet_id=vet,
-                appointment_date__range=(t_start, t_end), # Range lookup
+                appointment_date__range=(t_start, t_end),
                 appointment_status__in=[0, 1, 3, 6]
             ).exists() if current_customer else False
 
@@ -513,6 +523,7 @@ def vet_details(request, pk):
     context = {
         'vet': vet,
         'customer': current_customer,
+        'feedbacks': feedbacks, # Pass reviews to template
         'booking_range': booking_range,
         'today': today_obj.strftime('%Y-%m-%d'),
         'all_slots_data': all_slots_dict,

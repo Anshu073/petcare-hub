@@ -148,8 +148,6 @@
                             <div class="availability-container mt-2 mb-2">
                                 {% if vet.availability_status == 1 %}
                                 <div class="status-badge status-online"><i class="fas fa-circle"></i> Online</div>
-                                {% elif vet.availability_status == 2 %}
-                                <div class="status-badge status-on-leave"><i class="fas fa-plane"></i> On Leave</div>
                                 {% else %}
                                 <div class="status-badge status-offline"><i class="fas fa-moon"></i> Offline</div>
                                 {% endif %}
@@ -162,7 +160,7 @@
                                     <div class="rating" style="color: #ffb400;">
                                         <i class="fas fa-star"></i> {{ avg_rating|stringformat:".1f" }}
                                     </div>
-                                    <span class="review-count" style="color: #666; font-size: 14px;">({{ reviews.count}} Customer Reviews)</span>
+                                    <span class="review-count" style="color: #666; font-size: 14px;"><strong>({{ reviews.count}} Customer Reviews)</strong></span>
                                 </div>
 
                                 <span class="designation">{{ vet.specialization }}</span>
@@ -184,44 +182,55 @@
     </div>
 
     {% if vet.availability_status == 1 %}
-        <form method="POST">
-            {% csrf_token %}
-            <input type="hidden" name="book_appointment" value="1">
+    <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="book_appointment" value="1">
+        
+        <div class="mb-3">
+            <label class="small fw-bold mb-1">Appointment For</label>
             
-            <div class="mb-3">
-                <label class="small fw-bold mb-1">Select Pet Category</label>
+            {% if vet.specialization == "General (Both)" %}
                 <select name="app_for" class="form-select rounded-pill" required>
+                    <option value="" disabled selected>Select Pet Category</option>
                     <option value="Dog">Dog 🐶</option>
                     <option value="Cat">Cat 🐱</option>
                 </select>
-            </div>
+            {% else %}
+                <div class="p-2 px-3 rounded-pill" style="background-color: #f3e5f5; border: 1px solid #894B8D;">
+                    <span class="fw-bold" style="color: #894B8D; font-size: 14px;">
+                        <i class="fas fa-certificate me-1"></i> {{ vet.specialization }}
+                    </span>
+                </div>
+                <input type="hidden" name="app_for" value="{% if 'Dog' in vet.specialization %}Dog{% else %}Cat{% endif %}">
+            {% endif %}
+        </div>
 
-            <div class="mb-3">
-                <label class="small fw-bold mb-1">Select Date</label>
-                <select name="app_date" id="dateSelect" class="form-select rounded-pill" onchange="updateDynamicSlots()" required>
-    {% for d in booking_range %}
-        {% with d_str=d|date:'Y-m-d' %}
-            <option value="{{ d_str }}">{{ d|date:'D, d M' }}</option>
-        {% endwith %}
-    {% endfor %}
-</select>
-            </div>
+        <div class="mb-3">
+            <label class="small fw-bold mb-1">Select Date</label>
+            <select name="app_date" id="dateSelect" class="form-select rounded-pill" onchange="updateDynamicSlots()" required>
+                {% for d in booking_range %}
+                    {% with d_str=d|date:'Y-m-d' %}
+                        <option value="{{ d_str }}">{{ d|date:'D, d M' }}</option>
+                    {% endwith %}
+                {% endfor %}
+            </select>
+        </div>
 
-            <div class="mb-3">
-                <label class="small fw-bold mb-1">Available Time Slots</label>
-                <select name="app_slot" id="slotSelect" class="form-select rounded-pill" required>
-                    </select>
-            </div>
+        <div class="mb-3">
+            <label class="small fw-bold mb-1">Available Time Slots</label>
+            <select name="app_slot" id="slotSelect" class="form-select rounded-pill" required>
+                </select>
+        </div>
 
-            <div class="mb-4">
-                <label class="small fw-bold mb-1">Problem Description</label>
-                <textarea name="description" class="form-control rounded-4" rows="3" placeholder="Briefly describe the issue..." required></textarea>
-            </div>
+        <div class="mb-4">
+            <label class="small fw-bold mb-1">Problem Description</label>
+            <textarea name="description" class="form-control rounded-4" rows="3" placeholder="Briefly describe the issue..." required></textarea>
+        </div>
 
-            <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold" style="background-color: #894B8D; border: none;">
-                Send Request 🚀
-            </button>
-        </form>
+        <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold" style="background-color: #894B8D; border: none;">
+            Send Request 🚀
+        </button>
+    </form>
 
        <script>
     function updateDynamicSlots() {
@@ -276,109 +285,62 @@
                             </div>
                         </div>
                     </div>
+      <div class="product-desc-review mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center gap-2">
+            <h4 class="title mb-0">Client Feedbacks 🐾</h4>
+            <span class="badge rounded-pill" style="background-color: #894B8D; font-size: 12px;">{{ feedbacks.count }}</span>
+        </div>
+        <small class="text-muted italic" style="font-size: 11px;">Latest reviews on top</small>
+    </div>
 
-                    <div class="row mt-100">
-                        <div class="col-lg-12">
-                            <div class="product__details-review">
-                                <h4 class="title-two mb-30">Customer Reviews</h4>
-
-                                <div class="review__wrap">
-                                    {% for r in reviews %}
-                                    <div class="review__item d-flex align-items-start gap-4"
-                                        style="background: #fff; padding: 25px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #eee;">
-                                        <div class="review__thumb" style="flex-shrink: 0;">
-                                            {% if r.cust_id.user_profile %}
-                                            <img src="{{ r.cust_id.user_profile.url }}" alt=""
-                                                style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #894B8D;">
-                                            {% else %}
-                                            <img src="{% static 'assets/img/users/default.png' %}" alt=""
-                                                style="width: 60px; height: 60px; border-radius: 50%;">
-                                            {% endif %}
-                                        </div>
-
-                                        <div class="review__content">
-                                            <div class="rating mb-10" style="color: #ffb400;">
-                                                {% for i in "12345"|make_list %}
-                                                {% if forloop.counter <= r.rating %}<i class="fas fa-star"></i>{% else%}<i class="far fa-star"></i>{% endif %}
-                                                {% endfor %}
-                                            </div>
-                                            <h5 class="name" style="font-weight: 700; color: #222; margin-bottom: 5px;">
-                                                {{r.cust_id.cust_name }}</h5>
-                                            <p style="color: #666; line-height: 1.6; margin-bottom: 0;">"{{ r.comments}}"</p>
-                                            <small class="text-muted" style="font-size: 12px;">
-                                                {{r.feedback_date|date:"M d,Y"}}</small>
-                                        </div>
-                                    </div>
-                                    {% empty %}
-                                    <p>No reviews yet. Be the first to rate {{ vet.vet_name }}! 🐾</p>
-                                    {% endfor %}
-                                </div>
-
-                                <div class="comment-form-wrap mt-60"
-                                    style="background: #fff; border: 1px solid #eee; padding: 40px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.03);">
-
-                                    <div class="d-flex align-items-center gap-3 mb-30">
-                                        <div class="user-avatar">
-                                            {% if customer.user_profile %}
-                                            <img src="{{ customer.user_profile.url }}" alt="Profile"
-                                                style="width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid #894B8D;">
-                                            {% else %}
-                                            <img src="{% static 'assets/img/users/default.png' %}" alt="Default Profile"
-                                                style="width: 55px; height: 55px; border-radius: 50%; border: 2px solid #eee;">
-                                            {% endif %}
-                                        </div>
-                                        <div>
-                                            <h4 class="title-two mb-0"
-                                                style="font-family: 'Baloo Bhaina 2'; color: #333;">Write
-                                                a Review</h4>
-                                            <p class="mb-0"
-                                                style="font-family: 'Plus Jakarta Sans'; font-size: 14px; color: #666;">
-                                                Posting as <strong>{{ customer.cust_name|default:"Guest" }}</strong>
-                                            </p>
-                                        </div>
-                                    </div>
-
-
-
-                                    <form action="" method="POST" id="review-form">
-                                        {% csrf_token %}
-
-                                        <div class="rating-box mb-25">
-                                            <label
-                                                style="font-weight: 600; color: #222; display: block; margin-bottom: 10px;">Your
-                                                Rating </label>
-                                            <div class="star-rating">
-                                                <input type="radio" name="rating" value="5" id="star5"><label
-                                                    for="star5" class="far fa-star"></label>
-                                                <input type="radio" name="rating" value="4" id="star4"><label
-                                                    for="star4" class="far fa-star"></label>
-                                                <input type="radio" name="rating" value="3" id="star3"><label
-                                                    for="star3" class="far fa-star"></label>
-                                                <input type="radio" name="rating" value="2" id="star2"><label
-                                                    for="star2" class="far fa-star"></label>
-                                                <input type="radio" name="rating" value="1" id="star1"><label
-                                                    for="star1" class="far fa-star"></label>
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group mb-30">
-                                            <label
-                                                style="font-weight: 600; color: #222; display: block; margin-bottom: 10px;">Your
-                                                Feedback </label>
-                                            <textarea name="message" class="form-control"
-                                                placeholder="Share your experience with  {{ vet.vet_name }}..." required
-                                                style="height: 150px; border-radius: 15px; padding: 20px; border: 1px solid #e8dae9; font-family: 'Plus Jakarta Sans'; resize: none; transition: 0.3s;"></textarea>
-                                        </div>
-
-                                        <button type="submit" name="submit_review" class="btn btn-two"
-                                            style="padding: 15px 40px; border-radius: 12px; font-weight: 700; text-transform: uppercase;">
-                                            Submit My Review 🐾
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
+    <div class="review-scroll-container" style="max-height: 480px; overflow-y: auto; padding-right: 10px; scrollbar-width: thin;">
+        {% for review in feedbacks %}
+            <div class="review-item p-3 mb-3 rounded-4 shadow-sm border" style="background: #ffffff; border-left: 5px solid #894B8D !important;">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; border: 1px solid #eee;">
+                            <i class="fas fa-user-circle text-secondary" style="font-size: 20px;"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0 fw-bold" style="font-size: 14px; color: #333;">{{ review.cust_id.cust_name }}</h6>
+                            <small class="text-muted" style="font-size: 10px;">
+                                <i class="far fa-clock me-1"></i> {{ review.feedback_date|date:"d M, Y | h:i A" }}
+                            </small>
                         </div>
                     </div>
+                    
+                    <div class="text-warning">
+                        {% for i in "12345" %}
+                            <i class="{% if forloop.counter <= review.rating %}fas{% else %}far{% endif %} fa-star" style="font-size: 10px;"></i>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="review-body p-2 rounded-3" style="background-color: #f8f9fa; border: 1px dashed #e9ecef;">
+                    <p class="text-dark mb-0" style="font-size: 13px; line-height: 1.6; font-weight: 500;">
+                        <i class="fas fa-quote-left me-2" style="color: #894B8D; opacity: 0.3;"></i>
+                        {{ review.comments }}
+                    </p>
+                </div>
+            </div>
+        {% empty %}
+            <div class="text-center py-5 bg-light rounded-4">
+                <i class="fas fa-comments fa-3x text-muted mb-3" style="opacity: 0.3;"></i>
+                <p class="text-muted mb-0">No reviews found for this veterinarian yet.</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .review-scroll-container::-webkit-scrollbar { width: 5px; }
+    .review-scroll-container::-webkit-scrollbar-track { background: #f8f9fa; border-radius: 10px; }
+    .review-scroll-container::-webkit-scrollbar-thumb { background: #894B8D; border-radius: 10px; }
+    .review-scroll-container::-webkit-scrollbar-thumb:hover { background: #6a3a6d; }
+    .review-item { transition: transform 0.2s ease; }
+    .review-item:hover { transform: translateX(5px); }
+</style>
                 </div>
     </section>
 </main>
