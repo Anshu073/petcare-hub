@@ -453,6 +453,10 @@
                         <div class="team__item-content text-center">
                             <h4 class="title"><a href="{% url 'vet_details' item.vet_id %}"> {{ item.vet_name }}</a></h4>
                             <span>{{ item.specialization }}</span>
+                            <br>
+                            <span class="d-block mb-2 text-primary fw-bold" style="font-size: 12px; letter-spacing: 0.5px;">
+                            <i class="fas fa-map-marker-alt me-1 text-danger"></i> {{ item.area_id.area_name|upper }}
+                        </span>
                         </div>
                         <div class="mb-2" style="color: #ffc107; font-size: 13px;">
                             {% with rating=item.avg_rating|default:0 %}
