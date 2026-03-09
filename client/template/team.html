@@ -181,8 +181,6 @@
                         <div class="availability-container">
                             {% if item.availability_status == 1 %}
                                 <div class="status-badge status-online"><i class="fas fa-circle"></i> Online</div>
-                            {% elif item.availability_status == 2 %}
-                                <div class="status-badge status-on-leave"><i class="fas fa-plane"></i> On Leave</div>
                             {% else %}
                                 <div class="status-badge status-offline"><i class="fas fa-moon"></i> Offline</div>
                             {% endif %}

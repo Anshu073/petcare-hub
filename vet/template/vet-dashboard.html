@@ -286,73 +286,144 @@
 
                             <div class="tab-pane fade" id="pills-edit" role="tabpanel">
     <h5 class="fw-bold mb-4" style="color: #894B8D;">Professional Settings</h5>
-    <form action="{% url 'vet_dashboard' %}" method="POST" enctype="multipart/form-data">
+    
+    <form action="{% url 'vet_dashboard' %}" method="POST" enctype="multipart/form-data" id="profileUpdateForm" class="needs-validation" novalidate>
         {% csrf_token %}
         <input type="hidden" name="update_profile" value="1">
+        
         <div class="row">
             <div class="col-md-6 mb-3">
-                <label class="small fw-bold mb-1">Display Name</label>
-                <input type="text" name="new_name" class="form-control rounded-pill" value="{{ vet.vet_name }}" required>
-            </div>
+        <label class="small fw-bold mb-1">Display Name</label>
+        <input type="text" name="new_name" class="form-control rounded-pill" 
+               value="{{ vet.vet_name }}" required 
+               pattern="^[A-Za-z]+([\s\.][A-Za-z]+)*$" 
+               title="Name must start with a letter and can have single spaces between words.">
+        <div class="invalid-feedback ps-3" style="font-size: 10px;">Please enter a valid name (No leading/trailing spaces).</div>
+    </div>
+
             <div class="col-md-6 mb-3">
                 <label class="small fw-bold mb-1">Contact No.</label>
-                <input type="text" name="new_contact" class="form-control rounded-pill" value="{{ vet.contact }}" required>
+                <input type="tel" name="new_contact" class="form-control rounded-pill" 
+                       value="{{ vet.contact }}" required 
+                       pattern="[6-9][0-9]{9}" 
+                       title="Please enter a valid 10-digit Indian mobile number."
+                       maxlength="10">
+                <div class="invalid-feedback ps-3" style="font-size: 10px;">Enter a valid 10-digit number starting with 6-9.</div>
             </div>
         </div>
-        <div class="mb-3">
-            <label class="small fw-bold mb-1">Clinic Address</label>
-            <input type="text" name="new_address" class="form-control rounded-pill" value="{{ vet.address }}" required>
-        </div>
+
+       <div class="mb-3">
+    <label class="small fw-bold mb-1">Clinic Address</label>
+    <input type="text" name="new_address" class="form-control rounded-pill" 
+           value="{{ vet.address }}" required 
+           pattern="^[A-Za-z0-9]+([\s\-\,\/\.][A-Za-z0-9]+)*$" 
+           title="Address must start with a letter/number and can have single spaces between words.">
+    <div class="invalid-feedback ps-3" style="font-size: 10px;">Please enter a valid clinic address.</div>
+</div>
+
         <div class="row">
             <div class="col-md-6 mb-3">
                 <label class="small fw-bold mb-1">Specialization</label>
-                <select name="new_specialization" class="form-select rounded-pill">
+                <select name="new_specialization" class="form-select rounded-pill" required>
+                    <option value="" disabled>Choose...</option>
                     <option value="Dog Specialist" {% if vet.specialization == "Dog Specialist" %}selected{% endif %}>Dog Specialist</option>
                     <option value="Cat Specialist" {% if vet.specialization == "Cat Specialist" %}selected{% endif %}>Cat Specialist</option>
                     <option value="General (Both)" {% if vet.specialization == "General (Both)" %}selected{% endif %}>General (Both)</option>
                 </select>
             </div>
+
             <div class="col-md-6 mb-3">
                 <label class="small fw-bold mb-1">Fees (₹)</label>
-                <input type="number" name="new_charges" class="form-control rounded-pill" value="{{ vet.charges }}" required>
+                <input type="number" name="new_charges" class="form-control rounded-pill" 
+                       value="{{ vet.charges }}" required min="0" max="5000">
+                <div class="invalid-feedback ps-3" style="font-size: 10px;">Enter a valid amount (Max ₹5000).</div>
             </div>
         </div>
+
         <div class="mb-4">
-            <label class="small fw-bold mb-1">New Profile Picture</label>
-            <input type="file" name="new_profile" class="form-control rounded-3" accept="image/*">
-        </div>
-        <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold" style="background-color: #894B8D; border: none;">Update Records 🐾</button>
+    <label class="small fw-bold mb-1" style="color: #894B8D;">New Profile Picture</label>
+    
+    <input type="file" name="new_profile" id="profilePicInput" 
+           class="form-control rounded-3" 
+           accept="image/jpeg, image/png, image/webp">
+    
+    <div id="fileError" class="text-danger ps-1 d-none" style="font-size: 10px;">
+        ⚠️ File too large (Max 2MB) or invalid format.
+    </div>
+</div>
+
+        <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold" style="background-color: #894B8D; border: none;">
+            Update Records 🐾
+        </button>
     </form>
 </div>
 
-<div class="tab-pane fade" id="pills-reviews" role="tabpanel">
-    <h5 class="fw-bold mb-4" style="color: #894B8D;">Patient Reviews</h5>
-    <div class="review-list" style="max-height: 500px; overflow-y: auto;">
-        {% for r in reviews %}
-        <div class="p-3 mb-3 border rounded-4 bg-white shadow-sm d-flex gap-3">
-            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
-                <i class="fas fa-user-md text-muted"></i>
-            </div>
-            <div class="flex-grow-1">
-                <div class="d-flex justify-content-between">
-                    <h6 class="fw-bold m-0">{{ r.cust_id.cust_name }}</h6>
-                    <small class="text-muted">{{ r.feedback_date|date:"d M, Y" }}</small>
-                </div>
-                <div class="text-warning small mb-1">
-                    {% for i in "12345"|make_list %}
-                        {% if forloop.counter <= r.rating %}★{% else %}☆{% endif %}
-                    {% endfor %}
-                </div>
-                <p class="small text-muted mb-0">"{{ r.comments }}"</p>
-            </div>
-        </div>
-        {% empty %}
-        <div class="text-center py-5">
-            <p class="text-muted">No feedback yet. 🐾</p>
-        </div>
-        {% endfor %}
-    </div>
-</div>
+<script>
+(function () {
+    'use strict'
+
+    // 1. Bootstrap Form Validation (Tera Purana Script)
+    const forms = document.querySelectorAll('.needs-validation')
+    Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            form.classList.add('was-validated')
+        }, false)
+    })
+
+    // 2. Simple File Size Validation (No Preview)
+    const profileInput = document.getElementById('profilePicInput');
+    const fileError = document.getElementById('fileError');
+
+    if (profileInput) {
+        profileInput.addEventListener('change', function (event) {
+            const file = event.target.files[0];
+
+            if (file) {
+                // Check if file size > 2MB
+                if (file.size > 2 * 1024 * 1024) {
+                    fileError.classList.remove('d-none');
+                    this.value = ''; // Reset input so invalid file isn't sent
+                } else {
+                    fileError.classList.add('d-none');
+                }
+            }
+        });
+    }
+})()
+</script>
+
+                        <div class="tab-pane fade" id="pills-reviews" role="tabpanel">
+                            <h5 class="fw-bold mb-4" style="color: #894B8D;">Patient Reviews</h5>
+                                <div class="review-list" style="max-height: 500px; overflow-y: auto;">
+                                    {% for r in reviews %}
+                                    <div class="p-3 mb-3 border rounded-4 bg-white shadow-sm d-flex gap-3">
+                                        <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                                            <i class="fas fa-user-md text-muted"></i>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex justify-content-between">
+                                                <h6 class="fw-bold m-0">{{ r.cust_id.cust_name }}</h6>
+                                                <small class="text-muted">{{ r.feedback_date|date:"d M, Y" }}</small>
+                                            </div>
+                                            <div class="text-warning small mb-1">
+                                            {% for i in "12345"|make_list %}
+                                            {% if forloop.counter <= r.rating %}★{% else %}☆{% endif %}
+                                            {% endfor %}
+                                            </div>
+                                            <p class="small text-muted mb-0">"{{ r.comments }}"</p>
+                                        </div>
+                                    </div>
+                                    {% empty %}
+                                    <div class="text-center py-5">
+                                        <p class="text-muted">No feedback yet. 🐾</p>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
 
 <div class="modal fade" id="offlineModal" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">

@@ -1,3 +1,5 @@
+from urllib import request
+
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -122,6 +124,8 @@ def vet_login(request):
     return render(request, 'login_vet.html')
 
 from datetime import datetime
+import re
+import os
 from django.utils import timezone as django_timezone
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -137,8 +141,70 @@ def vet_dashboard(request):
     days_list = [(0, 'Monday'), (1, 'Tuesday'), (2, 'Wednesday'), (3, 'Thursday'), (4, 'Friday'), (5, 'Saturday'), (6, 'Sunday')]
 
     if request.method == "POST":
-        # --- A. AVAILABILITY & BULK CANCEL ---
-        if 'update_availability' in request.POST:
+        # --- A. PROFILE UPDATE LOGIC (Updated for Spaces & Symbols) ---
+        if 'update_profile' in request.POST:
+            try:
+                # .strip() aage-piche ki faltu spaces uda dega, beech ki rakhega
+                new_name = request.POST.get('new_name', '').strip()
+                new_contact = request.POST.get('new_contact', '').strip()
+                new_address = request.POST.get('new_address', '').strip()
+                new_specialization = request.POST.get('new_specialization')
+                new_charges = request.POST.get('new_charges', '0')
+
+                # 1. Name Validation (Letters & Single Spaces between words, 3-50 chars)
+                if not re.match(r"^[A-Za-z]+([\s\.][A-Za-z]+)*$", new_name) or not (3 <= len(new_name) <= 50):
+                    messages.error(request, "Name should be 3-50 characters, starting with letters, single spaces allowed between words.")
+                    return redirect('vet_dashboard')
+
+                # 2. Contact Validation
+                if not re.match(r"^[6-9]\d{9}$", new_contact):
+                    messages.error(request, "Invalid 10-digit contact number starting with 6-9.")
+                    return redirect('vet_dashboard')
+
+                # 3. Address Validation (Letters, Numbers, Spaces, and symbols like - , / .)
+                if not re.match(r"^[A-Za-z0-9]+([\s\-\,\/\.][A-Za-z0-9]+)*$", new_address):
+                    messages.error(request, "Address must be valid. Use letters, numbers, and basic symbols (-,/.). No leading/trailing spaces.")
+                    return redirect('vet_dashboard')
+
+                # 4. Charges Validation
+                try:
+                    charges_val = int(new_charges)
+                except ValueError:
+                    charges_val = 0
+
+                # 5. Image Upload Logic
+                if 'new_profile' in request.FILES:
+                    profile_pic = request.FILES['new_profile']
+                    
+                    # Size Check (2MB)
+                    if profile_pic.size > 2 * 1024 * 1024:
+                        messages.error(request, "Image must be under 2MB.")
+                        return redirect('vet_dashboard')
+                    
+                    # Extension Check
+                    ext = os.path.splitext(profile_pic.name)[1].lower()
+                    if ext in ['.jpg', '.jpeg', '.png', '.webp']:
+                        vet.vet_profile = profile_pic 
+                    else:
+                        messages.error(request, "Invalid image format. Use JPG, PNG or WEBP.")
+                        return redirect('vet_dashboard')
+
+                # Final Save
+                vet.vet_name = new_name
+                vet.contact = new_contact
+                vet.address = new_address
+                vet.specialization = new_specialization
+                vet.charges = charges_val
+                vet.save()
+                
+                messages.success(request, "Profile updated successfully! 🐾")
+
+            except Exception as e:
+                messages.error(request, f"Profile Update Error: {str(e)}")
+            return redirect('vet_dashboard')
+
+        # --- B. AVAILABILITY & BULK CANCEL ---
+        elif 'update_availability' in request.POST:
             new_status = request.POST.get('availability_status')
             
             if new_status == "0":  # Offline Mode
@@ -151,7 +217,6 @@ def vet_dashboard(request):
                         s_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
                         e_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
                         
-                        # Fetch appointments in range
                         conflicts = Appointment.objects.filter(
                             vet_id=vet,
                             appointment_date__range=[
@@ -163,8 +228,7 @@ def vet_dashboard(request):
 
                         count = conflicts.count()
                         for appt in conflicts:
-                            # Direct Cancel Logic (No extra prefixes)
-                            appt.appointment_status = 7  # 7 = Cancelled Tag
+                            appt.appointment_status = 7  # Cancelled
                             if hasattr(appt, 'cancel_reason'):
                                 appt.cancel_reason = reason
                             appt.save()
@@ -184,7 +248,7 @@ def vet_dashboard(request):
                 messages.success(request, "You are now Online.")
                 return redirect('vet_dashboard')
 
-        # --- B. SINGLE APPOINTMENT MANAGEMENT ---
+        # --- C. SINGLE APPOINTMENT MANAGEMENT ---
         elif 'manage_appointment' in request.POST:
             app_id = request.POST.get('app_id')
             try:
@@ -196,8 +260,8 @@ def vet_dashboard(request):
                     appointment.payment_timer_start = django_timezone.now()
                     messages.success(request, "Appointment Accepted.")
                 
-                elif action == 2: # Manual Reject
-                    appointment.appointment_status = 2 # 2 = Rejected Tag
+                elif action == 2: # Reject
+                    appointment.appointment_status = 2 
                     reason = request.POST.get('cancel_reason', "Rejected by Vet.")
                     if hasattr(appointment, 'cancel_reason'):
                         appointment.cancel_reason = reason
