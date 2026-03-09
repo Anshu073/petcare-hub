@@ -7,7 +7,9 @@
 
 <style>
     /* FIX: Header Overlap during scroll */
-    header, .tg-header__area, #sticky-header {
+    header,
+    .tg-header__area,
+    #sticky-header {
         z-index: 2000 !important;
         position: relative;
     }
@@ -15,120 +17,235 @@
     /* FIX: Summary card z-index */
     .sticky-summary {
         position: sticky;
-        top: 120px; 
-        z-index: 100; 
+        top: 120px;
+        z-index: 100;
     }
 
-    .pay-field { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #e5e5e5; border-radius: 8px; font-size: 14px; }
-    .payment-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-    .pay-tab { flex: 1; padding: 10px; text-align: center; border: 1px solid #894B8D; border-radius: 8px; cursor: pointer; font-weight: 700; color: #894B8D; }
-    .pay-tab.active { background: #894B8D; color: #fff; }
-    .btn-order { background: #894B8D; color: #fff; width: 100%; padding: 15px; border-radius: 50px; text-align: center; font-weight: 800; border: none; cursor: pointer; display: block; text-decoration: none; }
-    .cart-pro-card { background: #fff; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 25px; }
-    .section-h { font-weight: 800; margin-bottom: 20px; color: #333; border-left: 4px solid #894B8D; padding-left: 15px; }
+    .pay-field {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 15px;
+        border: 1px solid #e5e5e5;
+        border-radius: 8px;
+        font-size: 14px;
+    }
+
+    .payment-tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .pay-tab {
+        flex: 1;
+        padding: 10px;
+        text-align: center;
+        border: 1px solid #894B8D;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 700;
+        color: #894B8D;
+    }
+
+    .pay-tab.active {
+        background: #894B8D;
+        color: #fff;
+    }
+
+    .btn-order {
+        background: #894B8D;
+        color: #fff;
+        width: 100%;
+        padding: 15px;
+        border-radius: 50px;
+        text-align: center;
+        font-weight: 800;
+        border: none;
+        cursor: pointer;
+        display: block;
+        text-decoration: none;
+    }
+
+    .cart-pro-card {
+        background: #fff;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        margin-bottom: 25px;
+    }
+
+    .section-h {
+        font-weight: 800;
+        margin-bottom: 20px;
+        color: #333;
+        border-left: 4px solid #894B8D;
+        padding-left: 15px;
+    }
 </style>
 
 <main class="py-5 bg-light">
     <div class="container">
         <div class="row">
             <div class="col-lg-8">
-      <div class="cart-pro-card">
-    <h4 class="section-h">1. Review Your Bowl 🐾</h4>
-    <div id="checkout-items-container">
-        {% for item in checkout_items %}
-        <div class="checkout-item-row d-flex align-items-center mb-3 p-3" style="background: #fff; border-radius: 12px; border: 1px solid #eee;">
-            <div class="item-thumb me-3">
-                <img src="{% static item.product.cover_img_path %}" alt="{{ item.product.prod_name }}" style="width: 80px; border-radius: 8px;">
-            </div>
-            <div class="item-details flex-grow-1">
-                <h5 class="mb-1" style="color: #894B8D; font-weight: 700;">{{ item.product.prod_name }}</h5>
-                <p class="mb-0 text-muted">₹{{ item.product.price }} x {{ item.quantity }}</p>
-            </div>
-            <div class="item-total">
-                <span class="h5 fw-bold" style="color: #333;">₹{{ item.total_price }}</span>
-            </div>
-        </div>
-        {% empty %}
-        <p class="text-center py-3">Your bowl is currently empty! 🐾</p>
-        {% endfor %}
-    </div>
-</div>
+                <div class="cart-pro-card">
+                    <h4 class="section-h">1. Review Your Bowl 🐾</h4>
+                    <div id="checkout-items-container">
+                        {% for item in checkout_items %}
+                        <div class="checkout-item-row d-flex align-items-center mb-3 p-3"
+                            style="background: #fff; border-radius: 12px; border: 1px solid #eee;">
+                            <div class="item-thumb me-3">
+                                <img src="{% static item.product.cover_img_path %}" alt="{{ item.product.prod_name }}"
+                                    style="width: 80px; border-radius: 8px;">
+                            </div>
+                            <div class="item-details flex-grow-1">
+                                <h5 class="mb-1" style="color: #894B8D; font-weight: 700;">{{ item.product.prod_name }}
+                                </h5>
+                                <p class="mb-0 text-muted">₹{{ item.product.price }} x {{ item.quantity }}</p>
+                            </div>
+                            <div class="item-total">
+                                <span class="h5 fw-bold" style="color: #333;">₹{{ item.total_price }}</span>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-center py-3">Your bowl is currently empty! 🐾</p>
+                        {% endfor %}
+                    </div>
+                </div>
 
                 <div id="address-section" class="cart-pro-card">
                     <h4 class="section-h">2. Delivery Address 📍</h4>
                     <div class="row">
-                        <div class="col-md-6"><input type="text" id="ship-name" class="pay-field" placeholder="Full Name*" value="{{ user.cust_name }}"></div>
-                        <div class="col-md-6"><input type="tel" id="ship-phone" class="pay-field" placeholder="Phone Number*" value="{{ user.contact }}"></div>
-                        <div class="col-12"><input type="text" id="ship-street" class="pay-field" placeholder="Street Address*" value="{{ user.address }}"></div>
+                        <div class="col-md-6"><input type="text" id="ship-name" class="pay-field"
+                                placeholder="Full Name*" value="{{ user.cust_name }}"></div>
+                        <div class="col-md-6"><input type="tel" id="ship-phone" class="pay-field"
+                                placeholder="Phone Number*" value="{{ user.contact }}"></div>
+                        <div class="col-12"><input type="text" id="ship-street" class="pay-field"
+                                placeholder="Street Address*" value="{{ user.address }}"></div>
                         <div class="col-md-5"><input type="text" class="pay-field" placeholder="City*"></div>
                         <div class="col-md-4"><input type="text" class="pay-field" placeholder="State*"></div>
                         <div class="col-md-3"><input type="text" class="pay-field" placeholder="Pincode*"></div>
                     </div>
                 </div>
 
-                  <div id="payment-section" class="cart-pro-card wow fadeInLeft" data-wow-delay="0.2s">
+                <div id="payment-section" class="cart-pro-card wow fadeInLeft" data-wow-delay="0.2s">
+                    <div class="premium-payment-wrapper">
                         <h4 class="section-h">3. Secure Payment 🔒</h4>
-                        
-<form class="text-center border border-light p-5" action="/client/placeorder1/" method="POST">
 
-  {% csrf_token %}
+                        <form class="text-center payment-form-custom" action="/client/placeorder1/" method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="name" id="name" required class="form-control mb-4"
+                                placeholder="Name">
 
+                            <div class="payment-info-box">
+                                <i class="fas fa-shield-check secure-icon"></i>
+                                <p>Click below to complete your payment via our secure partner.</p>
+                                <div class="amount-display">Total: ₹{{grand_total}}</div>
+                            </div>
 
-
-
-  <input type="hidden" name="name" id="name" required class="form-control mb-4"
-         placeholder="Name">
-
-  <!-- RAZORPAY INTEGRATION HERE -->
-
-  <script src="https://checkout.razorpay.com/v1/checkout.js"
-          data-key="rzp_test_SNQx37pa2es1Wb"
-          data-amount="{{grand_total|mul:100}}"
-          data-currency="INR"
-          data-order_id="{{payment.id}}"
-          data-buttontext="Pay with Razorpay"
-          data-name="crystalwood home decor"
-          data-url_root= "https://eneqd3r9zrjok.x.pipedream.net/",
-          data-description="Online decor Shop"
-          data-image="/client_static/assets/images/shop/logo2.png"
-          data-prefill.name="vedang"
-          data-prefill.email="patelvedang88@gmail.com"
-          data-theme.color="#F37254">
-
-  </script>
-  </form>
+                            <script src="https://checkout.razorpay.com/v1/checkout.js"
+                                data-key="rzp_test_SNQx37pa2es1Wb" data-amount="{{grand_total|mul:100}}"
+                                data-currency="INR" data-order_id="{{payment.id}}" data-buttontext="Pay with Razorpay"
+                                data-name="PetCareHub" data-description="Premium Pet Healthcare"
+                                data-image="{% static 'assets/img/logo/logo.png' %}"
+                                data-prefill.name="{{ request.session.cust_name }}" data-theme.color="#894B8D">
+                                </script>
+                        </form>
                     </div>
                 </div>
+                </div>
+                <style>
+                    /* Container Box */
+                    .premium-payment-wrapper {
+                        background: #fff;
+                        border-radius: 20px;
+                        padding: 30px;
+                        border: 1px solid #f1e9f2;
+                        box-shadow: 0 15px 35px rgba(137, 75, 141, 0.08);
+                        text-align: center;
+                    }
 
-            <div class="col-lg-4">
-                <div class="cart-pro-card sticky-summary">
-                    
-    <h3>Your Order Details 🐾</h3>
-    {% for item in checkout_items %}
-    <div class="d-flex justify-content-between border-bottom py-2">
-        <span>{{ item.product.prod_name }} (x{{ item.quantity }})</span>
-        <span>₹{{ item.total_price }}</span>
-    </div>
-    {% endfor %}
-    <div class="d-flex justify-content-between fw-bold mt-3">
-        <span>Grand Total:</span>
-        <span class="text-primary">₹{{ grand_total }}</span>
-    </div>
-</div>
+                    /* Info Box */
+                    .payment-info-box {
+                        margin: 20px 0;
+                        padding: 20px;
+                        background: #fdfafb;
+                        border-radius: 15px;
+                        border: 1px dashed #e5dbe6;
+                    }
+
+                    .secure-icon {
+                        font-size: 40px;
+                        color: #28a745;
+                        margin-bottom: 15px;
+                        display: block;
+                    }
+
+                    .amount-display {
+                        font-size: 24px;
+                        font-weight: 800;
+                        color: #4b2c4d;
+                        margin-top: 10px;
+                    }
+
+                    /* Targetting Razorpay's Default Button */
+                    .payment-form-custom input[type="submit"],
+                    .razorpay-payment-button {
+                        background: linear-gradient(135deg, #894B8D 0%, #4b2c4d 100%) !important;
+                        color: #fff !important;
+                        border: none !important;
+                        padding: 16px 45px !important;
+                        font-size: 18px !important;
+                        font-weight: 700 !important;
+                        border-radius: 50px !important;
+                        cursor: pointer !important;
+                        box-shadow: 0 8px 20px rgba(137, 75, 141, 0.3) !important;
+                        transition: all 0.3s ease !important;
+                        text-transform: uppercase;
+                        letter-spacing: 1px;
+                        width: 100%;
+                    }
+
+                    .payment-form-custom input[type="submit"]:hover {
+                        transform: translateY(-3px) !important;
+                        box-shadow: 0 12px 25px rgba(137, 75, 141, 0.4) !important;
+                    }
+
+                    /* Form Cleanup */
+                    .payment-form-custom {
+                        border: none !important;
+                        padding: 0 !important;
+                    }
+                </style>
+
+                <div class="col-lg-4">
+                    <div class="cart-pro-card sticky-summary">
+
+                        <h3>Your Order Details 🐾</h3>
+                        {% for item in checkout_items %}
+                        <div class="d-flex justify-content-between border-bottom py-2">
+                            <span>{{ item.product.prod_name }} (x{{ item.quantity }})</span>
+                            <span>₹{{ item.total_price }}</span>
+                        </div>
+                        {% endfor %}
+                        <div class="d-flex justify-content-between fw-bold mt-3">
+                            <span>Grand Total:</span>
+                            <span class="text-primary">₹{{ grand_total }}</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
 </main>
 <script>
-    
 
-    
+
+
     function switchPay(mode) {
         const cardForm = document.getElementById('card-form');
         const upiForm = document.getElementById('upi-form');
         const cardTab = document.getElementById('tab-card');
         const upiTab = document.getElementById('tab-upi');
-        
+
         if (mode === 'card') {
             if (cardTab) cardTab.classList.add('active');
             if (upiTab) upiTab.classList.remove('active');
