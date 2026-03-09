@@ -1,0 +1,619 @@
+{% extends 'header1.html' %}
+{% load static %}
+{% block content %}
+<!-- offCanvas-menu -->
+<div class="offCanvas__info">
+    <div class="offCanvas__close-icon menu-close">
+        <button><i class="far fa-window-close"></i></button>
+    </div>
+    <div class="offCanvas__logo mb-30">
+        <a href="index.html"><img src="{% static 'assets/img/logo/logo.png' %}" alt="Logo"></a>
+    </div>
+    <div class="offCanvas__side-info mb-30">
+        <div class="contact-list mb-30">
+            <h4>Office Address</h4>
+            <p>123/A, Miranda City Likaoli <br> Prikano, Dope</p>
+        </div>
+        <div class="contact-list mb-30">
+            <h4>Phone Number</h4>
+            <p>+0989 7876 9865 9</p>
+            <p>+(090) 8765 86543 85</p>
+        </div>
+        <div class="contact-list mb-30">
+            <h4>Email Address</h4>
+            <p>info@example.com</p>
+            <p>example.mail@hum.com</p>
+        </div>
+    </div>
+    <div class="offCanvas__social-icon mt-30">
+        <a href="javascript:void(0)"><i class="fab fa-facebook-f"></i></a>
+        <a href="javascript:void(0)"><i class="fab fa-twitter"></i></a>
+        <a href="javascript:void(0)"><i class="fab fa-google-plus-g"></i></a>
+        <a href="javascript:void(0)"><i class="fab fa-instagram"></i></a>
+    </div>
+</div>
+<div class="offCanvas__overly"></div>
+<!-- offCanvas-menu-end -->
+
+</header>
+<!-- header-area-end -->
+
+<!-- main-area -->
+<main class="fix">
+
+    <!-- banner-area -->
+    <section class="banner__area banner__bg" data-background="{% static 'assets/img/banner/banner_bg.jpg' %}">
+        <div class="container">
+            <div class="row align-items-center justify-content-center">
+                <div class="col-xl-5 col-lg-6">
+                    <div class="banner__content">
+                        <h2 class="title" data-aos="fade-up" data-aos-delay="200">Trusted Pet <img
+                                src="{% static 'assets/img/banner/banner_title_img01.png' %}" alt=""> care & Veterinary
+                            Center <span class="icon"><img src="{% static 'assets/img/banner/banner_title_img02.png' %}"
+                                    alt=""></span> Point</h2>
+                        <p data-aos="fade-up" data-aos-delay="400">At PetCareHub, we treat your pets like family. Our team is dedicated to providing the highest quality Veterinary service with love and compassion.</p>
+                        
+                    </div>
+                </div>
+                <div class="col-xl-7 col-lg-6 col-md-9">
+                    <div class="banner__img text-end">
+                        <img src="{% static 'assets/img/banner/banner_img01.png' %}" alt="img" data-aos="fade-left"
+                            data-aos-delay="800">
+                        <div class="healthy-pets" data-aos="zoom-in" data-aos-delay="1000">
+                            <div class="icon">
+                                <img src="{% static 'assets/img/icon/pet_icon01.svg' %}" alt="" class="injectable">
+                            </div>
+                            <div class="content">
+                                <h6 class="circle rotateme">BETTER - HEALTHY - PETS - LOVE -</h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="banner__shape-wrap">
+            <img src="{% static 'assets/img/banner/banner_shape01.png' %}" alt="img" data-aos="fade-down"
+                data-aos-delay="1200">
+            <img src="{% static 'assets/img/banner/banner_shape02.png' %}" alt="img" data-aos="fade-up-right"
+                data-aos-delay="1200">
+            <img src="{% static 'assets/img/banner/banner_shape03.png' %}" alt="img" class="ribbonRotate">
+            <img src="{% static 'assets/img/banner/banner_shape04.png' %}" alt="img">
+        </div>
+    </section>
+    <!-- banner-area-end -->
+
+    <!-- about-area -->
+    <section class="about__area">
+        <div class="container">
+            <div class="row align-items-center justify-content-center">
+                <div class="col-xl-5 col-lg-6 col-md-8">
+                    <div class="about__img">
+                        <img src="{% static 'assets/img/images/about_img.png' %}" alt="">
+                        <div class="video__box">
+                            <div class="video__box-shape">
+                                <img src="{% static 'assets/img/images/about_video_shape.svg' %}" alt=""
+                                    class="injectable">
+                            </div>
+                            <h5 class="title">Watch Our <br> Working Video</h5>
+                            <a href="https://www.youtube.com/watch?v=XdFfCPK5ycw" class="popup-video play-btn"><i
+                                    class="fas fa-play"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-7 col-lg-6">
+                    <div class="about__content">
+                        <div class="section__title mb-20">
+                            <span class="sub-title">Know More Us
+                                <strong class="shake">
+                                    <img src="{% static 'assets/img/icon/pet_icon02.svg' %}" alt="" class="injectable">
+                                </strong>
+                            </span>
+                            <h2 class="title">Our Passion Is Providing <br> Superior Pet Care</h2>
+                        </div>
+                        <div class="about__content-inner">
+                            <div class="experience__box">
+                                <div class="experience__box-shape">
+                                    <img src="{% static 'assets/img/images/experience_shape.svg' %}" alt=""
+                                        class="injectable">
+                                </div>
+                                <div class="experience__box-content">
+                                    <h4 class="title">7 <span>Yr</span></h4>
+                                    <p>Experience</p>
+                                </div>
+                            </div>
+                            <div class="text-para">
+            <p style="color: #4a5568; font-size: 16px; line-height: 1.7; font-weight: 500; margin: 0;">
+                At <strong>PetCareHub</strong>, we are committed to providing a stress-free and loving environment for your furry friends. Whether it's a routine checkup or specialized treatment, our expert team ensures your pet receives the highest standard of medical attention they deserve.
+            </p>
+        </div>
+                        </div>
+                        <p style="color: #67758a; font-size: 15px; line-height: 1.8; margin-bottom: 35px; ">
+        As Ahmedabad’s premier healthcare network, we nurture pets like family. Our mission is to deliver world-class medical excellence and compassionate care that gives every pet parent true peace of mind.
+    </p>
+                        <div class="about__content-bottom">
+                            <div class="about__content-sign me-4">
+        <img src="{% static 'assets/img/images/petcarehubsign.png' %}" alt="PetCareHub" style="width: 290px; height: auto;">
+    </div>
+                            <!-- <div class="customer__review">
+                                <div class="customer__review-img">
+                                    <ul class="list-wrap">
+                                        <li><img src="{% static 'assets/img/images/author_01.png' %}" alt=""></li>
+                                        <li><img src="{% static 'assets/img/images/author_02.png' %}" alt=""></li>
+                                        <li><img src="{% static 'assets/img/images/author_03.png' %}" alt=""></li>
+                                        <li><img src="{% static 'assets/img/images/author_04.png' %}" alt=""></li>
+                                    </ul>
+                                </div>
+                                <div class="customer__review-content">
+                                    <div class="rating">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                    <span>4.7 (1,567 Reviews)</span>
+                                </div>
+                            </div> -->
+                        </div>
+                        <div class="shape">
+                            <img src="{% static 'assets/img/images/about_shape02.png' %}" alt="img"
+                                data-aos="fade-down-left" data-aos-delay="400">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="about__shape-wrap">
+            <img src="{% static 'assets/img/images/about_shape01.png' %}" alt="img" data-aos="fade-up-right"
+                data-aos-delay="800">
+            
+        </div>
+    </section>
+    <!-- about-area-end -->
+
+    <!-- marquee-area -->
+    <div class="marquee__area">
+        <div class="marquee__wrap">
+            <div class="marquee__box">
+                <a href="{% url 'team' %}">Book For Online Appointment <img
+                        src="{% static 'assets/img/images/marquee_icon.svg' %}" alt=""></a>
+                <a href="{% url 'team' %}">Book For Online Appointment <img
+                        src="{% static 'assets/img/images/marquee_icon.svg' %}" alt=""></a>
+                <a href="{% url 'team' %}">Book For Online Appointment <img
+                        src="{% static 'assets/img/images/marquee_icon.svg' %}" alt=""></a>
+                <a href="{% url 'team' %}">Book For Online Appointment <img
+                        src="{% static 'assets/img/images/marquee_icon.svg' %}" alt=""></a>
+            </div>
+            <div class="marquee__box">
+                <a href="{% url 'team' %}">Book For Online Appointment <img
+                        src="{% static 'assets/img/images/marquee_icon.svg' %}" alt=""></a>
+                <a href="{% url 'team' %}">Book For Online Appointment <img
+                        src="{% static 'assets/img/images/marquee_icon.svg' %}" alt=""></a>
+                <a href="{% url 'team' %}">Book For Online Appointment <img
+                        src="{% static 'assets/img/images/marquee_icon.svg' %}" alt=""></a>
+                <a href="{% url 'team' %}">Book For Online Appointment <img
+                        src="{% static 'assets/img/images/marquee_icon.svg' %}" alt=""></a>
+            </div>
+        </div>
+    </div>
+    <!-- marquee-area-end -->
+<section class="why__we-are-area py-5">
+    <div class="container">
+        <div class="row align-items-center justify-content-center">
+            
+            <div class="col-lg-6 col-md-8 col-sm-10">
+                <div class="why__we-are-img position-relative">
+                    <img src="{% static 'assets/img/images/why_we_are_img.png' %}" alt="PetCareHub Excellence">
+                    
+                    <div class="shape shape-one" data-aos="fade-down-right" data-aos-delay="500">
+                        <img src="{% static 'assets/img/images/why_shape01.svg' %}" alt="" class="injectable">
+                    </div>
+                    <div class="shape shape-two" data-aos="fade-up-right" data-aos-delay="500">
+                        <img src="{% static 'assets/img/images/why_shape02.svg' %}" alt="" class="injectable">
+                    </div>
+                    <div class="shape shape-three" data-aos="fade-up-left" data-aos-delay="500">
+                        <img src="{% static 'assets/img/images/why_shape03.svg' %}" alt="" class="injectable">
+                    </div>
+                    <div class="shape shape-four ribbonRotate">
+                        <img src="{% static 'assets/img/images/why_shape04.svg' %}" alt="" class="injectable">
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="why__we-are-content">
+                    <div class="section__title mb-20">
+                        <span class="sub-title">Why PetCareHub is the Best
+                            <strong class="shake">
+                                <img src="{% static 'assets/img/icon/pet_icon02.svg' %}" alt="" class="injectable">
+                            </strong>
+                        </span>
+                        <h2 class="title" style="font-size: 38px; line-height: 1.2;">Premium Healthcare <br> Meets Luxury Shopping.</h2>
+                    </div>
+                    
+                    <p style="font-size: 16px; line-height: 1.7; color: #4a5568; margin-bottom: 30px;">
+                        At PetCareHub, we bridge the gap between world-class medical attention and a curated retail experience. Your pet deserves the highest standard of medical care alongside the finest lifestyle products available.
+                    </p>
+
+                    <div class="why__list-box">
+                        <ul class="list-wrap row g-3">
+                            <li class="col-md-6">
+                                <div class="why__list-box-item">
+                                    <div class="why__list-box-item-top d-flex align-items-center">
+                                        <div class="icon me-2">
+                                            <img src="{% static 'assets/img/icon/check_icon.svg' %}" alt="" class="injectable">
+                                        </div>
+                                        <h4 class="title mb-0" style="font-size: 18px; font-weight: 700;">Curated Boutique</h4>
+                                    </div>
+                                    <p class="small text-muted">A handpicked selection of organic treats, toys, and premium essentials.</p>
+                                </div>
+                            </li>
+                            <li class="col-md-6">
+                                <div class="why__list-box-item">
+                                    <div class="why__list-box-item-top d-flex align-items-center">
+                                        <div class="icon me-2">
+                                            <img src="{% static 'assets/img/icon/check_icon.svg' %}" alt="" class="injectable">
+                                        </div>
+                                        <h4 class="title mb-0" style="font-size: 18px; font-weight: 700;">Clinical Excellence</h4>
+                                    </div>
+                                    <p class="small text-muted">Ensuring your pet receives the highest standard of medical attention.</p>
+                                </div>
+                            </li>
+                            <li class="col-md-6">
+                                <div class="why__list-box-item">
+                                    <div class="why__list-box-item-top d-flex align-items-center">
+                                        <div class="icon me-2">
+                                            <img src="{% static 'assets/img/icon/check_icon.svg' %}" alt="" class="injectable">
+                                        </div>
+                                        <h4 class="title mb-0" style="font-size: 18px; font-weight: 700;">360° Lifestyle Hub</h4>
+                                    </div>
+                                    <p class="small text-muted">From vet consultations to post-care shopping, all under one roof.</p>
+                                </div>
+                            </li>
+                            <li class="col-md-6">
+                                <div class="why__list-box-item">
+                                    <div class="why__list-box-item-top d-flex align-items-center">
+                                        <div class="icon me-2">
+                                            <img src="{% static 'assets/img/icon/check_icon.svg' %}" alt="" class="injectable">
+                                        </div>
+                                        <h4 class="title mb-0" style="font-size: 18px; font-weight: 700;">Stress-Free Vibe</h4>
+                                    </div>
+                                    <p class="small text-muted">A loving environment designed for your pet’s ultimate comfort.</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>    <!-- why-we-are-area-end -->
+
+    <!-- counter-area -->
+    <section class="counter__area">
+        <div class="container">
+            <div class="row align-items-center justify-content-center">
+                <div class="col-lg-5 col-md-8 order-0 order-lg-2">
+                    <div class="counter__img">
+                        <div class="mask-img-wrap">
+                            <img src="{% static 'assets/img/images/counter_img.jpg' %}" alt="img">
+                        </div>
+                        <div class="counter__img-shape">
+                            <img src="{% static 'assets/img/images/counter_img_shape.svg' %}" alt="" class="injectable">
+                        </div>
+                        <div class="shape">
+                            <img src="{% static 'assets/img/images/counter_shape01.png' %}" alt="img"
+                                class="ribbonRotate">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-7">
+                <div class="counter__content">
+                    <div class="section__title white-title mb-10">
+                        <span class="sub-title">Your Trust Our Priority
+                            <strong class="shake">
+                                <img src="{% static 'assets/img/icon/pet_icon02.svg' %}" alt="" class="injectable">
+                            </strong>
+                        </span>
+                        <h2 class="title">Professional Healthcare & <br> Premium Lifestyle Hub</h2>
+                    </div>
+                    <p>At PetCareHub, we bridge that provides Veterinary services and Purchasing pet related products at one place. We ensure your pet receives the highest standard of care and premium essentials they deserve.</p>
+                    
+                </div>
+            </div>
+                <div class="col-lg-3 col-md-5 order-3">
+                    <div class="counter__item-wrap">
+    <div class="counter__item">
+        <h2 class="count"><span class="odometer" data-count="{{ total_vets }}"></span>+</h2>
+        <p>Expert Veterinarians</p>
+    </div>
+
+    <div class="counter__item">
+        <h2 class="count"><span class="odometer" data-count="{{ total_products }}"></span>+</h2>
+        <p>Premium Pet Products</p>
+    </div>
+</div>
+                </div>
+            </div>
+        </div>
+        <div class="counter__shape">
+            <img src="{% static 'assets/img/images/counter_shape02.png' %}" alt="img" data-aos="fade-up-left"
+                data-aos-delay="400">
+        </div>
+    </section>
+    <!-- counter-area-end -->
+
+    <!-- brand-area -->
+    <div class="brand__area">
+        <div class="container">
+            <div class="brand__item-wrap">
+                <div class="swiper brand-active">
+                    <div class="swiper-wrapper">
+                        <div class="swiper-slide">
+                            <div class="brand__item">
+                                <img src="{% static 'assets/img/brand/brand_img01.png' %}" alt="img">
+                            </div>
+                        </div>
+                        <div class="swiper-slide">
+                            <div class="brand__item">
+                                <img src="{% static 'assets/img/brand/brand_img02.png' %}" alt="img">
+                            </div>
+                        </div>
+                        <div class="swiper-slide">
+                            <div class="brand__item">
+                                <img src="{% static 'assets/img/brand/brand_img03.png' %}" alt="img">
+                            </div>
+                        </div>
+                        <div class="swiper-slide">
+                            <div class="brand__item">
+                                <img src="{% static 'assets/img/brand/brand_img04.png' %}" alt="img">
+                            </div>
+                        </div>
+                        <div class="swiper-slide">
+                            <div class="brand__item">
+                                <img src="{% static 'assets/img/brand/brand_img05.png' %}" alt="img">
+                            </div>
+                        </div>
+                        <div class="swiper-slide">
+                            <div class="brand__item">
+                                <img src="{% static 'assets/img/brand/brand_img06.png' %}" alt="img">
+                            </div>
+                        </div>
+                        <div class="swiper-slide">
+                            <div class="brand__item">
+                                <img src="{% static 'assets/img/brand/brand_img07.png' %}" alt="img">
+                            </div>
+                        </div>
+                        <div class="swiper-slide">
+                            <div class="brand__item">
+                                <img src="{% static 'assets/img/brand/brand_img03.png ' %}" alt="img">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- brand-area-end -->
+
+    <!-- team-area -->
+    <section class="team__area">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-6">
+                    <div class="section__title text-center mb-40">
+                        <span class="sub-title">WE CHANGE YOUR LIFE & WORLD
+                            <strong class="shake">
+                                <img src="{% static 'assets/img/icon/pet_icon02.svg' %}" alt="" class="injectable">
+                            </strong>
+                        </span>
+                        <h2 class="title">Meet Our Expertise <br> Pet Doctors</h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row justify-content-center">
+                {% for item in vets %}
+                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-8">
+                    <div class="team__item">
+                        <div class="team__item-img">
+                            <div class="mask-img-wrap">
+                                {% if item.vet_profile %}
+                                <img src="{{ item.vet_profile.url }}" alt="{{ item.vet_name }}"
+                                    style="width: 100%; height: 320px; object-fit: cover;">
+                                {% else %}
+                                <img src="{% static 'assets/img/team/team_img01.jpg' %}" alt="Default Image">
+                                {% endif %}
+                            </div>
+                            <div class="team__item-img-shape">
+                                <div class="shape-one">
+                                    <img src="{% static 'assets/img/team/team_img_shape01.svg' %}" alt=""
+                                        class="injectable">
+                                </div>
+                                <div class="shape-two">
+                                    <img src="{% static 'assets/img/team/team_img_shape02.svg' %}" alt=""
+                                        class="injectable">
+                                </div>
+                            </div>
+                            <div class="team__social">
+                                <ul class="list-wrap">
+                                    <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
+                                    <li><a href="#"><i class="fab fa-twitter"></i></a></li>
+                                    <li><a href="#"><i class="fab fa-whatsapp"></i></a></li>
+                                    <li><a href="#"><i class="fab fa-instagram"></i></a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="team__item-content text-center">
+                            <h4 class="title"><a href="{% url 'vet_details' item.vet_id %}"> {{ item.vet_name }}</a></h4>
+                            <span>{{ item.specialization }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center">
+                    <p>No verified doctors are currently available. Check back soon!</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="team__bottom-content">
+                <p>Our Valuable Expert Doctors Team</p>
+                <a href="{% url 'team' %}" class="btn">See All Doctors <img
+                        src="{% static 'assets/img/icon/right_arrow.svg' %}" alt="" class="injectable"></a>
+            </div>
+        </div>
+        <div class="team__shape">
+            <img src="{% static 'assets/img/team/team_shape.png' %}" alt="img" class="ribbonRotate">
+        </div>
+    </section>
+    <!-- team-area-end -->
+
+
+    <!-- testimonial-area -->
+    <section class="testimonial__area">
+    <div class="container">
+        <div class="row align-items-center justify-content-center">
+            <div class="col-lg-6 col-md-8 order-0 order-lg-2">
+                <div class="testimonial__img">
+                    <div class="mask-img testimonial__img-mask">
+                        <img src="{% static 'assets/img/images/testimonial_img.jpg' %}" alt="img">
+                    </div>
+                    <div class="testimonial__img-shape">
+                        <div class="shape-one">
+                            <img src="{% static 'assets/img/images/testimonial_img_shape.svg' %}" alt="" class="injectable">
+                        </div>
+                        <div class="shape-two">
+                            <img src="{% static 'assets/img/images/testimonial_shape03.png' %}" alt="img" class="alltuchtopdown">
+                        </div>
+                    </div>
+                    <div class="review__box">
+                        <div class="review__box-shape">
+                            <img src="{% static 'assets/img/images/review_shape.svg' %}" alt="" class="injectable">
+                        </div>
+                        <div class="review__box-content">
+                            <img src="{% static 'assets/img/icon/star.svg' %}" alt="" class="injectable">
+                            <h2 class="title">{{ total_reviews_count }}</h2>
+                            <span>Reviews</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="testimonial__item-wrap">
+                    <div class="swiper testimonial-active">
+                        <div class="swiper-wrapper">
+      <div class="swiper-slide">
+    <div class="testimonial__item text-center" style="position: relative; padding: 40px 20px;">
+        
+        <div class="testimonial__icon">
+            <img src="{% static 'assets/img/icon/quote.svg' %}" alt="StartQuote" style="opacity: 1;">
+        </div>
+
+        <div class="testimonial__content">
+            <h2 class="title mb-3">Exceptional Veterinary Care</h2>
+            
+            <p>
+                “PetCareHub Has Redefined Medical Excellence For My Furry Family Member. Their Surgeons Combine World-Class Expertise With A Level Of Compassion That Is Truly Rare. It Is The Only Place In Ahmedabad I Trust For Specialized Treatment.”
+            </p>
+
+            <div class="testimonial__quote-end-style">
+                <img src="{% static 'assets/img/icon/quote.svg' %}" alt="EndQuote">
+            </div>
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </div>
+    <div class="testimonial__shape-wrap">
+        <img src="{% static 'assets/img/images/testimonial_shape01.png' %}" alt="img" data-aos="fade-down-right" data-aos-delay="400">
+        <img src="{% static 'assets/img/images/testimonial_shape02.png' %}" alt="img" data-aos="fade-right" data-aos-delay="400">
+    </div>
+</section>
+<style>
+
+.testimonial__quote-end-style img {
+    width: 60px; /* matched size */
+    height: auto;
+    
+    /* Exact Mirror logic: Rotated and Mirrored */
+    transform: rotate(180deg) !important; /* Perfect 180-degree mirror image */
+    -webkit-transform: rotate(180deg);
+}
+</style>
+    <!-- testimonial-area-end -->
+    
+
+    <!-- instagram-area -->
+    <div class="instagram__area">
+        <div class="container">
+
+            <div class="swiper instagram-active">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide">
+                        <div class="instagram__item">
+                            <a href="#" target="_blank"><img
+                                    src="{% static 'assets/img/instagram/instagram_img01.jpg' %}" alt=""></a>
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="instagram__item">
+                            <a href="#" target="_blank"><img
+                                    src="{% static 'assets/img/instagram/instagram_img02.jpg' %}" alt=""></a>
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="instagram__item">
+                            <a href="#" target="_blank"><img
+                                    src="{% static 'assets/img/instagram/instagram_img03.jpg' %}" alt=""></a>
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="instagram__item">
+                            <a href="#" target="_blank"><img
+                                    src="{% static 'assets/img/instagram/instagram_img04.jpg' %}" alt=""></a>
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="instagram__item">
+                            <a href="#" target="_blank"><img
+                                    src="{% static 'assets/img/instagram/instagram_img05.jpg' %}" alt=""></a>
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="instagram__item">
+                            <a href="#" target="_blank"><img
+                                    src="{% static 'assets/img/instagram/instagram_img03.jpg' %}" alt=""></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- instagram-area-end -->
+<style>/* Instagram area ki spacing fix karne ke liye */
+    .instagram__area {
+        padding: 60px 0; /* Upar-niche barabar space */
+        background: #fff;
+        margin-top: -10px; /* Testimonial ke extra bottom gap ko cover karne ke liye */
+    }
+
+    .instagram__item img {
+        width: 100%;
+        border-radius: 15px; /* Premium look ke liye thode rounded corners */
+        transition: transform 0.3s ease;
+    }
+
+    .instagram__item:hover img {
+        transform: scale(1.05); /* Hover effect */
+    }</style>
+</main>
+
+<!-- main-area-end -->
+
+
+{% endblock %}

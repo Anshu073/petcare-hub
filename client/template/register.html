@@ -1,0 +1,290 @@
+{% load static %}
+<!doctype html>
+<html class="no-js" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Join the Pack - Petpal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/animate.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/fontawesome-all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/default.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/main.css' %}">
+
+    <style>
+        :root {
+            --tg-brand-color: #894B8D;
+            --tg-brand-light: #f4eef5;
+        }
+
+        /* Essential Reset for Scrollability */
+        body {
+            background-color: var(--tg-brand-light);
+            font-family: 'Baloo Bhaina 2', cursive;
+            margin: 0;
+            padding: 0;
+            overflow-y: auto !important;
+            height: auto !important;
+        }
+
+        .register-wrapper {
+            padding: 80px 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* Fixed Background Doodles */
+        .fixed-doodles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .doodle-asset {
+            position: absolute;
+            filter: grayscale(100%) opacity(0.12);
+        }
+
+        /* Centered Card Design */
+        .register-card {
+            background: #ffffff;
+            border-radius: 40px;
+            border: 6px solid var(--tg-brand-color);
+            box-shadow: 0px 30px 60px rgba(137, 75, 141, 0.1);
+            padding: 50px 40px;
+            width: 100%;
+            max-width: 520px;
+            position: relative;
+        }
+
+        .form-grp {
+            margin-bottom: 20px;
+        }
+
+        /* Inputs & Selects - Clean, No Icons */
+        .form-grp input,
+        .form-grp select {
+            width: 100%;
+            padding: 16px 20px;
+            border-radius: 15px;
+            border: 2px solid #f0f0f0;
+            background: #fafafa;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 15px;
+            transition: 0.3s;
+            appearance: none;
+            /* For select styling */
+        }
+
+        .form-grp input:focus,
+        .form-grp select:focus {
+            border-color: var(--tg-brand-color);
+            background: #fff;
+            outline: none;
+            box-shadow: 0px 5px 15px rgba(137, 75, 141, 0.08);
+        }
+
+        .btn-brand {
+            background-color: var(--tg-brand-color);
+            color: #fff;
+            border: none;
+            border-radius: 15px;
+            padding: 18px;
+            font-weight: 700;
+            width: 100%;
+            font-size: 16px;
+            text-transform: uppercase;
+            transition: 0.3s;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-brand:hover {
+            background-color: #6a3a6d;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(137, 75, 141, 0.2);
+        }
+
+        .shake-anim {
+            animation: shake 3s infinite linear;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="fixed-doodles">
+        <img src="{% static 'assets/img/banner/banner_img01.png' %}" class="doodle-asset"
+            style="bottom: -10px; left: -10px; width: 350px;">
+        <img src="{% static 'assets/img/images/about_img.png' %}" class="doodle-asset"
+            style="top: -10px; right: -10px; width: 300px; transform: rotate(-10deg);">
+        <img src="{% static 'assets/img/icon/pet_icon02.svg' %}" class="injectable doodle-asset"
+            style="top: 20%; left: 10%; width: 60px;">
+        <img src="{% static 'assets/img/icon/pet_icon01.svg' %}" class="injectable doodle-asset"
+            style="bottom: 20%; right: 10%; width: 80px;">
+    </div>
+
+    <main>
+        <div class="register-wrapper">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-12 d-flex justify-content-center">
+
+                        <div class="register-card">
+                            <div style="position: absolute; top: -35px; right: -20px; transform: rotate(15deg);">
+                                <img src="{% static 'assets/img/icon/pet_icon01.svg' %}" alt=""
+                                    class="injectable shake-anim" style="width: 80px;">
+                            </div>
+
+                            {% if request.session.cust_id %}
+                            <div class="text-center mb-40">
+                                <span
+                                    style="color: var(--tg-brand-color); font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Hello,
+                                    {{ request.session.cust_name }}</span>
+                                <h2 style="margin-top: 10px; font-weight: 800; color: #333;">You have already
+                                    registered!</h2>
+                                <p class="mt-20" style="font-size: 16px; color: #666;">You are currently logged in.
+                                    There is no need to create a new account.</p>
+
+                                <div class="mt-30">
+                                    <a href="{% url 'home' %}" class="btn-brand"
+                                        style="padding: 14px 30px; text-decoration: none; display: inline-block;">Go to
+                                        Home 🐾</a>
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="text-center mb-40">
+                                <span
+                                    style="color: var(--tg-brand-color); font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Join
+                                    the Pack</span>
+                                <h2 style="margin-top: 10px; font-weight: 800; color: #333;">Create Account</h2>
+                            </div>
+
+                            {% if messages %}
+                            <div id="django-messages">
+                                {% for message in messages %}
+                                <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %}"
+                                    role="alert"
+                                    style="border-radius: 12px; border-left: 6px solid {% if message.tags == 'error' %}#dc3545{% else %}#28a745{% endif %}; margin-bottom: 20px; padding: 15px; background-color: #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                                    <strong>{% if message.tags == 'error' %}Wait!{% else %}Success!{% endif %}</strong>
+                                    {{ message }}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+
+                            <form action="{% url 'register' %}" method="POST">
+                                {% csrf_token %}
+
+                                <div class="form-grp">
+                                    <label class="fw-bold"
+                                        style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Full
+                                        Name</label>
+                                    <input type="text" name="cust_name" placeholder="Enter Full Name" required
+                                        pattern="[A-Za-z\s]+" title="Name should only contain letters and spaces"
+                                        style="width: 100%; padding: 16px 20px; border-radius: 15px; border: 2px solid #f0f0f0; background: #fafafa; outline: none;">
+                                </div>
+
+                                <div class="form-grp">
+                                    <label class="fw-bold"
+                                        style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Email
+                                        Address</label>
+                                    <input type="email" name="email" placeholder="Enter Email Address" required
+                                        pattern="^[a-zA-Z][a-zA-Z0-9._%+-]*@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+                                        title="Email should start with a letter (e.g., pecarehub@gmail.com)"
+                                        style="width: 100%; padding: 16px 20px; border-radius: 15px; border: 2px solid #f0f0f0; background: #fafafa; outline: none;">
+                                </div>
+
+                                <div class="form-grp">
+                                    <label class="fw-bold"
+                                        style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Password</label>
+                                    <input type="password" name="password" placeholder="Create Password" required
+                                        minlength="8" maxlength="16" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,16}"
+                                        title="Password must be 8-16 characters long and include at least one uppercase letter, one lowercase letter, and one number."
+                                        style="width: 100%; padding: 16px 20px; border-radius: 15px; border: 2px solid #f0f0f0; background: #fafafa; outline: none;">
+                                </div>
+
+                                <div class="form-grp">
+                                    <label class="fw-bold"
+                                        style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Contact
+                                        Number</label>
+                                    <input type="text" name="contact" placeholder="Enter Contact Number" required
+                                        maxlength="10" minlength="10" pattern="[6-9][0-9]{9}"
+                                        title="Please enter a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9"
+                                        onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                                        style="width: 100%; padding: 16px 20px; border-radius: 15px; border: 2px solid #f0f0f0; background: #fafafa; outline: none;">
+                                </div>
+
+                                <div class="form-grp">
+                                    <label class="fw-bold"
+                                        style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Select
+                                        Area</label>
+                                    <select name="area_id" required
+                                        style="width: 100%; padding: 16px 20px; border-radius: 15px; border: 2px solid #f0f0f0; background: #fafafa; outline: none;">
+                                        <option value="" disabled selected>Choose Your Area</option>
+                                        {% for area in areas %}
+                                        <option value="{{ area.area_id }}">{{ area.area_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="form-grp">
+                                    <label class="fw-bold"
+                                        style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Home
+                                        Address</label>
+                                    <textarea name="address" placeholder="Enter complete address"
+                                        style="width: 100%; padding: 16px 20px; border-radius: 15px; border: 2px solid #f0f0f0; background: #fafafa; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; outline: none;"
+                                        rows="3" minlength="10" title="Please enter a full address (min 10 characters)"
+                                        required></textarea>
+                                </div>
+
+                                <button type="submit" class="btn-brand">Register Now 🐾</button>
+                            </form>
+
+                            <div class="text-center mt-30">
+                                <p style="font-size: 15px; color: #666;">Already a member? <a href="{% url 'login1' %}"
+                                        style="color: var(--tg-brand-color); font-weight: 800;">Login Here</a></p>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'assets/js/svg-inject.min.js' %}"></script>
+    <script>
+        $(document).ready(function () {
+            SVGInject($(".injectable"));
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            // SVG injection agar pehle se hai toh rehne dein
+            // SVGInject($(".injectable"));
+
+            // Message ko 5 second (5000ms) baad hide karne ka code:
+            setTimeout(function () {
+                $(".alert").fadeTo(500, 0).slideUp(500, function () {
+                    $(this).remove();
+                });
+            }, 5000);
+        });
+    </script>
+</body>
+
+</html>

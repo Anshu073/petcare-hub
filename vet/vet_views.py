@@ -1,0 +1,333 @@
+from django.http import JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from test2.models import Feedback, Vet, Area, Appointment, VetSchedule
+from django.contrib.auth.hashers import make_password, check_password
+from django.utils import timezone as django_timezone
+import re 
+import random
+from django.conf import settings
+from django.core.mail import send_mail
+
+def vet_register(request):
+    areas = Area.objects.all()
+    if request.method == "POST":
+        # Capture text data
+        v_name = request.POST.get('v_name', '').strip()
+        v_email = request.POST.get('v_email', '').strip()
+        v_pass = request.POST.get('v_pass')
+        v_contact = request.POST.get('v_contact', '').strip()
+        v_special = request.POST.get('v_specialization')
+        v_charges = request.POST.get('v_charges', '0')
+        v_area_id = request.POST.get('area_id')
+        v_address = request.POST.get('v_address', '').strip()
+
+        # Capture File data
+        v_profile = request.FILES.get('vet_profile')
+        v_docs = request.FILES.get('documents')
+
+        # --- VALIDATIONS ---
+        if not re.match(r'^[a-zA-Z\s]+$', v_name):
+            messages.error(request, "Invalid Name: Please use alphabets only.", extra_tags='vet_danger')
+            return render(request, 'register_vet.html', {'areas': areas})
+
+        if not re.match(r'^[a-zA-Z][a-zA-Z0-9._%+-]*@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', v_email):
+            messages.error(request, "Invalid Email: Must start with a letter.", extra_tags='vet_danger')
+            return render(request, 'register_vet.html', {'areas': areas})
+
+        if not re.match(r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,16}$', v_pass):
+            messages.error(request, "Password must be 8-16 characters with Uppercase, Lowercase, and Number.", extra_tags='vet_danger')
+            return render(request, 'register_vet.html', {'areas': areas})
+
+        if not re.match(r'^[6-9]\d{9}$', v_contact):
+            messages.error(request, "Invalid Contact: Must be 10 digits starting with 6-9.", extra_tags='vet_danger')
+            return render(request, 'register_vet.html', {'areas': areas})
+
+        if not v_charges.isdigit() or int(v_charges) < 100 or int(v_charges) > 5000:
+            messages.error(request, "Charges must be between ₹100 and ₹5000.", extra_tags='vet_danger')
+            return render(request, 'register_vet.html', {'areas': areas})
+
+        if v_profile and v_profile.size > 2 * 1024 * 1024:
+            messages.error(request, "Profile photo size should be less than 2MB.", extra_tags='vet_danger')
+            return render(request, 'register_vet.html', {'areas': areas})
+        
+        if v_docs and v_docs.size > 5 * 1024 * 1024:
+            messages.error(request, "Documents size should be less than 5MB.", extra_tags='vet_danger')
+            return render(request, 'register_vet.html', {'areas': areas})
+
+        if Vet.objects.filter(email=v_email).exists():
+            existing_vet = Vet.objects.get(email=v_email)
+            if existing_vet.status == 0:
+                messages.error(request, "Your registration request is already pending. Please wait for Admin approval.", extra_tags='vet_danger')
+            elif existing_vet.status == 2:
+                messages.error(request, "Your registration has been rejected. Please contact support or use a different email.", extra_tags='vet_danger')
+            else:
+                messages.error(request, "This email is already registered. Please try logging in.", extra_tags='vet_danger')
+            return render(request, 'register_vet.html', {'areas': areas})
+
+        if Vet.objects.filter(contact=v_contact).exists():
+            messages.error(request, "This mobile number is already registered.", extra_tags='vet_danger')
+            return render(request, 'register_vet.html', {'areas': areas})
+
+        try:
+            area_obj = Area.objects.get(area_id=v_area_id)
+            Vet.objects.create(
+                vet_name=v_name,
+                email=v_email,
+                password=make_password(v_pass),
+                contact=v_contact,
+                specialization=v_special,
+                charges=v_charges,
+                address=v_address,
+                area_id=area_obj,
+                vet_profile=v_profile,
+                documents=v_docs,
+                status=0,
+                availability_status=0
+            )
+            messages.success(request, "Registration successful! Please wait for the Admin to verify your account.", extra_tags='vet_success')
+            return redirect('vet_login')
+        except Exception as e:
+            messages.error(request, f"An unexpected error occurred: {e}", extra_tags='vet_danger')
+            return render(request, 'register_vet.html', {'areas': areas})
+            
+    return render(request, 'register_vet.html', {'areas': areas})
+
+def vet_login(request):
+    if request.method == "POST":
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        try:
+            vet = Vet.objects.get(email=email)
+            if check_password(password, vet.password):
+                if vet.status == 1:
+                    request.session['vet_id'] = vet.vet_id
+                    messages.success(request, f"Welcome back, Dr. {vet.vet_name}!", extra_tags='login_home')
+                    return redirect('vet_dashboard')
+                elif vet.status == 2:
+                    messages.error(request, "Your approval is rejected.")
+                elif vet.status == 3:
+                    messages.error(request, "You are restricted.")
+                elif vet.status == 4:
+                    messages.warning(request, "Your account removal is under process by Admin.")
+                else:
+                    messages.warning(request, "Your account is waiting for approval.")
+                return redirect('vet_login')
+            else:
+                messages.error(request, "Invalid Password.")
+                return redirect('vet_login')
+        except Vet.DoesNotExist:
+            messages.error(request, "No account found with this email.")
+            return redirect('vet_login')
+    return render(request, 'login_vet.html')
+
+from datetime import datetime
+from django.utils import timezone as django_timezone
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from test2.models import Feedback, Vet, Appointment, VetSchedule
+
+def vet_dashboard(request):
+    # 1. Session check
+    vet_id = request.session.get('vet_id')
+    if not vet_id:
+        return redirect('vet_login')
+    
+    vet = get_object_or_404(Vet, vet_id=vet_id)
+    days_list = [(0, 'Monday'), (1, 'Tuesday'), (2, 'Wednesday'), (3, 'Thursday'), (4, 'Friday'), (5, 'Saturday'), (6, 'Sunday')]
+
+    if request.method == "POST":
+        # --- A. AVAILABILITY & BULK CANCEL ---
+        if 'update_availability' in request.POST:
+            new_status = request.POST.get('availability_status')
+            
+            if new_status == "0":  # Offline Mode
+                start_date_str = request.POST.get('start_date')
+                end_date_str = request.POST.get('end_date')
+                reason = request.POST.get('offline_reason', 'Vet is unavailable')
+
+                if start_date_str and end_date_str:
+                    try:
+                        s_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                        e_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+                        
+                        # Fetch appointments in range
+                        conflicts = Appointment.objects.filter(
+                            vet_id=vet,
+                            appointment_date__range=[
+                                django_timezone.make_aware(datetime.combine(s_date, datetime.min.time())),
+                                django_timezone.make_aware(datetime.combine(e_date, datetime.max.time()))
+                            ],
+                            appointment_status__in=[0, 1, 3, 6]
+                        )
+
+                        count = conflicts.count()
+                        for appt in conflicts:
+                            # Direct Cancel Logic (No extra prefixes)
+                            appt.appointment_status = 7  # 7 = Cancelled Tag
+                            if hasattr(appt, 'cancel_reason'):
+                                appt.cancel_reason = reason
+                            appt.save()
+                        
+                        vet.cancel_count = (vet.cancel_count or 0) + count
+                        messages.success(request, f"Offline mode active. {count} appointments cancelled.")
+                    except (ValueError, Exception) as e:
+                        messages.error(request, f"Error: {str(e)}")
+                
+                vet.availability_status = 0
+                vet.save()
+                return redirect('vet_dashboard')
+
+            elif new_status == "1":
+                vet.availability_status = 1
+                vet.save()
+                messages.success(request, "You are now Online.")
+                return redirect('vet_dashboard')
+
+        # --- B. SINGLE APPOINTMENT MANAGEMENT ---
+        elif 'manage_appointment' in request.POST:
+            app_id = request.POST.get('app_id')
+            try:
+                action = int(request.POST.get('action', 0))
+                appointment = get_object_or_404(Appointment, appointment_id=app_id, vet_id=vet)
+                
+                if action == 1: # Accept
+                    appointment.appointment_status = 1 
+                    appointment.payment_timer_start = django_timezone.now()
+                    messages.success(request, "Appointment Accepted.")
+                
+                elif action == 2: # Manual Reject
+                    appointment.appointment_status = 2 # 2 = Rejected Tag
+                    reason = request.POST.get('cancel_reason', "Rejected by Vet.")
+                    if hasattr(appointment, 'cancel_reason'):
+                        appointment.cancel_reason = reason
+                    messages.info(request, "Appointment Rejected.")
+                
+                elif action == 4: # Complete
+                    if 'medical_report' in request.FILES:
+                        appointment.medical_report = request.FILES['medical_report']
+                        appointment.appointment_status = 4
+                        messages.success(request, "Report uploaded.")
+                
+                elif action == 5: # Absent
+                    appointment.appointment_status = 5
+                    client = appointment.cust_id
+                    if client:
+                        client.strike_count = (client.strike_count or 0) + 1
+                        if client.strike_count >= 3:
+                            client.is_cash_blocked = True
+                        client.save()
+                    messages.warning(request, "Client marked absent.")
+
+                appointment.save()
+            except Exception as e:
+                messages.error(request, f"Update Error: {str(e)}")
+            
+            return redirect('vet_dashboard')
+
+    # --- GET DATA FETCHING ---
+    context = {
+        'vet': vet,
+        'appointments': Appointment.objects.filter(vet_id=vet).order_by('-appointment_id'),
+        'days_list': days_list,
+        'current_schedule': VetSchedule.objects.filter(vet_id=vet).order_by('day_of_week'),
+        'reviews': Feedback.objects.filter(vet_id=vet, prod_id__isnull=True).order_by('-feedback_date'),
+        'today': django_timezone.now().date()
+    }
+    return render(request, 'vet-dashboard.html', context)
+
+def update_vet_schedule(request):
+    if 'vet_id' not in request.session: return redirect('vet_login')
+    vet = get_object_or_404(Vet, vet_id=request.session['vet_id'])
+    
+    if request.method == "POST":
+        # 48 hours locking logic
+        if not vet.is_first_login and vet.last_timing_update:
+            diff = django_timezone.now() - vet.last_timing_update
+            if diff.total_seconds() < 172800:
+                messages.error(request, "Schedule is locked for 48 hours!")
+                return redirect('vet_dashboard')
+        
+        VetSchedule.objects.filter(vet_id=vet).delete()
+        for i in range(7):
+            open_t = request.POST.get(f'open_{i}')
+            close_t = request.POST.get(f'close_{i}')
+            if open_t and close_t:
+                VetSchedule.objects.create(vet_id=vet, day_of_week=i, open_time=open_t, close_time=close_t)
+        
+        vet.is_first_login = False 
+        vet.last_timing_update = django_timezone.now()
+        vet.save()
+        messages.success(request, "Weekly Schedule Updated!")
+        
+    return redirect('vet_dashboard')
+
+def request_removal(request):
+    if 'vet_id' in request.session:
+        vet = get_object_or_404(Vet, vet_id=request.session['vet_id'])
+        if request.method == "POST":
+            v_pass = request.POST.get('confirm_password')
+            # Hash password check
+            if check_password(v_pass, vet.password):
+                vet.status = 4 # 4 = Removal Requested
+                vet.availability_status = 0 
+                vet.save()
+                del request.session['vet_id']
+                messages.success(request, "Account removal request sent to Admin.")
+                return redirect('vet_login')
+            else:
+                messages.error(request, "Invalid password! Removal request failed.")
+    return redirect('vet_dashboard')
+
+def check_vet_status(request):
+    if 'vet_id' in request.session:
+        try:
+            vet = Vet.objects.get(vet_id=request.session['vet_id'])
+            # Dashboard status polling
+            return JsonResponse({'status': vet.status}) 
+        except Vet.DoesNotExist:
+            return JsonResponse({'status': 'not_found'})
+            
+    return JsonResponse({'status': 'no_session'})
+
+def vet_logout(request):
+    if 'vet_id' in request.session: del request.session['vet_id']
+    return redirect('vet_login')
+
+def vet_forgot_password(request):
+    if request.method == 'POST':
+        v_email = request.POST.get('email')
+        vet = Vet.objects.filter(email=v_email).first()
+        if vet:
+            otp_val = str(random.randint(10000, 99999))
+            request.session['reset_vet_email'] = v_email 
+            vet.otp = otp_val
+            vet.otp_used = 0 
+            vet.save()
+            send_mail('Vet Portal: Password Reset OTP', f'Your OTP is: {otp_val}', settings.EMAIL_HOST_USER, [v_email])
+            return render(request, 'vet_reset_password.html')
+        else:
+            messages.error(request, "No vet account found with that email.")
+    return render(request, 'forgot_password.html')
+
+def vet_reset_password(request):
+    if request.method == "POST":
+        e = request.session.get('reset_vet_email')
+        otp_entered = request.POST.get('otp')
+        new_pass = request.POST.get('password')
+        confirm_pass = request.POST.get('confirm-password')
+        if new_pass != confirm_pass:
+            messages.error(request, "Passwords do not match!")
+            return render(request, 'vet_reset_password.html')
+        user = Vet.objects.filter(email=e, otp=otp_entered, otp_used=0).first()
+        if user:
+            user.password = make_password(new_pass)
+            user.otp_used = 1  
+            user.otp = None 
+            user.save()
+            if 'reset_vet_email' in request.session: del request.session['reset_vet_email']
+            messages.success(request, "Your password has been updated! Please login.")
+            return redirect('vet_login')
+        else:
+            messages.error(request, "Invalid or already used OTP.")
+    return render(request, 'vet_reset_password.html')

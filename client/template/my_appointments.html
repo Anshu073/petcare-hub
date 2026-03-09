@@ -1,0 +1,253 @@
+{% extends 'header1.html' %}
+{% load static %}
+{% block content %}
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold m-0" style="color: #894B8D;">
+            My Medical History <i class="fas fa-paw ms-1"></i>
+        </h3>
+        
+        {% if request.GET.from == 'bookings' %}
+            <a href="{% url 'team' %}" class="btn rounded-pill px-4 fw-bold shadow-sm" style="background-color: #894B8D; color: white; border: none;">
+                <i class="fas fa-user-md me-1"></i> Back To Vets
+            </a>
+        {% else %}
+            <a href="{% url 'home' %}" class="btn rounded-pill px-4 fw-bold shadow-sm" style="background-color: #894B8D; color: white; border: none;">
+                <i class="fas fa-home me-1"></i> Back To Home
+            </a>
+        {% endif %}
+    </div>
+
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show rounded-pill px-4" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <div class="table-responsive bg-white shadow-sm rounded-4 p-4 border">
+        <table class="table align-middle border-0">
+            <thead>
+                <tr class="text-muted small text-uppercase">
+                    <th>Doctor Details</th>
+                    <th>Schedule</th>
+                    <th>Current Status</th>
+                    <th class="text-center">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app in appointments %}
+                <tr>
+                    <td>
+                        <div class="fw-bold text-dark">Dr. {{ app.vet_id.vet_name }}</div>
+                        <div class="small text-muted">{{ app.vet_id.specialization }}</div>
+                    </td>
+                    <td>
+                        <div class="fw-bold">{{ app.appointment_date|date:"D, d M Y" }}</div>
+                        <div class="small text-muted">{{ app.appointment_date|time:"h:i A" }}</div>
+                    </td>
+                    <td>
+                        {% if app.appointment_status == 0 %}
+                        <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">
+                            <i class="fas fa-hourglass-half me-1"></i> Waiting for Approval
+                        </span>
+                        {% elif app.appointment_status == 1 %}
+                        <span class="badge bg-success px-3 py-2 rounded-pill">
+                            <i class="fas fa-check-circle me-1"></i> Request Accepted
+                        </span>
+                        {% elif app.appointment_status == 2 %}
+                        <span class="badge bg-danger px-3 py-2 rounded-pill">
+                            <i class="fas fa-times-circle me-1"></i> Rejected by Vet
+                        </span>
+                        {% elif app.appointment_status == 3 %}
+                        <span class="badge bg-primary px-3 py-2 rounded-pill">
+                            <i class="fas fa-calendar-check me-1"></i> Confirmed
+                        </span>
+                        {% elif app.appointment_status == 4 %}
+                        <span class="badge bg-dark px-3 py-2 rounded-pill">
+                            <i class="fas fa-check-double me-1"></i> Completed
+                        </span>
+                        {% elif app.appointment_status == 5 %}
+                        <span class="badge bg-secondary px-3 py-2 rounded-pill">
+                            <i class="fas fa-user-slash me-1"></i> Marked as Absent
+                        </span>
+                        {% elif app.appointment_status == 6 %}
+                        <span class="badge bg-info text-dark px-3 py-2 rounded-pill">
+                            <i class="fas fa-clock me-1"></i> Rescheduled by Vet
+                        </span>
+                        {% elif app.appointment_status == 7 %}
+                        <span class="badge bg-secondary text-white px-3 py-2 rounded-pill">
+                            <i class="fas fa-times-circle me-1"></i> Cancelled by Vet
+                        </span>
+                        {% endif %}
+                    </td>
+
+                    <td class="text-center">
+                        {% if app.appointment_status == 0 %}
+                        <small class="text-muted italic">Awaiting Vet's Response</small>
+
+                        {% elif app.appointment_status == 1 and not app.payment_mode %}
+                        <div class="p-2 border rounded-3 bg-light shadow-sm">
+                            <div class="text-danger fw-bold mb-2" style="font-size: 12px;">
+                                <i class="fas fa-clock"></i> Expires in: 
+                                <span class="payment-timer" data-start="{{ app.payment_timer_start.isoformat }}">--:--</span>
+                            </div>
+                            
+                            <p class="x-small fw-bold mb-2 text-uppercase" style="font-size: 10px;">Choose Payment Mode:</p>
+                            <form method="POST" class="d-flex gap-2 justify-content-center">
+                                {% csrf_token %}
+                                <input type="hidden" name="app_id" value="{{ app.appointment_id }}">
+                                <input type="hidden" name="confirm_payment" value="1">
+
+                                <button name="payment_mode" value="1" class="btn btn-xs btn-primary rounded-pill px-3 py-1 fw-bold" style="font-size: 11px;">
+                                    Online Pay
+                                </button>
+
+                                {% if not customer.is_cash_blocked %}
+                                <button name="payment_mode" value="2" class="btn btn-xs btn-outline-success rounded-pill px-3 py-1 fw-bold" style="font-size: 11px;">
+                                    Cash at Clinic
+                                </button>
+                                {% else %}
+                                <span class="text-danger fw-bold d-block" style="font-size: 10px;">
+                                    <i class="fas fa-ban"></i> Cash Blocked
+                                </span>
+                                {% endif %}
+                            </form>
+                        </div>
+
+                        {% elif app.appointment_status == 6 %}
+                        <div class="p-2 border rounded-3 bg-info bg-opacity-10 shadow-sm">
+                            <p class="small fw-bold mb-2">Vet suggested new time. Accept?</p>
+                            <form method="POST" class="d-flex gap-2 justify-content-center">
+                                {% csrf_token %}
+                                <input type="hidden" name="app_id" value="{{ app.appointment_id }}">
+                                <input type="hidden" name="handle_reschedule" value="1">
+                                <button name="action" value="accept" class="btn btn-sm btn-success rounded-pill px-3">Accept</button>
+                                <button name="action" value="reject" class="btn btn-sm btn-outline-danger rounded-pill px-3">Reject</button>
+                            </form>
+                        </div>
+
+                        {% elif app.appointment_status == 3 %}
+                        <div class="text-success small fw-bold">
+                            <i class="fas fa-info-circle"></i> Ready for Visit<br>
+                            <span class="text-muted">Mode: {% if app.payment_mode == 1 %}Online{% else %}Cash{% endif %}</span>
+                        </div>
+
+                        {% elif app.appointment_status == 4 %}
+                        <div class="d-flex flex-column gap-2 align-items-center">
+                            {% if app.medical_report %}
+                            <a href="{{ app.medical_report.url }}" target="_blank" class="btn btn-sm btn-outline-dark rounded-pill px-3">
+                                <i class="fas fa-file-download me-1"></i> View Report
+                            </a>
+                            {% else %}
+                            <small class="text-muted italic">Report Pending</small>
+                            {% endif %}
+
+                            {% if app.appointment_id in rated_app_ids %}
+                            <button class="btn btn-sm btn-light disabled rounded-pill px-3 border" style="font-size: 11px;">
+                                <i class="fas fa-check-circle text-success me-1"></i> Already Rated
+                            </button>
+                            {% else %}
+                            <button class="btn btn-sm btn-warning rounded-pill px-3" style="font-size: 11px;" data-bs-toggle="modal" data-bs-target="#feedbackModal{{app.appointment_id}}">
+                                <i class="fas fa-star me-1"></i> Rate Doctor
+                            </button>
+                            {% endif %}
+                        </div>
+
+                        <div class="modal fade" id="feedbackModal{{app.appointment_id}}" tabindex="-1">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content rounded-4 border-0 shadow">
+                                    <form method="POST" action="{% url 'submit_vet_feedback' %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="vet_id" value="{{ app.vet_id.vet_id }}">
+                                        <input type="hidden" name="app_id" value="{{ app.appointment_id }}">
+                                        <div class="modal-body p-4 text-start">
+                                            <h5 class="fw-bold mb-3">Rate Dr. {{ app.vet_id.vet_name }}</h5>
+                                            <div class="mb-3">
+                                                <label class="form-label small fw-bold">Rating (1-5)</label>
+                                                <select name="rating" class="form-select rounded-pill">
+                                                    <option value="5">5 - Excellent</option>
+                                                    <option value="4">4 - Very Good</option>
+                                                    <option value="3">3 - Good</option>
+                                                    <option value="2">2 - Fair</option>
+                                                    <option value="1">1 - Poor</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label small fw-bold">Comment</label>
+                                                <textarea name="comments" class="form-control rounded-4" rows="3" placeholder="Share your experience..." required></textarea>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold" style="background-color: #894B8D; border:none;">Submit Review</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% elif app.appointment_status == 7 %}
+                        <div class="text-center">
+                            <small class="text-muted d-block">Appointment Closed</small>
+                            {% if app.cancel_reason %}
+                            <div class="bg-light p-2 mt-1 rounded-3 border" style="font-size: 10px;">
+                                <i class="fas fa-info-circle text-secondary"></i> "{{ app.cancel_reason }}"
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        {% elif app.appointment_status == 2 %}
+                        <small class="text-danger fw-bold">Cancelled/Expired</small>
+                        {% elif app.appointment_status == 5 %}
+                        <small class="text-muted">Appointment Closed (Absent)</small>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center py-5 text-muted">
+                        <i class="fas fa-folder-open d-block mb-2 fs-2"></i> No medical history found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    function updateTimers() {
+        const timers = document.querySelectorAll('.payment-timer');
+        timers.forEach(timer => {
+            const dateStr = timer.getAttribute('data-start');
+            if (!dateStr || dateStr === "None") {
+                timer.innerHTML = "00m 00s";
+                return;
+            }
+
+            const startTime = new Date(dateStr).getTime();
+            const expiryTime = startTime + (30 * 60 * 1000); 
+            const now = new Date().getTime();
+            const distance = expiryTime - now;
+
+            if (distance < 0) {
+                timer.innerHTML = "EXPIRED";
+                timer.parentElement.classList.remove('text-danger');
+                timer.parentElement.classList.add('text-muted');
+            } else {
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                const mDisplay = minutes < 10 ? "0" + minutes : minutes;
+                const sDisplay = seconds < 10 ? "0" + seconds : seconds;
+                
+                timer.innerHTML = mDisplay + "m " + sDisplay + "s";
+            }
+        });
+    }
+    setInterval(updateTimers, 1000);
+    updateTimers();
+</script>
+
+{% endblock %}
