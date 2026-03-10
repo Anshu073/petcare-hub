@@ -135,7 +135,7 @@ class DeliveryBoy(models.Model):
     email = models.EmailField(max_length=20, unique=True)
     contact = models.CharField(max_length=10)
     is_available = models.IntegerField(default=1) # Default: 1 (Available)
-    deliveryboy_profile = models.CharField(max_length=200,null=True)
+    deliveryboy_profile = models.ImageField(upload_to='delivery_profiles/', null=True, blank=True)
 
     class Meta:
         db_table = 'DELIVERY_BOY_TABLE'

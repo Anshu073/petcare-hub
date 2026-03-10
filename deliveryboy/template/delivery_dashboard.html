@@ -1,0 +1,205 @@
+{% load static %}
+<!doctype html>
+<html class="no-js" lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Partner Portal | PetCareHub Logistics</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/fontawesome-all.min.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --brand-purple: #894B8D; --bg-soft: #f6edf7; }
+        body { background-color: var(--bg-soft); font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; }
+        
+        /* Header Styling */
+        .header-area { background: #fff; padding: 15px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .btn-logout { background: var(--brand-purple); color: #fff; border-radius: 50px; padding: 8px 25px; font-weight: 700; border: none; transition: 0.3s; }
+        .btn-logout:hover { background: #6a3a6d; transform: translateY(-2px); }
+
+        /* Sidebar Profile Card */
+        .dashboard-card { background: #fff; border-radius: 35px; padding: 35px; border: none; box-shadow: 0 10px 30px rgba(137, 75, 141, 0.05); margin-bottom: 30px; }
+        .agent-profile-img { width: 120px; height: 120px; border-radius: 25px; object-fit: cover; border: 5px solid #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+        
+        /* Stats Widgets */
+        .stat-widget { border-radius: 30px; padding: 40px 30px; color: #fff; margin-bottom: 25px; background: var(--brand-purple); transition: 0.3s; }
+        .stat-widget.dark { background: #333333; }
+        .stat-widget:hover { transform: translateY(-5px); }
+        .stat-widget h2 { font-size: 42px; margin-top: 5px; font-weight: 800; }
+        .stat-widget small { text-transform: uppercase; letter-spacing: 1px; font-weight: 600; opacity: 0.8; }
+
+        /* UI Elements */
+        .btn-brand { background: var(--brand-purple); color: #fff; border-radius: 50px; font-weight: 700; padding: 10px 25px; border: none; transition: 0.3s; }
+        .btn-brand:hover { background: #6a3a6d; box-shadow: 0 5px 15px rgba(137, 75, 141, 0.3); }
+        .badge-status { padding: 8px 15px; border-radius: 10px; font-weight: 600; font-size: 12px; }
+        .badge-ready { background: #ebf2ff; color: #5c86ff; }
+        .sidebar-link.active { background: var(--brand-purple); color: #fff !important; border-radius: 20px; padding: 15px 20px; display: block; text-decoration: none; font-weight: 700; }
+    </style>
+</head>
+<body>
+
+<header class="header-area sticky-top">
+    <div class="container d-flex justify-content-between align-items-center">
+        <div class="logo"><img src="{% static 'assets/img/logo/logo.png' %}" alt="PetPal Logo" height="45"></div>
+        <a href="{% url 'delivery_logout' %}" class="btn-logout text-decoration-none shadow-sm">Logout</a>
+    </div>
+</header>
+
+<main class="py-5">
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-dismissible fade show border-0 shadow-sm rounded-pill px-4 mb-4 {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %}" role="alert">
+                <strong>{% if message.tags == 'error' %}Wait!{% else %}Success!{% endif %}</strong> {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="row">
+            <div class="col-lg-3">
+                <div class="dashboard-card text-center">
+                    <img src="{% if agent.deliveryboy_profile %}{{ agent.deliveryboy_profile.url }}{% else %}{% static 'assets/img/users/default.png' %}{% endif %}" class="agent-profile-img mb-3 border">
+                    
+                    <h4 class="fw-bold mb-1">{{ agent.deliveryboy_name }}</h4>
+                    <p class="text-muted small mb-0">{{ agent.contact }}</p>
+                    <p class="text-muted small mb-4">Vehicle: GJ-01-AB-1234</p>
+                    
+                    <button class="btn-brand w-100 mb-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                        <i class="fas fa-user-edit me-2"></i>Edit Profile
+                    </button>
+                    
+                    <hr class="mb-4">
+                    <nav class="text-start">
+                        <a href="{% url 'delivery_dashboard' %}" class="sidebar-link active"><i class="fas fa-truck me-2"></i> Active Tasks</a>
+                        <div class="dropdown mt-3">
+    <button class="btn btn-sm w-100 rounded-pill fw-bold dropdown-toggle {% if agent.is_available == 1 %}btn-success{% else %}btn-danger{% endif %}" 
+            type="button" id="statusDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+        Status: {% if agent.is_available == 1 %}Online{% else %}Offline{% endif %}
+    </button>
+    
+    <ul class="dropdown-menu w-100 border-0 shadow-sm mt-2" aria-labelledby="statusDropdown" style="border-radius: 15px;">
+        <li>
+            <form action="{% url 'toggle_status' %}" method="POST">
+                {% csrf_token %}
+                <button type="submit" class="dropdown-item fw-bold text-success py-2">
+                    <i class="fas fa-circle me-2"></i> Go Online
+                </button>
+            </form>
+        </li>
+        <li>
+            <form action="{% url 'toggle_status' %}" method="POST">
+                {% csrf_token %}
+                <button type="submit" class="dropdown-item fw-bold text-danger py-2">
+                    <i class="fas fa-circle me-2"></i> Go Offline
+                </button>
+            </form>
+        </li>
+    </ul>
+</div>
+                    </nav>
+                </div>
+            </div>
+
+            <div class="col-lg-9">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="stat-widget shadow">
+                            <small>Deliveries Today</small>
+                            <h2>{{ active_tasks.count }} Tasks</h2>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="stat-widget dark shadow">
+                            <small>Current Earnings (Delivered)</small>
+                            <h2 class="text-primary">{{ completed_count }} Tasks</h2>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card shadow-sm border-0">
+                    <h5 class="fw-bold mb-4">Pending Deliveries (Table XII)</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light border-0">
+                                <tr class="small text-uppercase text-muted fw-bold">
+                                    <th>ORDER ID</th><th>STORE (PICKUP)</th><th>CUSTOMER (DROP)</th><th>STATUS</th><th>ACTION</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for task in active_tasks %}
+                                <tr>
+                                    <td class="fw-bold">#ORD-{{ task.order_id }}</td>
+                                    <td class="small"><strong>{{ task.vendor_id.vendor_name }}</strong><br><span class="text-muted">{{ task.vendor_id.address }}</span></td>
+                                    <td class="small"><strong>{{ task.cust_id.cust_name }}</strong><br><span class="text-muted">{{ task.address }}</span></td>
+                                    <td><span class="badge-status badge-ready">Ready for Pickup</span></td>
+                                    <td>
+                                        <form action="{% url 'deliver_order' task.order_id %}" method="POST">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn-brand btn-sm px-4">Deliver 🐾</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="5" class="text-center py-5 text-muted">No pending tasks. Enjoy your day! 🐾</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div class="modal fade" id="editProfileModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow border-0" style="border-radius: 35px;">
+            <div class="modal-header border-0 pb-0 p-4">
+                <h5 class="fw-bold">Update Partner Profile</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{% url 'edit_profile' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body p-4">
+                    <div class="mb-3 text-center">
+                        <label class="small fw-bold d-block mb-2">Profile Photo</label>
+                        <input type="file" name="profile_photo" class="form-control rounded-pill mb-2" accept="image/*">
+                        <div class="form-check d-inline-block mt-1">
+                            <input class="form-check-input" type="checkbox" name="remove_photo" id="rmPhoto">
+                            <label class="form-check-label small text-danger fw-bold" for="rmPhoto">Remove Photo (Set Default)</label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="small fw-bold mb-1">Full Name</label>
+                        <input type="text" name="name" class="form-control rounded-pill px-3" value="{{ agent.deliveryboy_name }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="small fw-bold mb-1">Email Address</label>
+                        <input type="email" name="email" class="form-control rounded-pill px-3" value="{{ agent.email }}" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="small fw-bold mb-1">Mobile Number</label>
+                        <input type="tel" name="contact" class="form-control rounded-pill px-3" value="{{ agent.contact }}" required>
+                    </div>
+                    <button type="submit" class="btn-brand w-100 py-3 shadow-sm">Save All Changes 🐾</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js' %}"></script>
+<script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+<script>
+    // Smoothly remove alerts
+    $(document).ready(function () {
+        setTimeout(function () {
+            $(".alert").fadeTo(500, 0).slideUp(500, function () { $(this).remove(); });
+        }, 5000);
+    });
+</script>
+</body>
+</html>
