@@ -111,9 +111,9 @@
 
 <div class="delivery-breadcrumb-box py-5">
     <div class="container text-center text-white">
-        <h1 class="fw-800" style="font-weight: 800;">Delivery Partner Dashboard</h1>
+        <h1 class="fw-800" style="font-weight: 800;">Delivery Boy Dashboard</h1>
         <p class="opacity-75 small">
-            {{ agent.deliveryboy_name }} | Agent_id: {{ agent.deliveryboy_id }} | Active Partner
+            {{ agent.deliveryboy_name }} | DeliveryBoy_id: {{ agent.deliveryboy_id }} 
         </p>
     </div>
 </div>
@@ -172,31 +172,48 @@
                 <div class="dashboard-card shadow-sm">
                     <h5 class="fw-bold mb-4">Pending Deliveries</h5>
                     <div class="table-responsive">
-                        <table class="table align-middle">
-                            <thead class="table-light">
-                                <tr class="small text-muted fw-bold">
-                                    <th>ID</th><th>STORE</th><th>CUSTOMER</th><th class="text-center">ACTION</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for task in active_tasks %}
-                                <tr>
-                                    <td class="fw-bold">#ORD-{{ task.order_id }}</td>
-                                    <td><strong>{{ task.vendor_id.vendor_name }}</strong></td>
-                                    <td><strong>{{ task.cust_id.cust_name }}</strong></td>
-                                    <td class="text-center">
-                                        <form action="{% url 'deliver_order' task.order_id %}" method="POST">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-sm btn-dark rounded-pill px-4 fw-bold">Deliver 🐾</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                <tr><td colspan="4" class="text-center py-5 text-muted">No pending tasks. 🐾</td></tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+    <table class="table align-middle">
+        <thead class="table-light">
+            <tr class="small text-muted fw-bold text-uppercase">
+                <th>Order ID</th>
+                <th>Customer & Contact</th>
+                <th>Delivery Address</th>
+                <th>Amount</th>
+                <th class="text-center">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in active_tasks %}
+            <tr>
+                <td class="fw-bold">#ORD-{{ task.order_id }}</td>
+                <td>
+                    <div class="fw-bold">{{ task.cust_id.cust_name }}</div>
+                    <div class="small text-muted"><i class="fas fa-phone-alt me-1"></i>{{ task.cust_id.contact }}</div>
+                </td>
+                <td>
+                    <div class="small fw-bold text-truncate" style="max-width: 200px;" title="{{ task.address }}">
+                        <i class="fas fa-map-marker-alt text-danger me-1"></i>{{ task.address }}
                     </div>
+                </td>
+                <td><span class="badge bg-light text-dark">₹{{ task.total_amount }}</span></td>
+                <td class="text-center">
+                    {% if task.order_status == 0 %}
+                        <a href="{% url 'update_status' task.order_id 1 %}" class="btn btn-sm btn-info rounded-pill px-3 fw-bold text-white shadow-sm">
+                            Pick Order 🚚
+                        </a>
+                    {% elif task.order_status == 1 %}
+                        <a href="{% url 'update_status' task.order_id 2 %}" class="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm">
+                            Deliver 🐾
+                        </a>
+                    {% else %}
+                        <span class="badge bg-light text-success border border-success rounded-pill px-3 py-2">Delivered ✅</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
                 </div>
             </div>
         </div>

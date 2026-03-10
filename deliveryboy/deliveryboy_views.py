@@ -135,3 +135,20 @@ def delivery_logout(request):
         del request.session['delivery_name']
     messages.info(request, "Logged out successfully.")
     return redirect('delivery_login')
+
+def update_delivery_status(request, order_id, new_status):
+    if 'delivery_id' not in request.session:
+        return redirect('delivery_login')
+    
+    # Validation: Order wahi update ho jo is delivery boy ko assigned hai
+    order = get_object_or_404(Order, pk=order_id, deliveryboy_id=request.session['delivery_id']) 
+    
+    # Logical Flow: Pehle status 1 hoga tabhi 2 ho sakta hai
+    if new_status == 2 and order.order_status != 1:
+        messages.error(request, "Pehle order pick-up karna zaroori hai!")
+        return redirect('delivery_dashboard')
+
+    order.order_status = new_status
+    order.save()
+    messages.success(request, "Status Updated! 🐾")
+    return redirect('delivery_dashboard')
