@@ -67,6 +67,7 @@ urlpatterns = [
     path('client/',include('client.client_urls')),
     path('change_password/', views.change_password, name="change_password"),
     path('vet/', include('vet.vet_urls')),
+    path('deliveryboy/', include('deliveryboy.deliveryboy_urls')),
 
 ]
 
