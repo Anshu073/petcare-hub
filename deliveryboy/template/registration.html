@@ -1,199 +1,241 @@
 {% load static %}
+<!doctype html>
+<html class="no-js" lang="en">
 
-{% block content %}
 <head>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Join the Logistics Team - PetPal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/animate.min.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/fontawesome-all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/main.css' %}">
 
     <style>
-        /* 1. Global Background Setup */
+        :root {
+            --tg-brand-color: #894B8D;
+            --tg-brand-light: #f4eef5;
+        }
+
+        /* Matches Client Style */
         body {
-            background-color: #f7eff7 !important; /* Soft lavender tint */
+            background-color: var(--tg-brand-light);
             font-family: 'Plus Jakarta Sans', sans-serif;
             margin: 0;
-            overflow-x: hidden;
+            padding: 0;
+            overflow-y: auto !important;
         }
 
-        /* 2. Fixed Background Doodles with High Transparency */
-        .fixed-doodles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            pointer-events: none;
+        .register-wrapper {
+            padding: 80px 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
         }
 
-        .doodle-left {
-            position: absolute;
-            bottom: 0;
-            left: -30px;
-            width: 38%;
-            opacity: 0.12; /* Transparency fixed as per screenshot */
-        }
+        /* Fixed Background Doodles */
+        /* Fixed Doodles Container */
+.fixed-doodles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+}
 
-        .doodle-right {
-            position: absolute;
-            top: 40px;
-            right: -20px;
-            width: 32%;
-            opacity: 0.08; /* Right side extra faded */
-        }
+/* Individual Image Styling */
+.doodle-left {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    /* Height use karne se width apne aap proportionate choti ho jayegi */
+    height: 72vh; 
+    filter: grayscale(100%) opacity(0.12); /* Matches client opacity */
+    object-fit: contain;
+}
 
-        .paw-icon {
-            position: absolute;
-            filter: opacity(0.05); /* Very subtle paws */
-            width: 50px;
-        }
+.doodle-right {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    height: 55vh; /* Dog image nurse se thodi choti hai screenshot mein */
+    filter: grayscale(100%) opacity(0.12);
+    object-fit: contain;
+    transform: rotate(-5deg); /* Subtle tilt like the screenshot */
+}
 
-        /* 3. Premium Card Design */
-        .premium-card {
+        /* Centered Premium Card */
+        .register-card {
             background: #ffffff;
-            border: 6px solid #894B8D !important; /* Thick brand border */
-            border-radius: 50px !important;
-            box-shadow: 0 30px 60px rgba(137, 75, 141, 0.12);
-            padding: 60px 50px !important;
-            margin-top: 20px;
+            border-radius: 50px;
+            border: 6px solid var(--tg-brand-color);
+            box-shadow: 0px 30px 60px rgba(137, 75, 141, 0.12);
+            padding: 50px 40px;
+            width: 100%;
+            max-width: 550px;
+            position: relative;
         }
 
-        /* 4. Headings inside Card */
-        .join-text {
-            color: #894B8D;
-            font-weight: 800;
-            font-size: 13px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            display: block;
-            margin-bottom: 8px;
-            text-align: center;
-        }
-
-        .main-title {
-            font-size: 34px;
-            font-weight: 800;
-            color: #1a202c;
-            margin-bottom: 40px;
-            text-align: center;
-        }
-
-        /* 5. Input Styling (Screenshot Blue Tint) */
-        .custom-input {
-            background-color: #f0f5ff !important; /* Soft blue background */
-            border: 1px solid #e2e8f0 !important;
-            border-radius: 18px !important;
-            height: 60px !important;
-            padding: 0 25px !important;
-            font-size: 16px !important;
-            transition: 0.3s;
-        }
-
-        .custom-input:focus {
-            background-color: #fff !important;
-            border-color: #894B8D !important;
-            box-shadow: 0 0 0 4px rgba(137, 75, 141, 0.1) !important;
-        }
+        .form-grp { margin-bottom: 20px; }
 
         .form-label {
             font-weight: 700 !important;
             color: #4a5568 !important;
-            margin-bottom: 10px;
-            margin-left: 5px;
+            margin-bottom: 8px;
+            display: block;
+            text-align: left;
         }
 
-        /* 6. Button */
-        .btn-register {
-            background-color: #894B8D !important;
-            color: white !important;
-            border-radius: 50px !important;
-            font-weight: 800 !important;
-            padding: 18px !important;
+        /* Inputs - Matching Screenshot Blue Tint */
+        .custom-input {
+            width: 100%;
+            padding: 16px 20px;
+            border-radius: 18px;
+            border: 2px solid #f0f0f0;
+            background: #f0f5ff; /* Light blue tint */
+            font-size: 15px;
+            transition: 0.3s;
+            outline: none;
+        }
+
+        .custom-input:focus {
+            border-color: var(--tg-brand-color);
+            background: #fff;
+            box-shadow: 0px 5px 15px rgba(137, 75, 141, 0.08);
+        }
+
+        /* Register Button */
+        .btn-brand {
+            background-color: var(--tg-brand-color);
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            padding: 18px;
+            font-weight: 800;
+            width: 100%;
+            font-size: 16px;
             text-transform: uppercase;
             letter-spacing: 1px;
-            border: none;
-            width: 100%;
-            margin-top: 25px;
             transition: 0.3s;
+            cursor: pointer;
+            margin-top: 15px;
         }
 
-        .btn-register:hover {
-            background-color: #4b2c4d !important;
+        .btn-brand:hover {
+            background-color: #6a3a6d;
             transform: translateY(-3px);
-            box-shadow: 0 15px 30px rgba(137, 75, 141, 0.25) !important;
+            box-shadow: 0 10px 20px rgba(137, 75, 141, 0.2);
         }
+
+        .shake-anim { animation: shake 3s infinite linear; }
     </style>
 </head>
 
-<div class="fixed-doodles">
+<body>
+
+    <div class="fixed-doodles">
     <img src="{% static 'assets/img/banner/banner_img01.png' %}" class="doodle-left">
+    
     <img src="{% static 'assets/img/images/about_img.png' %}" class="doodle-right">
-    <img src="{% static 'assets/img/icon/pet_icon02.svg' %}" class="paw-icon" style="top: 15%; left: 8%;">
-    <img src="{% static 'assets/img/icon/pet_icon01.svg' %}" class="paw-icon" style="bottom: 20%; right: 12%;">
 </div>
 
-<main class="py-5 d-flex align-items-center min-vh-100">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-6 col-md-9">
-                
-                <div class="premium-card">
-                    <span class="join-text">DELIVERY BOY REGISTRATION</span>
-                    <h1 class="main-title">Create Account</h1>
+    <main>
+        <div class="register-wrapper">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-12 d-flex justify-content-center">
 
-                    <form action="{% url 'delivery_register' %}" method="POST" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        
-                        <div class="row">
-                            <div class="col-12 mb-3">
-                                <label class="form-label">Linked Vendor / Pet Shop</label>
-                                <select name="vendor_id" class="form-select custom-input" required>
-                                    <option value="" selected disabled>Select your store...</option>
-                                    {% for v in vendors %}
-                                        <option value="{{ v.vendor_id }}">{{ v.vendor_name }}</option>
-                                    {% endfor %}
-                                </select>
+                        <div class="register-card">
+                            
+
+                            <div class="text-center mb-40">
+                                <span style="color: var(--tg-brand-color); font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">DELIVERY BOY</span>
+                                <h1 style="margin-top: 10px; font-weight: 800; color: #1a202c; font-size: 32px;">Registration</h1>
                             </div>
 
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Full Name</label>
-                                <input type="text" name="deliveryboy_name" class="form-control custom-input" placeholder="Enter Full Name" required>
-                            </div>
+                            {% if messages %}
+                                {% for message in messages %}
+                                <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %} shadow-sm" style="border-radius: 15px; border-left: 6px solid {% if message.tags == 'error' %}#dc3545{% else %}#28a745{% endif %};">
+                                    <strong>{{ message.tags|title }}!</strong> {{ message }}
+                                </div>
+                                {% endfor %}
+                            {% endif %}
 
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Mobile Number</label>
-                                <input type="tel" name="contact" class="form-control custom-input" placeholder="10-digit number" required>
-                            </div>
+                            <form action="{% url 'delivery_register' %}" method="POST" enctype="multipart/form-data">
+                                {% csrf_token %}
 
-                            <div class="col-12 mb-3">
-                                <label class="form-label">Email Address</label>
-                                <input type="email" name="email" class="form-control custom-input" placeholder="" required>
-                            </div>
+                                <div class="form-grp">
+                                    <label class="form-label">Linked Vendor / Pet Shop</label>
+                                    <select name="vendor_id" class="custom-input" style="appearance: auto;" required>
+                                        <option value="" disabled selected>Select your store...</option>
+                                        {% for v in vendors %}
+                                            <option value="{{ v.vendor_id }}">{{ v.vendor_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
 
-                            <div class="col-12 mb-4">
-                                <label class="form-label">Password</label>
-                                <input type="password" name="password" class="form-control custom-input" placeholder="" required>
-                            </div>
-                            <div class="col-12 mb-4">
-    <label class="form-label fw-bold small ms-2">Upload Profile Photo</label>
-    <input type="file" name="deliveryboy_profile" class="form-control custom-input pt-3" accept="image/*">
-    <small class="text-muted ms-2">Photo will be saved in your personal media folder.</small>
-</div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-grp">
+                                            <label class="form-label">Full Name</label>
+                                            <input type="text" name="deliveryboy_name" class="custom-input" placeholder="Enter Your Name" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-grp">
+                                            <label class="form-label">Contact Number</label>
+                                            <input type="tel" name="contact" class="custom-input" placeholder="Enter Contact Number" required>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-grp">
+                                    <label class="form-label">Email Address</label>
+                                    <input type="email" name="email" class="custom-input" placeholder="Eg. xyz@gmail.com" required>
+                                </div>
+
+                                <div class="form-grp">
+                                    <label class="form-label">Password</label>
+                                    <input type="password" name="password" class="custom-input" placeholder="Enter Your Password" required>
+                                </div>
+
+                                <div class="form-grp">
+                                    <label class="form-label">Profile Photo</label>
+                                    <input type="file" name="deliveryboy_profile" class="custom-input pt-3" accept="image/*">
+                                    <small class="text-muted ms-2">This photo will be visible on your dashboard.</small>
+                                </div>
+
+                                <button type="submit" class="btn-brand shadow-sm">Register Now🐾</button>
+
+                                <div class="text-center mt-30 pt-3 border-top">
+                                    <p style="font-size: 15px; color: #666;">Already a delivery boy? 
+                                        <a href="{% url 'delivery_login' %}" style="color: var(--tg-brand-color); font-weight: 800; text-decoration: none;">Login Here</a>
+                                    </p>
+                                </div>
+                            </form>
                         </div>
 
-                        <button type="submit" class="btn-register shadow-sm">
-                            REGISTER AS DELIVERY BOY 🐾
-                        </button>
-
-                        <div class="text-center mt-4 pt-3 border-top">
-                            <p class="text-muted small">Already a partner? 
-                                <a href="{% url 'delivery_login' %}" class="fw-bold text-decoration-none" style="color: #894B8D;">Login to Dashboard</a>
-                            </p>
-                        </div>
-                    </form>
+                    </div>
                 </div>
-                </div>
+            </div>
         </div>
-    </div>
-</main>
-{% endblock %}
+    </main>
+
+    <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+    <script>
+        $(document).ready(function () {
+            // Auto-hide messages matched to client script
+            setTimeout(function () {
+                $(".alert").fadeTo(500, 0).slideUp(500, function () { $(this).remove(); });
+            }, 5000);
+        });
+    </script>
+</body>
+</html>
