@@ -243,9 +243,18 @@ def vet_dashboard(request):
                 return redirect('vet_dashboard')
 
             elif new_status == "1":
-                vet.availability_status = 1
-                vet.save()
-                messages.success(request, "You are now Online.")
+                # Check karo ki database mein schedule exist karta hai ya nahi
+                has_schedule = VetSchedule.objects.filter(vet_id=vet).exists()
+                
+                if has_schedule:
+                    # Agar schedule hai, toh hi online karo
+                    vet.availability_status = 1
+                    vet.save()
+                    messages.success(request, "You are now Online. 🐾")
+                else:
+                    # Agar schedule nahi hai, toh error do aur status mat badlo
+                    messages.error(request, "Pehle schedule set karein, uske baad hi Online ja sakte hain.")
+                
                 return redirect('vet_dashboard')
 
         # --- C. SINGLE APPOINTMENT MANAGEMENT ---
@@ -320,12 +329,27 @@ def vet_dashboard(request):
             'is_midnight': is_midnight
         })
     
+    # Database se current schedule uthao
+    current_schedule_objs = VetSchedule.objects.filter(vet_id=vet)
+    schedules_lookup = {s.day_of_week: s for s in current_schedule_objs}
+
+    prefilled_days = []
+    for i, day_name in days_list:
+        existing = schedules_lookup.get(i)
+        prefilled_days.append({
+            'index': i,
+            'name': day_name,
+            'open_val': existing.open_time.strftime('%H:%M:%S') if existing and existing.open_time else "",
+            'close_val': existing.close_time.strftime('%H:%M:%S') if existing and existing.close_time else ""
+        })
+    
     # --- GET DATA FETCHING ---
     context = {
         'vet': vet,
         'appointments': Appointment.objects.filter(vet_id=vet).order_by('-appointment_id'),
         'days_list': days_list,
         'time_slots': time_slots,
+        'prefilled_days': prefilled_days,
         'current_schedule': VetSchedule.objects.filter(vet_id=vet).order_by('day_of_week'),
         'reviews': Feedback.objects.filter(vet_id=vet, prod_id__isnull=True).order_by('-feedback_date'),
         'today': django_timezone.now().date(),
@@ -354,8 +378,16 @@ def update_vet_schedule(request):
         
         vet.is_first_login = False 
         vet.last_timing_update = django_timezone.now()
+        
+        force_online = request.POST.get('force_online')
+        
+        if force_online == "1":
+            vet.availability_status = 1
+            messages.success(request, "Schedule Updated & You are now Online! 🐾")
+        else:
+            messages.success(request, "Weekly Schedule Updated successfully!")
+        
         vet.save()
-        messages.success(request, "Weekly Schedule Updated!")
         
     return redirect('vet_dashboard')
 

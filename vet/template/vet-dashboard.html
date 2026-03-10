@@ -497,7 +497,7 @@
     </div>
 </div>
 
-<div class="modal fade" id="firstLoginModal" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="firstLoginModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content rounded-4 border-0">
             <div class="modal-header border-0 bg-light">
@@ -530,24 +530,28 @@
 
                     <table class="table table-borderless align-middle">
                         <tbody>
-    {% for i, day in days_list %}
+    {% for day in prefilled_days %}
 <tr>
-    <td class="fw-bold">{{ day }}</td>
+    <td class="fw-bold">{{ day.name }}</td>
     <td>
-        <select name="open_{{ i }}" id="open_{{ i }}" class="form-select rounded-pill open-time-select" data-day="{{ i }}">
+        <select name="open_{{ day.index }}" class="form-select rounded-pill open-time-select" data-day="{{ day.index }}">
             <option value="">Select Opening</option>
             {% for slot in time_slots %}
                 {% if not slot.is_midnight %}
-                <option value="{{ slot.value }}" data-index="{{ slot.index }}">{{ slot.display }}</option>
+                <option value="{{ slot.value }}" data-index="{{ slot.index }}" {% if day.open_val == slot.value %}selected{% endif %}>
+                    {{ slot.display }}
+                </option>
                 {% endif %}
             {% endfor %}
         </select>
     </td>
     <td>
-        <select name="close_{{ i }}" id="close_{{ i }}" class="form-select rounded-pill close-time-select" data-day="{{ i }}">
+        <select name="close_{{ day.index }}" class="form-select rounded-pill close-time-select" data-day="{{ day.index }}">
             <option value="">Select Closing</option>
             {% for slot in time_slots %}
-                <option value="{{ slot.value }}" data-index="{{ slot.index }}">{{ slot.display }}</option>
+                <option value="{{ slot.value }}" data-index="{{ slot.index }}" {% if day.close_val == slot.value %}selected{% endif %}>
+                    {{ slot.display }}
+                </option>
             {% endfor %}
         </select>
     </td>
@@ -563,8 +567,9 @@
                             <i class="fas fa-lock me-2"></i> Schedule Locked (12h)
                         </button>
                     {% else %}
-                        <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold py-2 shadow" 
-                                style="background-color: #894B8D; border: none;">
+                        <input type="hidden" name="force_online" id="forceOnlineInput" value="0">
+                        <button type="submit" id="saveScheduleBtn" class="btn btn-primary w-100 rounded-pill fw-bold py-2 shadow" 
+                                style="background-color: #894B8D; border: none; opacity: 0.5;" disabled>
                             Save Schedule
                         </button>
                     {% endif %}
@@ -579,63 +584,136 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-    document.querySelectorAll('.open-time-select').forEach(select => {
-    select.addEventListener('change', function() {
-        const dayId = this.getAttribute('data-day');
-        const selectedOption = this.options[this.selectedIndex];
-        const openIndex = parseInt(selectedOption.getAttribute('data-index'));
-        const closeSelect = document.getElementById('close_' + dayId);
-        
-        // 1. Agar user ne 'Select Opening' chuna (OpenIndex valid nahi hai)
-        if (isNaN(openIndex)) {
-            Array.from(closeSelect.options).forEach(opt => {
-                opt.disabled = false;
-                opt.style.display = 'block';
-            });
-            return;
+    const saveBtn = document.getElementById('saveScheduleBtn');
+
+    // Naya Validation Function: Jo button ko control karega
+    function validateScheduleForm() {
+        let atLeastOneDayComplete = false;
+        let hasIncompleteDay = false;
+
+        // Saare 7 dinon ko check karein
+        for (let i = 0; i < 7; i++) {
+            const openVal = document.querySelector(`.open-time-select[data-day="${i}"]`).value;
+            const closeVal = document.querySelector(`.close-time-select[data-day="${i}"]`).value;
+
+            // 1. Check for Partial Entry (Agar sirf ek bhara ho)
+            if ((openVal && !closeVal) || (!openVal && closeVal)) {
+                hasIncompleteDay = true;
+            }
+
+            // 2. Check for Complete Entry (Agar dono bhare hon)
+            if (openVal && closeVal) {
+                atLeastOneDayComplete = true;
+            }
         }
 
-        // 2. Closing options filter karein (Sirf wahi dikhao jo Open ke baad hain)
-        Array.from(closeSelect.options).forEach(option => {
-            if (!option.value) return; 
+        // Final Decision: Kam se kam 1 poora din hona chahiye AND koi adha-adhura din nahi hona chahiye
+        if (atLeastOneDayComplete && !hasIncompleteDay) {
+            saveBtn.disabled = false;
+            saveBtn.style.opacity = "1";
+            saveBtn.style.cursor = "pointer";
+        } else {
+            saveBtn.disabled = true;
+            saveBtn.style.opacity = "0.5";
+            saveBtn.style.cursor = "not-allowed";
+        }
+    }
 
-            const closeIndex = parseInt(option.getAttribute('data-index'));
+    // Tera original logic class selector ke saath
+    document.querySelectorAll('.open-time-select').forEach(select => {
+        select.addEventListener('change', function() {
+            const dayId = this.getAttribute('data-day');
+            const selectedOption = this.options[this.selectedIndex];
+            const openIndex = parseInt(selectedOption.getAttribute('data-index'));
+
+            const closeSelect = document.querySelector(`.close-time-select[data-day="${dayId}"]`);
             
-            if (closeIndex <= openIndex) {
-                option.disabled = true;
-                option.style.display = 'none';
+            if (!closeSelect) return;
+
+            // 1. Agar user ne 'Select Opening' chuna
+            if (isNaN(openIndex)) {
+                Array.from(closeSelect.options).forEach(opt => {
+                    opt.disabled = false;
+                    opt.style.display = 'block';
+                });
             } else {
-                option.disabled = false;
-                option.style.display = 'block';
+                // 2. Closing options filter karein
+                Array.from(closeSelect.options).forEach(option => {
+                    if (!option.value) return; 
+
+                    const closeIndex = parseInt(option.getAttribute('data-index'));
+                    
+                    if (closeIndex <= openIndex) {
+                        option.disabled = true;
+                        option.style.display = 'none';
+                    } else {
+                        option.disabled = false;
+                        option.style.display = 'block';
+                    }
+                });
+
+                // 3. Reset logic
+                const currentCloseOption = closeSelect.options[closeSelect.selectedIndex];
+                const currentCloseIdx = parseInt(currentCloseOption.getAttribute('data-index'));
+                
+                if (!isNaN(currentCloseIdx) && currentCloseIdx <= openIndex) {
+                    closeSelect.value = "";
+                }
             }
+
+            // HAR CHANGE PAR VALIDATION CHECK KARO
+            validateScheduleForm();
         });
 
-        // 3. Reset logic: Agar current selected closing ab invalid ho gayi hai
-        const currentCloseOption = closeSelect.options[closeSelect.selectedIndex];
-        const currentCloseIdx = parseInt(currentCloseOption.getAttribute('data-index'));
-        
-        if (!isNaN(currentCloseIdx) && currentCloseIdx <= openIndex) {
-            closeSelect.value = "";
+        // Pre-filled data check (Page Load)
+        if (select.value !== "") {
+            select.dispatchEvent(new Event('change'));
         }
     });
-});
+
+    // Close selects par bhi listener lagao taaki validation trigger ho sake
+    document.querySelectorAll('.close-time-select').forEach(cSelect => {
+        cSelect.addEventListener('change', validateScheduleForm);
+    });
+
+    // Pehli baar load hone par button state set karein
+    document.addEventListener('DOMContentLoaded', validateScheduleForm);
 </script>
 
 <script>
     function handleStatusToggle(select) {
-        if (select.value === "1") {
-            document.getElementById('onlineForm').submit();
-        } else {
-            var offModal = new bootstrap.Modal(document.getElementById('offlineModal'));
-            offModal.show();
-            const todayStr = new Date().toISOString().split('T')[0];
-            document.getElementById('vacStart').value = todayStr;
-            document.getElementById('vacEnd').value = todayStr;
-            document.getElementById('offlineModal').addEventListener('hidden.bs.modal', function () {
-                if (select.value === "0") { select.value = "1"; }
+    if (select.value === "1") {
+        // Step 3 logic: Check if schedule exists
+        const hasSchedule = {% if current_schedule.exists %}true{% else %}false{% endif %};
+        
+        if (!hasSchedule) {
+            // Agar schedule nahi hai, to status wapas 0 kar do aur modal dikhao
+            select.value = "0";
+
+            // Jab online toggle se modal khule, hidden input ko '1' kar do
+            document.getElementById('forceOnlineInput').value = "1";
+
+            var myModal = new bootstrap.Modal(document.getElementById('firstLoginModal'), {
+                backdrop: 'static',
+                keyboard: false
             });
+            myModal.show();
+        } else {
+            // Agar schedule hai, to normally submit kar do
+            document.getElementById('onlineForm').submit();
         }
+    } else {
+        // Tera original offline logic bina kisi change ke
+        var offModal = new bootstrap.Modal(document.getElementById('offlineModal'));
+        offModal.show();
+        const todayStr = new Date().toISOString().split('T')[0];
+        document.getElementById('vacStart').value = todayStr;
+        document.getElementById('vacEnd').value = todayStr;
+        document.getElementById('offlineModal').addEventListener('hidden.bs.modal', function () {
+            if (select.value === "0") { select.value = "1"; }
+        });
     }
+}
 
     function confirmRemoval() {
         Swal.fire({
