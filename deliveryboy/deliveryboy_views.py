@@ -84,31 +84,31 @@ def edit_profile(request):
     if 'delivery_id' not in request.session:
         return redirect('delivery_login')
         
-    if request.method == "POST":
-        agent = DeliveryBoy.objects.get(pk=request.session['delivery_id'])
+    agent = DeliveryBoy.objects.get(pk=request.session['delivery_id'])
+    
+    if request.method == 'POST':
+        # Sirf wahi fields uthao jo form mein hain
+        name = request.POST.get('deliveryboy_name')
+        contact = request.POST.get('contact')
         
-        agent.deliveryboy_name = request.POST.get('name')
-        agent.contact = request.POST.get('contact')
-        agent.email = request.POST.get('email')
-        
-        # Photo handling: Update or Remove
-        # Updated Photo Handling inside edit_profile function
-        if 'remove_photo' in request.POST:
-            if agent.deliveryboy_profile:
-                # Physical file delete karna
-                if os.path.exists(agent.deliveryboy_profile.path):
-                    os.remove(agent.deliveryboy_profile.path)
-                agent.deliveryboy_profile = None 
-        else:
-            new_photo = request.FILES.get('profile_photo')
-            if new_photo:
-                # Purani hatao aur nayi lagao
-                if agent.deliveryboy_profile and os.path.exists(agent.deliveryboy_profile.path):
-                    os.remove(agent.deliveryboy_profile.path)
-                agent.deliveryboy_profile = new_photo
+        if name and contact:
+            agent.deliveryboy_name = name
+            agent.contact = contact
             
-        agent.save()
-        messages.success(request, "Profile details updated successfully.")
+            # Photo Logic: Change or Remove
+            if 'profile_photo' in request.FILES:
+                # Nayi photo upload ho rahi hai
+                agent.deliveryboy_profile = request.FILES['profile_photo']
+            elif request.POST.get('remove_photo'):
+                # Agar user ne 'Remove' checkbox tick kiya hai
+                agent.deliveryboy_profile = None
+                
+            agent.save()
+            request.session['delivery_name'] = agent.deliveryboy_name
+            messages.success(request, "Profile updated successfully! 🐾")
+        else:
+            messages.error(request, "All fields are required!")
+            
     return redirect('delivery_dashboard')
 
 # --- 5. TOGGLE STATUS & ORDER UPDATES ---
