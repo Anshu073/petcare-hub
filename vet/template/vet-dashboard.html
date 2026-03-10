@@ -33,7 +33,7 @@
             background-color: #e9ecef;
         }
     </style>
-    
+
 </head>
 
 <body>
@@ -507,21 +507,67 @@
             <form action="{% url 'update_vet_schedule' %}" method="POST">
                 {% csrf_token %}
                 <div class="modal-body p-4">
+            
+                    <div class="alert alert-danger border-0 rounded-4 mb-4" style="background-color: #fff5f5;">
+                        <div class="d-flex align-items-center gap-3">
+                            <i class="fas fa-exclamation-circle text-danger fa-lg"></i>
+                            <div>
+                                {% if is_locked %}
+                                    <strong class="text-danger d-block small">Lock Period Active!</strong>
+                                    <p class="text-danger mb-0" style="font-size: 11px;">
+                                        Your schedule is currently locked. You can view it, but any changes will be rejected by the system until the 12-hour window passes.
+                                    </p>
+                                {% else %}
+                                    <strong class="text-danger d-block small">Schedule Policy Note</strong>
+                                    <p class="text-danger mb-0" style="font-size: 11px;">
+                                        Note: Once you save these timings, your schedule will be <b>locked for the next 12 hours</b>. Please ensure all slots are correct.
+                                    </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+
                     <table class="table table-borderless align-middle">
-                        <thead><tr class="small text-muted"><th>Day</th><th>Opening</th><th>Closing</th></tr></thead>
                         <tbody>
-                            {% for i, day in days_list %}
-                            <tr>
-                                <td class="fw-bold">{{ day }}</td>
-                                <td><input type="time" name="open_{{ i }}" class="form-control rounded-pill"></td>
-                                <td><input type="time" name="close_{{ i }}" class="form-control rounded-pill"></td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
+    {% for i, day in days_list %}
+<tr>
+    <td class="fw-bold">{{ day }}</td>
+    <td>
+        <select name="open_{{ i }}" id="open_{{ i }}" class="form-select rounded-pill open-time-select" data-day="{{ i }}">
+            <option value="">Select Opening</option>
+            {% for slot in time_slots %}
+                {% if not slot.is_midnight %}
+                <option value="{{ slot.value }}" data-index="{{ slot.index }}">{{ slot.display }}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+    </td>
+    <td>
+        <select name="close_{{ i }}" id="close_{{ i }}" class="form-select rounded-pill close-time-select" data-day="{{ i }}">
+            <option value="">Select Closing</option>
+            {% for slot in time_slots %}
+                <option value="{{ slot.value }}" data-index="{{ slot.index }}">{{ slot.display }}</option>
+            {% endfor %}
+        </select>
+    </td>
+</tr>
+{% endfor %}
+</tbody>
                     </table>
                 </div>
                 <div class="modal-footer border-0 p-4">
-                    <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold py-2 shadow" style="background-color: #894B8D; border: none;">Save Schedule</button>
+                    {% if is_locked %}
+                        <button type="button" class="btn btn-secondary w-100 rounded-pill fw-bold py-2 shadow" 
+                                style="cursor: not-allowed; opacity: 0.6; pointer-events: none;" disabled>
+                            <i class="fas fa-lock me-2"></i> Schedule Locked (12h)
+                        </button>
+                    {% else %}
+                        <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold py-2 shadow" 
+                                style="background-color: #894B8D; border: none;">
+                            Save Schedule
+                        </button>
+                    {% endif %}
                 </div>
             </form>
         </div>
@@ -531,6 +577,49 @@
 <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js' %}"></script>
 <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    document.querySelectorAll('.open-time-select').forEach(select => {
+    select.addEventListener('change', function() {
+        const dayId = this.getAttribute('data-day');
+        const selectedOption = this.options[this.selectedIndex];
+        const openIndex = parseInt(selectedOption.getAttribute('data-index'));
+        const closeSelect = document.getElementById('close_' + dayId);
+        
+        // 1. Agar user ne 'Select Opening' chuna (OpenIndex valid nahi hai)
+        if (isNaN(openIndex)) {
+            Array.from(closeSelect.options).forEach(opt => {
+                opt.disabled = false;
+                opt.style.display = 'block';
+            });
+            return;
+        }
+
+        // 2. Closing options filter karein (Sirf wahi dikhao jo Open ke baad hain)
+        Array.from(closeSelect.options).forEach(option => {
+            if (!option.value) return; 
+
+            const closeIndex = parseInt(option.getAttribute('data-index'));
+            
+            if (closeIndex <= openIndex) {
+                option.disabled = true;
+                option.style.display = 'none';
+            } else {
+                option.disabled = false;
+                option.style.display = 'block';
+            }
+        });
+
+        // 3. Reset logic: Agar current selected closing ab invalid ho gayi hai
+        const currentCloseOption = closeSelect.options[closeSelect.selectedIndex];
+        const currentCloseIdx = parseInt(currentCloseOption.getAttribute('data-index'));
+        
+        if (!isNaN(currentCloseIdx) && currentCloseIdx <= openIndex) {
+            closeSelect.value = "";
+        }
+    });
+});
+</script>
 
 <script>
     function handleStatusToggle(select) {

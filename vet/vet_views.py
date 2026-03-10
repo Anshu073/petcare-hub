@@ -289,14 +289,47 @@ def vet_dashboard(request):
             
             return redirect('vet_dashboard')
 
+    # 12 hours locking logic for UI alert
+    is_locked = False
+    if not vet.is_first_login and vet.last_timing_update:
+        diff = django_timezone.now() - vet.last_timing_update
+        if diff.total_seconds() < 43200: # 12 hours
+            is_locked = True
+    
+    time_slots = []
+    # Subah 6:00 (6) se lekar Raat 12:00 AM (24) tak
+    for hour in range(6, 25): 
+        if hour == 24:
+            display_text = "12:00 AM (Midnight)"
+            val_time = "23:59:59" # Database compatibility ke liye
+            is_midnight = True
+        else:
+            period = 'AM' if hour < 12 else 'PM'
+            display_hour = hour if hour <= 12 else hour - 12
+            if display_hour == 0: display_hour = 12
+            
+            # Ab sirf ":00" format chalega
+            display_text = f"{display_hour}:00 {period}"
+            val_time = f"{hour:02d}:00:00"
+            is_midnight = False
+        
+        time_slots.append({
+            'display': display_text,
+            'value': val_time,
+            'index': len(time_slots),
+            'is_midnight': is_midnight
+        })
+    
     # --- GET DATA FETCHING ---
     context = {
         'vet': vet,
         'appointments': Appointment.objects.filter(vet_id=vet).order_by('-appointment_id'),
         'days_list': days_list,
+        'time_slots': time_slots,
         'current_schedule': VetSchedule.objects.filter(vet_id=vet).order_by('day_of_week'),
         'reviews': Feedback.objects.filter(vet_id=vet, prod_id__isnull=True).order_by('-feedback_date'),
-        'today': django_timezone.now().date()
+        'today': django_timezone.now().date(),
+        'is_locked': is_locked,  # Ye naya add kiya
     }
     return render(request, 'vet-dashboard.html', context)
 
@@ -308,8 +341,8 @@ def update_vet_schedule(request):
         # 48 hours locking logic
         if not vet.is_first_login and vet.last_timing_update:
             diff = django_timezone.now() - vet.last_timing_update
-            if diff.total_seconds() < 172800:
-                messages.error(request, "Schedule is locked for 48 hours!")
+            if diff.total_seconds() < 43200:
+                messages.error(request, "Schedule is locked! You can update it again after 12 hours.")
                 return redirect('vet_dashboard')
         
         VetSchedule.objects.filter(vet_id=vet).delete()
