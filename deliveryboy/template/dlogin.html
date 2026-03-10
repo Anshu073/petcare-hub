@@ -5,13 +5,12 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Partner Login - PetCareHub</title>
+    <title>Partner Login - PetPal Logistics</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/animate.min.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/fontawesome-all.min.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/default.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/main.css' %}">
 
     <style>
@@ -20,14 +19,13 @@
             --tg-brand-light: #f4eef5;
         }
 
-        /* Clean Scrollable Setup */
+        /* Clean Setup matched to Client */
         body {
-            background-color: #f7eff7 !important; /* Soft tint from screenshot */
+            background-color: var(--tg-brand-light);
             font-family: 'Plus Jakarta Sans', sans-serif;
             margin: 0;
             padding: 0;
             overflow-y: auto !important;
-            height: auto !important;
         }
 
         .login-wrapper {
@@ -39,24 +37,38 @@
             position: relative;
         }
 
-        /* Fixed Background Doodles */
+        /* Subtle Background Images logic matched */
         .fixed-doodles {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1; pointer-events: none;
         }
 
-        .doodle-asset {
+        .doodle-left {
             position: absolute;
-            filter: opacity(0.12); /* Transparency fixed */
+            bottom: 0;
+            left: 0;
+            height: 75vh; 
+            filter: grayscale(100%) opacity(0.12);
+            object-fit: contain;
         }
 
-        /* Centered Card Design */
+        .doodle-right {
+            position: absolute;
+            top: 30px;
+            right: 0;
+            height: 55vh;
+            filter: grayscale(100%) opacity(0.12);
+            object-fit: contain;
+            transform: rotate(-5deg);
+        }
+
+        /* Centered Premium Card */
         .login-card {
             background: #ffffff;
-            border-radius: 50px;
+            border-radius: 40px;
             border: 6px solid var(--tg-brand-color);
-            box-shadow: 0px 30px 60px rgba(137, 75, 141, 0.12);
+            box-shadow: 0px 30px 60px rgba(137, 75, 141, 0.1);
             padding: 50px 40px;
             width: 100%;
             max-width: 480px;
@@ -65,30 +77,30 @@
 
         .form-grp { margin-bottom: 20px; }
 
-        /* Inputs - Matching Screenshot Blue Tint */
+        /* Clean Inputs matched to client */
         .form-grp input {
             width: 100%;
             padding: 16px 20px;
-            border-radius: 18px;
+            border-radius: 15px;
             border: 2px solid #f0f0f0;
-            background: #ebf2ff; /* Light blue tint */
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #f0f5ff; /* Matches that blue tint you liked */
             font-size: 15px;
             transition: 0.3s;
+            outline: none;
         }
 
         .form-grp input:focus {
             border-color: var(--tg-brand-color);
             background: #fff;
-            outline: none;
             box-shadow: 0px 5px 15px rgba(137, 75, 141, 0.08);
         }
 
+        /* Action Button */
         .btn-brand {
             background-color: var(--tg-brand-color);
             color: #fff;
             border: none;
-            border-radius: 18px;
+            border-radius: 15px;
             padding: 18px;
             font-weight: 800;
             width: 100%;
@@ -111,68 +123,72 @@
 <body>
 
     <div class="fixed-doodles">
-        <img src="{% static 'assets/img/banner/banner_img01.png' %}" class="doodle-asset" style="bottom: 0; left: 0; width: 35%;">
-        <img src="{% static 'assets/img/images/about_img.png' %}" class="doodle-asset" style="top: 0; right: 0; width: 30%;">
+        <img src="{% static 'assets/img/banner/banner_img01.png' %}" class="doodle-left">
+        <img src="{% static 'assets/img/images/about_img.png' %}" class="doodle-right">
     </div>
 
     <main>
         <div class="login-wrapper">
-            <div class="container d-flex justify-content-center">
-                <div class="login-card">
-                    
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-12 d-flex justify-content-center">
 
-                    {% if request.session.delivery_id %}
-                    <div class="text-center mb-40">
-                        <span style="color: var(--tg-brand-color); font-weight: 700; text-transform: uppercase;">Hello, {{ request.session.delivery_name }}</span>
-                        <h2 style="margin-top: 10px; font-weight: 800;">Already Logged In!</h2>
-                        <div class="mt-30">
-                            <a href="{% url 'delivery_dashboard' %}" class="btn-brand" style="text-decoration: none; display: block;">Go to Dashboard 🚚</a>
-                        </div>
-                    </div>
-                    {% else %}
-                    <div class="text-center mb-40">
-                        <span style="color: var(--tg-brand-color); font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">Welcome Back</span>
-                        <h2 style="margin-top: 10px; font-weight: 800; color: #333;">Delivery Boy Login</h2>
-                    </div>
+                        <div class="login-card">
+                            
 
-                    {% if messages %}
-                    <div id="django-messages">
-                        {% for message in messages %}
-                        <div class="alert shadow-sm" style="border-radius: 12px; margin-bottom: 20px; padding: 15px; background: #fff; border-left: 6px solid {% if message.tags == 'error' %}#dc3545{% else %}#28a745{% endif %};">
-                            <strong style="color: {% if message.tags == 'error' %}#dc3545{% else %}#28a745{% endif %}; text-transform: uppercase;">{{ message.tags }}!</strong>
-                            <span style="font-weight: 500; margin-left: 5px;">{{ message }}</span>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-
-                    <form action="{% url 'delivery_login' %}" method="POST">
-                        {% csrf_token %}
-                        <div class="form-grp">
-                            <label class="fw-bold" style="color: #555; display: block; margin-bottom: 5px;">Email Address</label>
-                            <input type="email" name="email" placeholder="" required>
-                        </div>
-
-                        <div class="form-grp">
-                            <label class="fw-bold" style="color: #555; display: block; margin-bottom: 5px;">Password</label>
-                            <input type="password" name="password" placeholder="" required>
-                        </div>
-
-                        <div class="d-flex align-items-center justify-content-between mb-25">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="remCheck">
-                                <label class="form-check-label small fw-bold" for="remCheck" style="color: #666;">Remember Me</label>
+                            {% if request.session.delivery_id %}
+                            <div class="text-center mb-40">
+                                <span style="color: var(--tg-brand-color); font-weight: 700; text-transform: uppercase;">Hello, {{ request.session.delivery_name }}</span>
+                                <h2 style="margin-top: 10px; font-weight: 800;">Already Logged In!</h2>
+                                <div class="mt-30">
+                                    <a href="{% url 'delivery_dashboard' %}" class="btn-brand" style="text-decoration: none; display: block;">Go to Dashboard 🚚</a>
+                                </div>
                             </div>
-                            <a href="#" style="color: var(--tg-brand-color); font-size: 14px; font-weight: 700; text-decoration: none;">Forgot Password?</a>
+                            {% else %}
+                            <div class="text-center mb-40">
+                                <span style="color: var(--tg-brand-color); font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">Welcome Back</span>
+                                <h2 style="margin-top: 10px; font-weight: 800; color: #333;">Deliver Boy Login</h2>
+                            </div>
+
+                            {% if messages %}
+                                {% for message in messages %}
+                                <div class="alert shadow-sm" style="border-radius: 12px; margin-bottom: 20px; padding: 15px; background: #fff; border-left: 6px solid {% if message.tags == 'error' %}#dc3545{% else %}#28a745{% endif %};">
+                                    <strong style="color: {% if message.tags == 'error' %}#dc3545{% else %}#28a745{% endif %}; text-transform: uppercase;">{{ message.tags }}!</strong>
+                                    <span style="font-weight: 500; margin-left: 5px;">{{ message }}</span>
+                                </div>
+                                {% endfor %}
+                            {% endif %}
+
+                            <form action="{% url 'delivery_login' %}" method="POST">
+                                {% csrf_token %}
+                                <div class="form-grp">
+                                    <label class="fw-bold" style="color: #555; display: block; margin-bottom: 5px;">Email Address</label>
+                                    <input type="email" name="email" placeholder=" Eg. xyz@gmail.com" required>
+                                </div>
+
+                                <div class="form-grp">
+                                    <label class="fw-bold" style="color: #555; display: block; margin-bottom: 5px;">Password</label>
+                                    <input type="password" name="password" placeholder="Enter Your Password" required>
+                                </div>
+
+                                <div class="d-flex align-items-center justify-content-between mb-25">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="remCheck">
+                                        <label class="form-check-label small" for="remCheck" style="color: #666;">Remember Me</label>
+                                    </div>
+                                    <a href="#" style="color: var(--tg-brand-color); font-size: 14px; font-weight: 700; text-decoration: none;">Forgot Password?</a>
+                                </div>
+
+                                <button type="submit" class="btn-brand">Sign In 🐾</button>
+                            </form>
+
+                            <div class="text-center mt-30 pt-3 border-top">
+                                <p style="font-size: 15px; color: #666;">New to the team? <a href="{% url 'delivery_register' %}" style="color: var(--tg-brand-color); font-weight: 800; text-decoration: none;">Register Here</a></p>
+                            </div>
+                            {% endif %}
                         </div>
 
-                        <button type="submit" class="btn-brand shadow-sm">Sign In 🐾</button>
-                    </form>
-
-                    <div class="text-center mt-30 border-top pt-3">
-                        <p style="font-size: 15px; color: #666;">New to the team? <a href="{% url 'delivery_register' %}" style="color: var(--tg-brand-color); font-weight: 800; text-decoration: none;">Register</a></p>
                     </div>
-                    {% endif %}
                 </div>
             </div>
         </div>
@@ -182,7 +198,7 @@
     <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
     <script>
         $(document).ready(function () {
-            // Smooth alert removal after 5 seconds
+            // Auto-remove alerts matched to client
             setTimeout(function () {
                 $(".alert").fadeTo(500, 0).slideUp(500, function () { $(this).remove(); });
             }, 5000);
