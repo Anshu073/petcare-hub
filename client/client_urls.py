@@ -42,4 +42,5 @@ urlpatterns = [
     path('my-orders/', client_views.my_orders, name='my_orders'),
     path('order-success/', client_views.order_success, name='order_success'),
     path('my-orders/', client_views.my_orders, name='my_orders'),
+    path('contact/', client_views.contact, name='contact'),
 ]
