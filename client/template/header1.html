@@ -139,10 +139,12 @@
                     <div class="col-12">
                         <div class="tgmenu__wrap">
                             <nav class="tgmenu__nav">
-                                <div class="logo">
-                                    <a href="index.html"><img src="{% static 'assets/img/logo/logo.png' %}"
-                                            alt="Logo"></a>
-                                </div>
+                                <div class="logo" style="margin-right: auto; padding-left: 0; display: flex; align-items: center;">
+        <a href="index.html" style="display: inline-block; line-height: 0;">
+            <img src="{% static 'assets/img/logo/logo1.png' %}" alt="Logo" 
+                 style="display: block; width: 220px; height: auto; max-height: 85px; object-fit: contain;">
+        </a>
+    </div>
                                 <div class="tgmenu__navbar-wrap tgmenu__main-menu d-none d-lg-flex">
                                     <ul class="navigation">
                                         <li><a href="{% url 'home' %}">Home</a>
@@ -375,9 +377,9 @@
                 
                 <div class="col-lg-4 col-md-6 mb-4">
                     <div class="footer__widget">
-                        <img src="{% static 'assets/img/images/petcarehubsign.png'  %}" alt="PetCareHub" style="width: 180px; margin-bottom: 25px;">
+                        <img src="{% static 'assets/img/logo/footerlogo_removedbg.png'  %}" alt="PetCareHub" style="width: 300px; margin-bottom: 25px;">
                         <p style="color: #cbd5e0; line-height: 1.8; font-size: 15px;">
-                            Providing world-class veterinary expertise with unmatched compassion. The most trusted specialized pet treatment center in Ahmedabad.
+                            The most trusted specialized pet treatment center in Ahmedabad.
                         </p>
                         <div class="footer__social" style="margin-top: 25px; display: flex; gap: 20px;">
                             
