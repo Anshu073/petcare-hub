@@ -130,6 +130,7 @@ from django.utils import timezone as django_timezone
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from test2.models import Feedback, Vet, Appointment, VetSchedule
+from django.db.models import Sum
 
 def vet_dashboard(request):
     # 1. Session check
@@ -139,6 +140,17 @@ def vet_dashboard(request):
     
     vet = get_object_or_404(Vet, vet_id=vet_id)
     days_list = [(0, 'Monday'), (1, 'Tuesday'), (2, 'Wednesday'), (3, 'Thursday'), (4, 'Friday'), (5, 'Saturday'), (6, 'Sunday')]
+
+    # 1. Sirf Completed appointments uthao (Status 4)
+    completed_apps = Appointment.objects.filter(vet_id=vet, appointment_status=4)
+    
+    # 2. Count nikaalo
+    completed_count = completed_apps.count()
+    
+    # 3. Dynamic Sum: Har appointment ke time jo charges the, uska total
+    # Hum 'charges' field ka sum kar rahe hain jo Appointment model mein store hui thi
+    earnings_query = completed_apps.aggregate(total=Sum('charges'))
+    total_earnings = earnings_query['total'] if earnings_query['total'] else 0
 
     if request.method == "POST":
         # --- A. PROFILE UPDATE LOGIC (Updated for Spaces & Symbols) ---
@@ -354,6 +366,8 @@ def vet_dashboard(request):
         'reviews': Feedback.objects.filter(vet_id=vet, prod_id__isnull=True).order_by('-feedback_date'),
         'today': django_timezone.now().date(),
         'is_locked': is_locked,  # Ye naya add kiya
+        'completed_count': completed_count,
+        'total_earnings': total_earnings, 
     }
     return render(request, 'vet-dashboard.html', context)
 

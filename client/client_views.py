@@ -493,6 +493,7 @@ def vet_details(request, pk):
             app_for=request.POST.get('app_for'),
             description=raw_description, # Cleaned description
             appointment_date=check_datetime,
+            charges=vet.charges,
             appointment_status=0
         )
         
@@ -613,7 +614,7 @@ def my_appointments(request):
         return redirect('my_appointments')
 
     # --- 3. GET Logic (Fetching Data) ---
-    appointments = Appointment.objects.filter(cust_id=cust_id).order_by('-appointment_id')
+    appointments = Appointment.objects.filter(cust_id=cust_id).order_by('-appointment_date')
     rated_app_ids = Feedback.objects.filter(cust_id=cust_id).values_list('appointment_id', flat=True)
 
     context = {
