@@ -275,7 +275,7 @@ def vet_dashboard(request):
                     messages.success(request, "You are now Online. 🐾")
                 else:
                     # Agar schedule nahi hai, toh error do aur status mat badlo
-                    messages.error(request, "Pehle schedule set karein, uske baad hi Online ja sakte hain.")
+                    messages.error(request, "First, set the schedule; only then can you go online.")
                 
                 return redirect('vet_dashboard')
 
@@ -296,7 +296,7 @@ def vet_dashboard(request):
                     reason = request.POST.get('cancel_reason', "Rejected by Vet.")
                     if hasattr(appointment, 'cancel_reason'):
                         appointment.cancel_reason = reason
-                    messages.info(request, "Appointment Rejected.")
+                    messages.success(request, "Appointment Rejected.")
                 
                 elif action == 4: # Complete
                     if 'medical_report' in request.FILES:
@@ -312,7 +312,7 @@ def vet_dashboard(request):
                         if client.strike_count >= 3:
                             client.is_cash_blocked = True
                         client.save()
-                    messages.warning(request, "Client marked absent.")
+                    messages.success(request, "Client marked absent.")
 
                 appointment.save()
             except Exception as e:
