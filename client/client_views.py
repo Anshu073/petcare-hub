@@ -733,8 +733,9 @@ def my_orders(request):
     if 'cust_id' not in request.session:
         return redirect('customer_login')
     
-    # Session se customer id lekar uske orders filter karo
-    customer_id = request.session['cust_id']
-    user_orders = Order.objects.filter(cust_id=customer_id).order_by('-order_date')
+    # Model name 'OrderDetail' hai, toh reverse 'orderdetail_set' hoga
+    user_orders = Order.objects.filter(
+        cust_id=request.session['cust_id']
+    ).prefetch_related('orderdetail_set').order_by('-order_date')
     
     return render(request, 'my_orders.html', {'user_orders': user_orders})
