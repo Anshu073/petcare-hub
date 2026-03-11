@@ -37,17 +37,6 @@
 </head>
 
 <body>
-    {% if messages %}
-    <div style="position: fixed; top: 20px; right: 20px; z-index: 1050;">
-        {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-lg rounded-4" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-
     <header class="header-area">
         <div class="container">
             <div class="header-flex d-flex align-items-center justify-content-between py-3">
@@ -101,31 +90,31 @@
             </div>
 
             <div class="row mb-4">
-    <div class="col-md-3">
-        <div class="p-3 shadow-sm text-center bg-white" style="border-radius: 15px; border-bottom: 4px solid #894B8D;">
-            <small class="text-muted fw-bold d-block text-uppercase" style="font-size: 10px;">Total Received</small>
-            <h4 class="fw-bold m-0" style="color: #894B8D;">{{ total_received }}</h4>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="p-3 shadow-sm text-center bg-white" style="border-radius: 15px; border-bottom: 4px solid #dc3545;">
-            <small class="text-muted fw-bold d-block text-uppercase" style="font-size: 10px;">Rejected</small>
-            <h4 class="fw-bold m-0" style="color: #dc3545;">{{ total_rejected }}</h4>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="p-3 shadow-sm text-center bg-white" style="border-radius: 15px; border-bottom: 4px solid #ffc107;">
-            <small class="text-muted fw-bold d-block text-uppercase" style="font-size: 10px;">Cancelled</small>
-            <h4 class="fw-bold m-0" style="color: #ffc107;">{{ total_cancelled }}</h4>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="p-3 shadow-sm text-center bg-white" style="border-radius: 15px; border-bottom: 4px solid #6c757d;">
-            <small class="text-muted fw-bold d-block text-uppercase" style="font-size: 10px;">Absent</small>
-            <h4 class="fw-bold m-0" style="color: #6c757d;">{{ total_absent }}</h4>
-        </div>
-    </div>
-</div>
+                <div class="col-md-3">
+                    <div class="p-3 shadow-sm text-center bg-white" style="border-radius: 15px; border-bottom: 4px solid #894B8D;">
+                        <small class="text-muted fw-bold d-block text-uppercase" style="font-size: 10px;">Total Received</small>
+                        <h4 class="fw-bold m-0" style="color: #894B8D;">{{ total_received }}</h4>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3 shadow-sm text-center bg-white" style="border-radius: 15px; border-bottom: 4px solid #dc3545;">
+                        <small class="text-muted fw-bold d-block text-uppercase" style="font-size: 10px;">Rejected</small>
+                        <h4 class="fw-bold m-0" style="color: #dc3545;">{{ total_rejected }}</h4>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3 shadow-sm text-center bg-white" style="border-radius: 15px; border-bottom: 4px solid #ffc107;">
+                        <small class="text-muted fw-bold d-block text-uppercase" style="font-size: 10px;">Cancelled</small>
+                        <h4 class="fw-bold m-0" style="color: #ffc107;">{{ total_cancelled }}</h4>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3 shadow-sm text-center bg-white" style="border-radius: 15px; border-bottom: 4px solid #6c757d;">
+                        <small class="text-muted fw-bold d-block text-uppercase" style="font-size: 10px;">Absent</small>
+                        <h4 class="fw-bold m-0" style="color: #6c757d;">{{ total_absent }}</h4>
+                    </div>
+                </div>
+            </div>
 
             <div class="row">
                 <div class="col-lg-4">
@@ -656,14 +645,16 @@
         }
 
         // Final Decision: Kam se kam 1 poora din hona chahiye AND koi adha-adhura din nahi hona chahiye
-        if (atLeastOneDayComplete && !hasIncompleteDay) {
-            saveBtn.disabled = false;
-            saveBtn.style.opacity = "1";
-            saveBtn.style.cursor = "pointer";
-        } else {
-            saveBtn.disabled = true;
-            saveBtn.style.opacity = "0.5";
-            saveBtn.style.cursor = "not-allowed";
+        if (saveBtn) {
+            if (atLeastOneDayComplete && !hasIncompleteDay) {
+                saveBtn.disabled = false;
+                saveBtn.style.opacity = "1";
+                saveBtn.style.cursor = "pointer";
+            } else {
+                saveBtn.disabled = true;
+                saveBtn.style.opacity = "0.5";
+                saveBtn.style.cursor = "not-allowed";
+            }
         }
     }
 
@@ -725,8 +716,93 @@
     });
 
     // Pehli baar load hone par button state set karein
-    document.addEventListener('DOMContentLoaded', validateScheduleForm);
+    document.addEventListener('DOMContentLoaded', function() {
+        validateScheduleForm();
+
+        // --- Custom Bootstrap-Style Messages (Client Look) ---
+        {% if messages %}
+            const msgContainer = document.createElement('div');
+            msgContainer.id = 'django-messages';
+            msgContainer.style = "position: fixed; top: 100px; right: 20px; z-index: 9999; min-width: 300px; max-width: 350px; word-wrap: break-word;";
+            document.body.appendChild(msgContainer);
+
+            {% for message in messages %}
+                const alertDiv = document.createElement('div');
+
+                // Check message tags and content
+                const mTags = "{{ message.tags }}";
+                const mText = "{{ message|safe }}".toLowerCase();
+
+                // Force success if tag is 'success' OR if it's a login/update success message
+                let isSuccess = mTags.includes('success') || mText.includes('success') || mText.includes('login') || mText.includes('updated');
+        
+                const themeColor = isSuccess ? '#28a745' : '#dc3545';
+                const labelText = isSuccess ? 'SUCCESS!' : 'FAIL!';
+                
+                alertDiv.className = `alert alert-${isSuccess ? 'success' : 'danger'} alert-dismissible fade show shadow-lg`;
+                alertDiv.style = `border-radius: 10px; background: #fff; border: none; border-left: 8px solid ${isSuccess ? '#28a745' : '#dc3545'}; margin-bottom: 10px; animation: slideInRight 0.5s ease forwards; display: flex; align-items: center; padding: 15px 20px;`;
+                
+                alertDiv.innerHTML = `
+                    <div style="display: flex; flex-direction: column; flex-grow: 1;">
+                        <strong style="color: ${isSuccess ? '#28a745' : '#dc3545'}; font-size: 16px; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;">
+                            ${isSuccess ? 'SUCCESS!' : 'FAIL!'}
+                        </strong>
+                        <span style="color: #555; font-size: 14px; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600;">{{ message|safe }}</span>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" style="position: static; padding: 0; margin-left: 10px;"></button>
+                `;
+                msgContainer.appendChild(alertDiv);
+            {% endfor %}
+
+            // 5 second baad gayab hone ka logic
+            setTimeout(function () {
+                msgContainer.style.transition = "all 0.6s ease";
+                msgContainer.style.opacity = "0";
+                msgContainer.style.transform = "translateX(100px)";
+                setTimeout(function () { msgContainer.remove(); }, 600);
+            }, 5000);
+        {% endif %}
+        
+        // Status Check Interval
+        setInterval(function () {
+            fetch("{% url 'check_vet_status' %}")
+            .then(response => response.json())
+            .then(data => {
+                if (data.status !== undefined && data.status !== 1 && data.status !== 'no_session') {
+                    window.location.href = "{% url 'vet_login' %}";
+                }
+            });
+        }, 5000);
+
+        // First Login Modal
+        {% if vet.is_first_login %}
+            const firstLoginModal = new bootstrap.Modal(document.getElementById('firstLoginModal'));
+            firstLoginModal.show();
+        {% endif %}
+    });
+    
 </script>
+
+<style>
+    /* Slide-in Animation jo client side design ke liye zaroori hai */
+    @keyframes slideInRight {
+        from {
+            transform: translateX(120%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    /* Message gayab hone ke liye */
+    .fade-out-custom {
+        transform: translateX(100px);
+        opacity: 0;
+        transition: all 0.6s ease;
+    }
+</style>
 
 <script>
     function handleStatusToggle(select) {
@@ -787,19 +863,4 @@
             }
         });
     }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        setInterval(function () {
-            fetch("{% url 'check_vet_status' %}")
-            .then(response => response.json())
-            .then(data => {
-                if (data.status !== undefined && data.status !== 1 && data.status !== 'no_session') {
-                    window.location.href = "{% url 'vet_login' %}";
-                }
-            });
-        }, 5000);
-        {% if vet.is_first_login %}
-            new bootstrap.Modal(document.getElementById('firstLoginModal')).show();
-        {% endif %}
-    });
 </script>

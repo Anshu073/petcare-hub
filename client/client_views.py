@@ -757,6 +757,3 @@ def my_orders(request):
     ).prefetch_related('orderdetail_set').order_by('-order_date')
     
     return render(request, 'my_orders.html', {'user_orders': user_orders})
-
-def contact(request):
-    return render(request,'contact.html')
