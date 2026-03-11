@@ -141,11 +141,21 @@ def vet_dashboard(request):
     vet = get_object_or_404(Vet, vet_id=vet_id)
     days_list = [(0, 'Monday'), (1, 'Tuesday'), (2, 'Wednesday'), (3, 'Thursday'), (4, 'Friday'), (5, 'Saturday'), (6, 'Sunday')]
 
+    # Saari appointments ek baar mein uthao optimize karne ke liye
+    base_query = Appointment.objects.filter(vet_id=vet)
+    
+    # 4: Done, 2: Rejected by Vet, 7: Cancelled (Offline/Bulk), 5: Absent
+    total_received = base_query.count()
+    
     # 1. Sirf Completed appointments uthao (Status 4)
     completed_apps = Appointment.objects.filter(vet_id=vet, appointment_status=4)
     
     # 2. Count nikaalo
     completed_count = completed_apps.count()
+    
+    total_rejected = base_query.filter(appointment_status=2).count()
+    total_cancelled = base_query.filter(appointment_status=7).count() # Jo bulk cancel hue offline mode se
+    total_absent = base_query.filter(appointment_status=5).count()
     
     # 3. Dynamic Sum: Har appointment ke time jo charges the, uska total
     # Hum 'charges' field ka sum kar rahe hain jo Appointment model mein store hui thi
@@ -368,6 +378,10 @@ def vet_dashboard(request):
         'is_locked': is_locked,  # Ye naya add kiya
         'completed_count': completed_count,
         'total_earnings': total_earnings, 
+        'total_received': total_received,
+        'total_rejected': total_rejected,
+        'total_cancelled': total_cancelled,
+        'total_absent': total_absent,
     }
     return render(request, 'vet-dashboard.html', context)
 
