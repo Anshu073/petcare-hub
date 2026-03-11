@@ -151,6 +151,7 @@ class Appointment(models.Model):
     payment_timer_start = models.DateTimeField(null=True, blank=True) # 30-60 min timer
     medical_report = models.FileField(upload_to='reports/', null=True, blank=True) #
     payment_mode = models.IntegerField(default=0) # 1: Online, 2: Cash
+    charges = models.IntegerField(default=0) # Har appointment ka actual rate yahan save hoga
     cancel_reason = models.TextField(null=True, blank=True)
     
 
