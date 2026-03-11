@@ -117,13 +117,27 @@
                     <div class="breadcrumb__content">
                         <h3 class="title">Vet Details</h3>
                         <nav class="breadcrumb">
-                            <span><a href="{% url 'home' %}">Home</a></span>
+                            <span property="itemListElement" typeof="ListItem">
+                                <a href="{% url 'home' %}">Home</a>
+                            </span>
                             <span class="breadcrumb-separator"><i class="flaticon-right-arrow-angle"></i></span>
-                            <span>Dr. {{ vet.vet_name }}</span>
+                            <span property="itemListElement" typeof="ListItem">Details</span>
                         </nav>
                     </div>
                 </div>
+                <div class="col-lg-4">
+                    <div class="breadcrumb__img">
+                        <img src="{% static 'assets/img/images/breadcrumb_img.png' %}" alt="img" data-aos="fade-left"
+                            data-aos-delay="800">
+                    </div>
+                </div>
             </div>
+        </div>
+        <div class="breadcrumb__shape-wrap">
+            <img src="{% static 'assets/img/images/breadcrumb_shape01.png' %}" alt="img" data-aos="fade-down-right"
+                data-aos-delay="400">
+            <img src="{% static 'assets/img/images/breadcrumb_shape02.png' %}" alt="img" data-aos="fade-up-left"
+                data-aos-delay="400">
         </div>
     </section>
 
