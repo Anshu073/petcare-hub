@@ -178,7 +178,10 @@ def product(request):
 def product_details(request, pk):
     product = get_object_or_404(Product, prod_id=pk)
     gallery = Gallery.objects.filter(prod_id=product)
-    related_products = Product.objects.filter(category_id=product.category_id).exclude(prod_id=pk)[:10]
+    related_products = Product.objects.filter(category_id=product.category_id).exclude(prod_id=pk).annotate(
+        avg_rating=Avg('feedback__rating'), # Feedback table se average rating nikalna
+        review_count=Count('feedback')      # Total reviews count karna
+    )[:10]
     
     reviews = Feedback.objects.filter(prod_id=product).select_related('cust_id').order_by('-feedback_date')
     
