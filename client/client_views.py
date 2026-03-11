@@ -142,6 +142,12 @@ def product(request):
     sort_by = request.GET.get('sort') 
     page_number = request.GET.get('page')
     
+    user_wishlist_ids = []
+    if 'cust_id' in request.session:
+        user_wishlist_ids = Wishlist.objects.filter(
+            cust_id=request.session['cust_id']
+        ).values_list('prod_id', flat=True)
+    
     if cat_id:
         product_list = Product.objects.filter(category_id=cat_id)
     else:
@@ -165,7 +171,8 @@ def product(request):
         'products': products, 
         'categories': categories,
         'selected_cat': cat_id,
-        'selected_sort': sort_by 
+        'selected_sort': sort_by,
+        'user_wishlist_ids': user_wishlist_ids 
     })
             
 def product_details(request, pk):
@@ -174,6 +181,12 @@ def product_details(request, pk):
     related_products = Product.objects.filter(category_id=product.category_id).exclude(prod_id=pk)[:10]
     
     reviews = Feedback.objects.filter(prod_id=product).select_related('cust_id').order_by('-feedback_date')
+    
+    user_wishlist_ids = []
+    if 'cust_id' in request.session:
+        user_wishlist_ids = Wishlist.objects.filter(
+            cust_id=request.session['cust_id']
+        ).values_list('prod_id', flat=True) #
     
     avg_rating_data = reviews.aggregate(avg_rating=Avg('rating'))
     avg_rating = avg_rating_data['avg_rating'] or 0
@@ -200,6 +213,7 @@ def product_details(request, pk):
         'full_stars': full_stars,
         'empty_stars': empty_stars,
         'current_user': current_user,
+        'user_wishlist_ids': user_wishlist_ids
     }
     
     return render(request, 'product-details.html', context)

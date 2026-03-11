@@ -117,9 +117,50 @@
 
                         <a href="#" id="buy-now-btn" class="buy-btn">Buy it Now</a>
                         <div class="product__wishlist-wrap">
-                            <a href="{% url 'add_to_wishlist' product.prod_id %}"><i class="flaticon-love"></i>Add To
-                                Wishlist</a>
-                        </div>
+                            <a href="{% url 'add_to_wishlist' product.prod_id %}" 
+       class="wishlist-link d-flex align-items-center text-decoration-none">
+        
+        <div class="wishlist-icon-circle d-flex align-items-center justify-content-center me-3" 
+             style="width: 45px; height: 45px; border: 1px solid #e5e5e5; border-radius: 50%; background: transparent;">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" 
+                 {% if product.prod_id in user_wishlist_ids %}
+                    fill="red" stroke="red" 
+                 {% else %}
+                    fill="none" stroke="#4b2c4d" 
+                 {% endif %}
+                 stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-heart">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+        </div>
+
+        <span style="color: #00235a; font-weight: 600; font-size: 18px; font-family: 'Plus Jakarta Sans', sans-serif;">
+            {% if product.prod_id in user_wishlist_ids %}
+                Added to Wishlist
+            {% else %}
+                Add To Wishlist
+            {% endif %}
+        </span>
+    </a>
+</div>
+
+<style>
+    /* Screenshot match karne ke liye clean styles */
+    .wishlist-link:hover .wishlist-icon-circle {
+        border-color: #894B8D !important;
+        transition: 0.3s;
+    }
+    
+    .wishlist-link:hover span {
+        color: #894B8D !important;
+        transition: 0.3s;
+    }
+
+    .wishlist-link svg {
+        transition: all 0.3s ease;
+    }
+</style>
+                        
                     </div>
                 </div>
 
