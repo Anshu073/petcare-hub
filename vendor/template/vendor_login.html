@@ -143,20 +143,21 @@
                                 <h2 style="margin-top: 10px; font-weight: 800; color: #333;">Vendor Login</h2>
                             </div>
 
-                            {% if messages %}
-                                {% for message in messages %}
-                                <div class="alert alert-dismissible fade show shadow-lg" role="alert" 
-                                     style="border-radius: 10px; background: #fff; border: none; 
-                                     border-left: 8px solid {% if message.tags == 'success' %}#28a745{% else %}#dc3545{% endif %}; 
-                                     margin-bottom: 20px; padding: 15px;">
-                                    <strong style="color: {% if message.tags == 'success' %}#28a745{% else %}#dc3545{% endif %};">
-                                        {% if message.tags == 'success' %}SUCCESS!{% else %}WAIT!{% endif %}
-                                    </strong>
-                                    <p class="mb-0" style="font-size: 14px; color: #555;">{{ message }}</p>
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" style="margin-top: 5px;"></button>
-                                </div>
-                                {% endfor %}
-                            {% endif %}
+{% if messages %}
+    {% for message in messages %}
+        {% if 'vendor_login' in message.tags %}  <div class="alert alert-dismissible fade show shadow-lg" role="alert" 
+             style="border-radius: 10px; background: #fff; border: none; 
+             border-left: 8px solid {% if 'success' in message.tags %}#28a745{% else %}#dc3545{% endif %}; 
+             margin-bottom: 20px; padding: 15px;">
+            <strong style="color: {% if 'success' in message.tags %}#28a745{% else %}#dc3545{% endif %};">
+                {% if 'success' in message.tags %}SUCCESS!{% else %}WAIT!{% endif %}
+            </strong>
+            <p class="mb-0" style="font-size: 14px; color: #555;">{{ message }}</p>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" style="margin-top: 5px;"></button>
+        </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
 
                             <form action="{% url 'vendor_login' %}" method="POST">
                                 {% csrf_token %}

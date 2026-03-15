@@ -20,6 +20,33 @@
 </head>
 
 <body>
+    <div class="container mt-3">
+    {% if messages %}
+        {% for message in messages %}
+            {% if 'vendor_login' in message.tags %} <div class="alert alert-dismissible fade show shadow-lg border-0" role="alert" 
+                 style="border-radius: 15px; background: #fff; border-left: 8px solid #28a745; padding: 20px; animation: slideInRight 0.5s ease-out;">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-check-circle fa-2x text-success mr-3"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <strong style="color: #28a745; font-size: 18px; display: block;">SUCCESS!</strong>
+                        <span style="color: #555; font-size: 15px;">{{ message }}</span>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="position: static; margin-left: 15px;"></button>
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+</div>
+
+<style>
+    @keyframes slideInRight {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+</style>
     <header class="header-area">
         <div class="container">
             <div class="header-flex d-flex align-items-center justify-content-between py-3">
@@ -34,8 +61,8 @@
                     </ul>
                 </nav>
                 <div class="header-btn">
-                    <a href="" class="btn btn-outline-secondary rounded-pill px-4 fw-bold">Logout</a>
-                </div>
+    <a href="{% url 'vendor_logout' %}" class="btn btn-outline-secondary rounded-pill px-4 fw-bold">Logout</a>
+</div>
             </div>
         </div>
     </header>
@@ -128,27 +155,43 @@
                             </div>
 
                             <div class="tab-pane fade" id="pills-edit">
-                                <h5 class="fw-bold mb-4" style="color: #894B8D;">Store Settings</h5>
-                                <form action="#" method="POST">
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label class="small fw-bold mb-1">Store Name</label>
-                                            <input type="text" class="form-control rounded-pill" value="{{ vendor.vendor_name }}">
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label class="small fw-bold mb-1">Contact No.</label>
-                                            <input type="tel" class="form-control rounded-pill" value="{{ vendor.contact }}">
-                                        </div>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold" style="background-color: #894B8D; border: none;">Save Changes 🐾</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
+    <h5 class="fw-bold mb-4" style="color: #894B8D;">Store Settings</h5>
+    <form action="{% url 'vendor_dashboard' %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="small fw-bold mb-1">Store Name</label>
+                <input type="text" name="vendor_name" class="form-control rounded-pill" value="{{ vendor.vendor_name }}" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="small fw-bold mb-1">Contact No.</label>
+                <input type="tel" name="contact" class="form-control rounded-pill" value="{{ vendor.contact }}" required pattern="[6-9][0-9]{9}">
+            </div>
+            <div class="col-md-12 mb-3">
+                <label class="small fw-bold mb-1">Shop Address</label>
+                <textarea name="address" class="form-control rounded-4" rows="2" required>{{ vendor.address }}</textarea>
+            </div>
+            <div class="col-md-12 mb-3">
+                <label class="small fw-bold mb-1">Change Profile Photo</label>
+                <input type="file" name="vendor_profile" class="form-control rounded-3" accept="image/*">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold" style="background-color: #894B8D; border: none;">
+            Save Changes 🐾
+        </button>
+    </form>
+</div>
                 </div>
             </div>
         </div>
     </main>
+    <script>
+    setTimeout(function() {
+        $(".alert").fadeTo(500, 0).slideUp(500, function(){
+            $(this).remove(); 
+        });
+    }, 4000);
+    </script>
 
     <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>

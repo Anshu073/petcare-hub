@@ -161,19 +161,19 @@
 
                             {% if messages %}
     {% for message in messages %}
-    <div class="alert alert-dismissible fade show shadow-lg" role="alert" 
-         style="border-radius: 10px; background: #fff; border: none; 
-         border-left: 8px solid {% if 'success' in message.tags %}#28a745{% else %}#dc3545{% endif %}; 
-         margin-bottom: 20px; padding: 15px;">
-        
-        <div style="display: flex; flex-direction: column;">
-            <strong style="color: {% if 'success' in message.tags %}#28a745{% else %}#dc3545{% endif %}; font-size: 16px;">
-                {% if 'success' in message.tags %}SUCCESS!{% else %}WAIT!{% endif %}
-            </strong>
-            <span style="color: #555; font-size: 14px;">{{ message }}</span>
+        {% if 'vendor_reg' in message.tags %} <div class="alert alert-dismissible fade show shadow-lg" role="alert" 
+             style="border-radius: 10px; background: #fff; border: none; 
+             border-left: 8px solid {% if 'success' in message.tags %}#28a745{% else %}#dc3545{% endif %}; 
+             margin-bottom: 20px; padding: 15px;">
+            <div style="display: flex; flex-direction: column;">
+                <strong style="color: {% if 'success' in message.tags %}#28a745{% else %}#dc3545{% endif %}; font-size: 16px;">
+                    {% if 'success' in message.tags %}SUCCESS!{% else %}WAIT!{% endif %}
+                </strong>
+                <span style="color: #555; font-size: 14px;">{{ message }}</span>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" style="margin-top: 5px;"></button>
         </div>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" style="margin-top: 5px;"></button>
-    </div>
+        {% endif %}
     {% endfor %}
 {% endif %}
 
