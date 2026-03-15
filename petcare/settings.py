@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'client.apps.ClientConfig',
     'vet.apps.VetConfig',
     'deliveryboy.apps.DeliveryboyConfig',
+    'vendor.apps.VendorConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -61,7 +62,7 @@ import os
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR,'test2/template'),os.path.join(BASE_DIR, 'client/template'),os.path.join(BASE_DIR, 'vet/template'),os.path.join(BASE_DIR, 'deliveryboy/template'),],
+        'DIRS': [os.path.join(BASE_DIR,'test2/template'),os.path.join(BASE_DIR, 'client/template'),os.path.join(BASE_DIR, 'vet/template'),os.path.join(BASE_DIR, 'deliveryboy/template'),os.path.join(BASE_DIR, 'vendor/template'),],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -124,7 +125,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 import os
 STATIC_URL = 'static/'
-STATICFILES_DIRS=(os.path.join(BASE_DIR,'test2/static/'),os.path.join(BASE_DIR, 'client/client_static/'),os.path.join(BASE_DIR, 'vet/vet_static/'),os.path.join(BASE_DIR, 'delivery/deliveryboy_static/'),)
+STATICFILES_DIRS=(os.path.join(BASE_DIR,'test2/static/'),os.path.join(BASE_DIR, 'client/client_static/'),os.path.join(BASE_DIR, 'vet/vet_static/'),os.path.join(BASE_DIR, 'delivery/deliveryboy_static/'),os.path.join(BASE_DIR, 'vendor/vendor_static/'),)
 STATIC_ROOT=os.path.join(BASE_DIR,'static')
 
 # Default primary key field type
