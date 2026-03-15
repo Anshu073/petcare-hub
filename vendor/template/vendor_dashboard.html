@@ -1,0 +1,156 @@
+<!doctype html>
+{% load static %}
+<html class="no-js" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Vendor Dashboard | PetPal Professional</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/fontawesome-all.min.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'assets/css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/vet-dashboard.css' %}"> <style>
+        #pills-tab .nav-link.active { background-color: #1a237e !important; color: white !important; }
+        #pills-tab .nav-link { background-color: #f8f9fa; color: #333; transition: all 0.3s ease; }
+        #pills-tab .nav-link:hover:not(.active) { background-color: #e9ecef; }
+    </style>
+</head>
+
+<body>
+    <header class="header-area">
+        <div class="container">
+            <div class="header-flex d-flex align-items-center justify-content-between py-3">
+                <div class="logo">
+                    <a href="/"><img src="{% static 'assets/img/logo/logo.png' %}" alt="PetPal Logo" style="width: 120px;"></a>
+                </div>
+                <nav class="main-menu d-none d-lg-block">
+                    <ul class="d-flex list-unstyled m-0 gap-4">
+                        <li><a href="/" class="text-dark fw-bold">Home</a></li>
+                        <li><a href="{% url 'product' %}" class="text-dark fw-bold">Shop View</a></li>
+                        <li><a href="#" class="text-dark fw-bold">Support</a></li>
+                    </ul>
+                </nav>
+                <div class="header-btn">
+                    <a href="" class="btn btn-outline-secondary rounded-pill px-4 fw-bold">Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="vet-breadcrumb-box py-5" style="background-color: #f4eef5;">
+        <div class="container text-center">
+            <h2 class="vet-title fw-bold" style="color: #894B8D;">Vendor Dashboard</h2>
+            <p class="vet-subtitle text-muted">
+                {{ vendor.vendor_name }} | Vendor_id: {{ vendor.vendor_id }} | Shop Partner
+            </p>
+        </div>
+    </div>
+
+    <main class="dashboard-wrapper py-5">
+        <div class="container">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="stat-widget shadow-sm" style="background: #894B8D; border-radius: 25px; padding: 30px; color: #ffffff;">
+                        <small class="text-uppercase fw-bold" style="letter-spacing: 1px; color: rgba(255, 255, 255, 0.8);">Total Sales</small>
+                        <h2 class="mt-2 mb-1" style="font-size: 38px; font-weight: 800; color: #ffffff;">₹0</h2>
+                        <div class="small mt-2" style="color: rgba(255, 255, 255, 0.7);">
+                            <i class="fas fa-wallet me-1"></i> Lifetime Earnings
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="stat-widget shadow-sm" style="background: #333333; border-radius: 25px; padding: 30px; color: #ffffff;">
+                        <small class="text-uppercase fw-bold" style="letter-spacing: 1px; color: rgba(255, 255, 255, 0.8);">Orders Fulfilled</small>
+                        <h2 class="mt-2 mb-1" style="font-size: 38px; font-weight: 800; color: #ffffff;">0</h2>
+                        <div class="small mt-2" style="color: rgba(255, 255, 255, 0.7);">
+                            <i class="fas fa-check-circle me-1"></i> Successfully Delivered
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="dashboard-card text-center p-4 bg-white shadow-sm rounded-4 mb-4">
+                        <img src="/media/{{ vendor.vendor_profile }}" class="profile-img-main mb-3"
+                            style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #894B8D;">
+                        <h4 class="fw-bold mb-1">{{ vendor.vendor_name }}</h4>
+                        <p class="text-muted small">
+                            <i class="fas fa-map-marker-alt me-2 text-danger"></i>{{ vendor.address }}
+                        </p>
+                        <div class="availability-badge mb-3">
+                            <span class="badge bg-success rounded-pill px-3">Active Store</span>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card p-4 bg-white shadow-sm rounded-4 mb-4">
+                        <h5 class="fw-bold mb-3" style="color: #894B8D;">Store Details</h5>
+                        <ul class="list-unstyled small">
+                            <li class="mb-2"><strong>Email:</strong> {{ vendor.email }}</li>
+                            <li class="mb-2"><strong>Contact:</strong> {{ vendor.contact }}</li>
+                            <li class="mb-2"><strong>Area:</strong> {{ vendor.area_id.area_name }}</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-lg-8">
+                    <div class="dashboard-card p-4 bg-white shadow-sm rounded-4">
+                        <ul class="nav nav-pills mb-4 gap-3" id="pills-tab" role="tablist">
+                            <li class="nav-item">
+                                <button class="nav-link active fw-bold px-4 py-2 rounded-pill shadow-sm" id="pills-orders-tab" data-bs-toggle="pill" data-bs-target="#pills-orders" type="button">Recent Orders</button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link fw-bold px-4 py-2 rounded-pill shadow-sm" id="pills-products-tab" data-bs-toggle="pill" data-bs-target="#pills-products" type="button">My Products</button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link fw-bold px-4 py-2 rounded-pill shadow-sm" id="pills-edit-tab" data-bs-toggle="pill" data-bs-target="#pills-edit" type="button">Edit Store</button>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content" id="pills-tabContent">
+                            <div class="tab-pane fade show active" id="pills-orders">
+                                <h5 class="fw-bold mb-4">Order Queue</h5>
+                                <div class="text-center py-5">
+                                    <i class="fas fa-shopping-basket fa-3x text-light mb-3"></i>
+                                    <p class="text-muted">No new orders received yet.</p>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade" id="pills-products">
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <h5 class="fw-bold m-0">Inventory List</h5>
+                                    <button class="btn btn-primary btn-sm rounded-pill px-3" style="background-color: #894B8D; border: none;">+ Add Product</button>
+                                </div>
+                                <p class="text-muted small">Your product catalog will appear here.</p>
+                            </div>
+
+                            <div class="tab-pane fade" id="pills-edit">
+                                <h5 class="fw-bold mb-4" style="color: #894B8D;">Store Settings</h5>
+                                <form action="#" method="POST">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="small fw-bold mb-1">Store Name</label>
+                                            <input type="text" class="form-control rounded-pill" value="{{ vendor.vendor_name }}">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="small fw-bold mb-1">Contact No.</label>
+                                            <input type="tel" class="form-control rounded-pill" value="{{ vendor.contact }}">
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold" style="background-color: #894B8D; border: none;">Save Changes 🐾</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>

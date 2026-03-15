@@ -84,3 +84,15 @@ def vendor_login(request):
             messages.error(request, "No account found with this email!")
 
     return render(request, 'vendor_login.html')
+
+def vendor_dashboard(request):
+    # Session check karo ki vendor logged in hai ya nahi
+    if 'vendor_id' not in request.session:
+        messages.error(request, "Please login first!")
+        return redirect('vendor_login')
+
+    vendor_id = request.session['vendor_id']
+    vendor = Vendor.objects.get(vendor_id=vendor_id)
+    
+    # Dashboard render karte waqt vendor ka pura data bhej rahe hain
+    return render(request, 'vendor_dashboard.html', {'vendor': vendor})
