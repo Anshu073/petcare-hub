@@ -32,6 +32,7 @@
                                             <th>ADDRESS</th>
                                             <th>VENDOR_PROFILE</th>
                                             <th>CONTACT</th>
+                                            <th>STATUS & ACTION</th>
 
                                         </tr>
                                     </thead>
@@ -55,6 +56,25 @@
                                                 {% endif %}
                                             </td>
                                             <td>{{ item.contact }}</td>
+                                            <td>
+            {% if item.status == 0 %}
+                <div class="badge badge-info mb-2">Pending Request</div>
+                <div class="d-flex">
+                    <a href="{% url 'update_vendor_status' item.vendor_id 'approve' %}" class="btn btn-success btn-sm mr-1">Accept</a>
+                    <a href="{% url 'update_vendor_status' item.vendor_id 'reject' %}" class="btn btn-danger btn-sm">Reject</a>
+                </div>
+            {% elif item.status == 1 %}
+                <div class="badge badge-success mb-2">Approved / Active</div>
+                <br>
+                <a href="{% url 'update_vendor_status' item.vendor_id 'restrict' %}" class="btn btn-warning btn-sm">Restrict Access</a>
+            {% elif item.status == 3 %}
+                <div class="badge badge-dark mb-2">Restricted</div>
+                <br>
+                <a href="{% url 'update_vendor_status' item.vendor_id 'approve' %}" class="btn btn-primary btn-sm">Activate Again</a>
+            {% else %}
+                <div class="badge badge-danger">Rejected</div>
+            {% endif %}
+        </td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>

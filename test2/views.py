@@ -32,6 +32,22 @@ def vendor_table(request):
     items = Vendor.objects.all() 
     return render(request, 'vendor_table.html', {'items': items})
 
+def update_vendor_status(request, v_id, action):
+    # Bina purane logic ko disturb kiye, specific vendor fetch karein
+    # 'v_id' vendor ki primary key hai aur 'action' approve/reject/restrict hai
+    vendor = get_object_or_404(Vendor, vendor_id=v_id) 
+    
+    if action == 'approve':
+        vendor.status = 1  # 1 ka matlab Approved (Login Allow hoga)
+    elif action == 'reject':
+        vendor.status = 2  # 2 ka matlab Rejected
+    elif action == 'restrict':
+        vendor.status = 3  # 3 ka matlab Restricted/Blocked
+    
+    vendor.save() 
+    # Status update hone ke baad wapas vendor_table refresh ho jayegi
+    return redirect('vendor_table')
+
 def deliveryboy_table(request):
     items = DeliveryBoy.objects.all() 
     return render(request, 'deliveryboy_table.html', {'items': items})
