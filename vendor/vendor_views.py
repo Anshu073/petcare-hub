@@ -86,45 +86,78 @@ def vendor_login(request):
 
     return render(request, 'vendor_login.html')
 
+from django.shortcuts import render, redirect, get_object_or_404
+from test2.models import Vendor, Product, ProductCategory, Gallery #
+
 def vendor_dashboard(request):
     if 'vendor_id' not in request.session:
         messages.error(request, "Please login first!", extra_tags='vendor_login')
         return redirect('vendor_login')
 
-    vendor_id = request.session['vendor_id']
-    vendor = Vendor.objects.get(vendor_id=vendor_id)
+    vendor = get_object_or_404(Vendor, vendor_id=request.session['vendor_id'])
+    
+    # Database se categories uthao dropdown ke liye
+    categories = ProductCategory.objects.all()
+    # Vendor ke purane products list karne ke liye
+    my_products = Product.objects.filter(vendor_id=vendor).order_by('-prod_id')
 
     if request.method == "POST":
-        # Profile Update Logic
-        v_name = request.POST.get('vendor_name', '').strip()
-        v_contact = request.POST.get('contact', '').strip()
-        v_address = request.POST.get('address', '').strip()
+        # --- A. PRODUCT UPLOAD LOGIC ---
+        if 'add_product' in request.POST:
+            p_name = request.POST.get('p_name')
+            p_cat_id = request.POST.get('p_category')
+            p_price = request.POST.get('p_price')
+            p_qty = request.POST.get('p_qty')
+            p_desc = request.POST.get('p_desc')
+            p_cover = request.FILES.get('p_cover') # Main Image
+            p_gallery = request.FILES.getlist('p_gallery') # Multiple Gallery Images
 
-        try:
-            # File Update check
-            if 'vendor_profile' in request.FILES:
-                new_profile = request.FILES['vendor_profile']
-                if new_profile.size <= 2 * 1024 * 1024: # 2MB Limit
-                    vendor.vendor_profile = new_profile
-                else:
-                    messages.error(request, "Image size too large!", extra_tags='vendor_dash')
+            try:
+                # Category object fetch karo
+                cat_obj = ProductCategory.objects.get(category_id=p_cat_id)
+                
+                # 1. Product save karo
+                new_prod = Product.objects.create(
+                    vendor_id=vendor,
+                    category_id=cat_obj,
+                    prod_name=p_name,
+                    price=p_price,
+                    qty=p_qty,
+                    description=p_desc,
+                    cover_img_path=p_cover
+                )
+
+                # 2. Gallery images save karo
+                for img in p_gallery:
+                    Gallery.objects.create(prod_id=new_prod, image_path=img)
+
+                messages.success(request, "Product listed successfully!", extra_tags='vendor_login')
+                return redirect('vendor_dashboard')
+            except Exception as e:
+                messages.error(request, f"Upload failed: {e}")
+
+        # --- B. PROFILE UPDATE LOGIC (Tera purana code) ---
+        elif 'vendor_name' in request.POST:
+            v_name = request.POST.get('vendor_name', '').strip()
+            v_contact = request.POST.get('contact', '').strip()
+            v_address = request.POST.get('address', '').strip()
             
-            # Data update
+            if 'vendor_profile' in request.FILES:
+                vendor.vendor_profile = request.FILES['vendor_profile']
+            
             vendor.vendor_name = v_name
             vendor.contact = v_contact
             vendor.address = v_address
             vendor.save()
-
-            # Session refresh karo
             request.session['vendor_name'] = vendor.vendor_name
-            
             messages.success(request, "Profile updated successfully!", extra_tags='vendor_login')
             return redirect('vendor_dashboard')
 
-        except Exception as e:
-            messages.error(request, f"Update failed: {e}", extra_tags='vendor_dash')
-
-    return render(request, 'vendor_dashboard.html', {'vendor': vendor})
+    return render(request, 'vendor_dashboard.html', {
+        'vendor': vendor,
+        'categories': categories,
+        'products': my_products
+    })
 
 def vendor_logout(request):
     if 'vendor_id' in request.session:

@@ -176,7 +176,7 @@ class Product(models.Model):
     qty = models.IntegerField(default=0) # Default: 0 (Out of stock)
     description = models.CharField(max_length=50)
     price = models.IntegerField()
-    cover_img_path = models.CharField(max_length=200)
+    cover_img_path = models.ImageField(upload_to='product_covers/')
 
     class Meta:
         db_table = 'PRODUCT_TABLE'
@@ -247,7 +247,7 @@ class Feedback(models.Model):
 class Gallery(models.Model):
     gallery_id = models.AutoField(primary_key=True)
     prod_id = models.ForeignKey(Product, on_delete=models.CASCADE)
-    image_path = models.CharField(max_length=100)
+    image_path = models.ImageField(upload_to='product_gallery/')
 
     class Meta:
         db_table = 'GALLERY_TABLE'
