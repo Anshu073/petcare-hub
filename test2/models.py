@@ -122,7 +122,9 @@ class Vendor(models.Model):
     email = models.EmailField(max_length=20, unique=True)
     contact = models.CharField(max_length=10)
     address = models.CharField(max_length=200)
-    vendor_profile = models.CharField(max_length=200,null=True)
+    
+    vendor_profile = models.ImageField(upload_to='vendor_profiles/', null=True, blank=True)
+    status = models.IntegerField(default=0)
 
     class Meta:
         db_table = 'VENDOR_TABLE'
