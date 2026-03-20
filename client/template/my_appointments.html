@@ -1,4 +1,5 @@
 {% extends 'header1.html' %}
+{% load mathfilters %}
 {% load static %}
 {% block content %}
 
@@ -77,33 +78,69 @@
                         <small class="text-muted italic">Awaiting Vet's Response</small>
 
                         {% elif app.appointment_status == 1 and not app.payment_mode %}
-                        <div class="p-2 border rounded-3 bg-light shadow-sm">
-                            <div class="text-danger fw-bold mb-2" style="font-size: 12px;">
-                                <i class="fas fa-clock"></i> Expires in: 
-                                <span class="payment-timer" data-start="{{ app.payment_timer_start.isoformat }}">--:--</span>
-                            </div>
-                            
-                            <p class="x-small fw-bold mb-2 text-uppercase" style="font-size: 10px;">Choose Payment Mode:</p>
-                            <form method="POST" class="d-flex gap-2 justify-content-center">
-                                {% csrf_token %}
-                                <input type="hidden" name="app_id" value="{{ app.appointment_id }}">
-                                <input type="hidden" name="confirm_payment" value="1">
+<div class="p-3 border rounded-4 bg-white shadow-sm text-center">
+    <div class="text-danger fw-bold mb-3 d-flex align-items-center justify-content-center" style="font-size: 13px;">
+        <i class="fas fa-clock me-2"></i> Expires in: 
+        <span class="payment-timer ms-1" data-start="{{ app.payment_timer_start.isoformat }}">--:--</span>
+    </div>
 
-                                <button name="payment_mode" value="1" class="btn btn-xs btn-primary rounded-pill px-3 py-1 fw-bold" style="font-size: 11px;">
-                                    Online Pay
-                                </button>
+    <form action="{% url 'order_success' %}" method="POST" class="mb-2 rzp-custom-wrapper">
+        {% csrf_token %}
+        <input type="hidden" name="app_id" value="{{ app.appointment_id }}">
+        <input type="hidden" name="payment_mode" value="1">
+        
+        <script src="https://checkout.razorpay.com/v1/checkout.js"
+            data-key="rzp_test_SNQx37pa2es1Wb" 
+            data-amount="{{ app.amount_in_paise }}" 
+            data-currency="INR" 
+            data-order_id="{{ app.razorpay_order_id }}" 
+            data-buttontext="Pay Online (Razorpay)"
+            data-name="PetCare Hub" 
+            data-description="Doctor Consultation Fees"
+            data-image="{% static 'assets/img/logo/logo.png' %}"
+            data-prefill.name="{{ request.session.cust_name }}" 
+            data-theme.color="#0d6efd">
+        </script>
 
-                                {% if not customer.is_cash_blocked %}
-                                <button name="payment_mode" value="2" class="btn btn-xs btn-outline-success rounded-pill px-3 py-1 fw-bold" style="font-size: 11px;">
-                                    Cash at Clinic
-                                </button>
-                                {% else %}
-                                <span class="text-danger fw-bold d-block" style="font-size: 10px;">
-                                    <i class="fas fa-ban"></i> Cash Blocked
-                                </span>
-                                {% endif %}
-                            </form>
-                        </div>
+        <style>
+            /* Razorpay button ko "Pay at Clinic" jaisa symmetric banana */
+            .rzp-custom-wrapper .razorpay-payment-button {
+                background-color: #0d6efd !important; /* Professional Blue */
+                color: white !important;
+                border: none !important;
+                border-radius: 50px !important;
+                padding: 10px 20px !important; /* Sahi spacing ke liye */
+                font-weight: 700 !important;
+                font-size: 15px !important; /* Aapki demand: 15px */
+                width: 100% !important;
+                transition: 0.3s ease;
+                box-shadow: 0 4px 6px rgba(13, 110, 253, 0.2);
+            }
+            .rzp-custom-wrapper .razorpay-payment-button:hover {
+                background-color: #0b5ed7 !important;
+                transform: translateY(-1px);
+            }
+        </style>
+    </form>
+
+    <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="app_id" value="{{ app.appointment_id }}">
+        <input type="hidden" name="confirm_payment" value="1">
+        
+        {% if not customer.is_cash_blocked %}
+        <button name="payment_mode" value="2" class="btn w-100 rounded-pill fw-bold text-white shadow-sm" 
+                style="background-color: #894B8D; font-size: 15px; padding: 10px 20px; border: none; transition: 0.3s ease;">
+            Pay Cash At Clinic
+        </button>
+        {% else %}
+        <div class="alert alert-danger py-2 mb-0 rounded-pill fw-bold" style="font-size: 12px;">
+            <i class="fas fa-ban me-1"></i> Cash Payments Blocked
+        </div>
+        {% endif %}
+    </form>
+</div>
+
 
                         {% elif app.appointment_status == 6 %}
                         <div class="p-2 border rounded-3 bg-info bg-opacity-10 shadow-sm">
