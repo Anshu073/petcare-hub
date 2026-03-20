@@ -163,14 +163,14 @@
                 <div class="dashboard-card text-center p-4 bg-white rounded-4" 
      style="box-shadow: 0 15px 40px rgba(0,0,0,0.08);">
                     <img src="{% if agent.deliveryboy_profile %}{{ agent.deliveryboy_profile.url }}{% else %}{% static 'assets/img/users/default.png' %}{% endif %}" class="agent-profile-img mb-3" >
-                    <h3 class="fw-bold mb-1">{{ agent.deliveryboy_name }}</h3>
+                    <h3 class="vet-name-sidebar mb-1 fw-bold">{{ agent.deliveryboy_name }}</h3>
                     <p class="text-muted mb-4"><i class="fas fa-phone-alt me-2"></i>{{ agent.contact }}</p>
                     <div class="text-center mb-2">
 
     {% if agent.is_available == 1 %}
         <span style="
             display:inline-block;
-            background:#258e3d;
+            background:#198754;
             color:white;
             padding:3px 12px;
             border-radius:50px;
@@ -182,7 +182,7 @@
     {% else %}
         <span style="
             display:inline-block;
-            background:#ab2a37;
+            background:#393F61;
             color:white;
             padding:3px 12px;
             border-radius:50px;
