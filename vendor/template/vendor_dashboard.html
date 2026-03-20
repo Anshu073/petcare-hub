@@ -20,32 +20,60 @@
 </head>
 
 <body>
-    <div class="container mt-3">
+    <div class="message-container" style="position: fixed; top: 100px; right: 20px; z-index: 1050; width: 300px;">
     {% if messages %}
         {% for message in messages %}
-            {% if 'vendor_login' in message.tags %} <div class="alert alert-dismissible fade show shadow-lg border-0" role="alert" 
-                 style="border-radius: 15px; background: #fff; border-left: 8px solid #28a745; padding: 20px; animation: slideInRight 0.5s ease-out;">
-                <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-check-circle fa-2x text-success mr-3"></i>
-                    </div>
-                    <div class="flex-grow-1">
-                        <strong style="color: #28a745; font-size: 18px; display: block;">SUCCESS!</strong>
-                        <span style="color: #555; font-size: 15px;">{{ message }}</span>
-                    </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="position: static; margin-left: 15px;"></button>
+            
+            {% if 'success' in message.tags or 'vendor_login' in message.tags %}
+            <div class="alert alert-dismissible fade show shadow border-0 mb-3" role="alert" 
+                 style="border-radius: 12px; background: #fff; padding: 0; overflow: hidden; animation: slideInRight 0.4s ease-out; display: flex; align-items: stretch; min-height: 70px;">
+                
+                <div style="width: 10px; background: #28a745; flex-shrink: 0;"></div>
+                
+                <div style="padding: 10px 15px; flex-grow: 1; position: relative; display: flex; flex-direction: column; justify-content: center;">
+                    <strong style="color: #28a745; font-size: 15px; font-weight: 700; display: block; text-transform: uppercase;">Success!</strong>
+                    <span style="color: #666; font-size: 13.5px; line-height: 1.2; padding-right: 20px;">{{ message }}</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" 
+                            style="position: absolute; top: 8px; right: 8px; font-size: 0.6rem;"></button>
+                </div>
+            </div>
+
+            {% elif 'error' in message.tags %}
+            <div class="alert alert-dismissible fade show shadow border-0 mb-3" role="alert" 
+                 style="border-radius: 12px; background: #fff; padding: 0; overflow: hidden; animation: slideInRight 0.4s ease-out; display: flex; align-items: stretch; min-height: 70px;">
+                
+                <div style="width: 10px; background: #dc3545; flex-shrink: 0;"></div>
+                
+                <div style="padding: 10px 15px; flex-grow: 1; position: relative; display: flex; flex-direction: column; justify-content: center;">
+                    <strong style="color: #dc3545; font-size: 15px; font-weight: 700; display: block; text-transform: uppercase;">Failed!</strong>
+                    <span style="color: #666; font-size: 13.5px; line-height: 1.2; padding-right: 20px;">{{ message }}</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" 
+                            style="position: absolute; top: 8px; right: 8px; font-size: 0.6rem;"></button>
                 </div>
             </div>
             {% endif %}
+
         {% endfor %}
     {% endif %}
 </div>
 
 <style>
+    /* Smooth Slide-in Animation from Right */
     @keyframes slideInRight {
-        from { transform: translateX(100%); opacity: 0; }
+        from { transform: translateX(110%); opacity: 0; }
         to { transform: translateX(0); opacity: 1; }
     }
+    
+    /* Mobile optimization: Choti screens par width adjust ho jayegi */
+    @media (max-width: 400px) {
+        .message-container { 
+            width: auto;
+            left: 20px; 
+            right: 20px; 
+            top: 80px; /* Mobile par thoda upar */
+        }
+    }
+</style>
 </style>
     <header class="header-area">
         <div class="container">
