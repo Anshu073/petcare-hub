@@ -1,14 +1,17 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.hashers import make_password, check_password
-from test2.models import DeliveryBoy, Vendor, Order #
+from test2.models import DeliveryBoy, Vendor, Order,Area #
 from django.contrib import messages
 import os
 
 # --- 1. REGISTRATION (Redirects to Login) ---
 def delivery_register(request):
     vendors = Vendor.objects.all()
+    areas = Area.objects.all()
+
     if request.method == "POST":
         v_id = request.POST.get('vendor_id')
+        a_id = request.POST.get('area_id')
         name = request.POST.get('deliveryboy_name')
         email = request.POST.get('email')
         contact = request.POST.get('contact')
@@ -19,23 +22,32 @@ def delivery_register(request):
             messages.error(request, "Email already registered!")
             return render(request, 'registration.html', {'vendors': vendors})
 
-        vendor_obj = Vendor.objects.get(vendor_id=v_id)
-        
-        new_boy = DeliveryBoy(
-            vendor_id=vendor_obj,
-            deliveryboy_name=name,
-            email=email,
-            contact=contact,
-            password=make_password(password)
-        )
-        if profile_img:
-            new_boy.deliveryboy_profile = profile_img
-            
-        new_boy.save()
-        messages.success(request, "Registration successful! Please login to continue.")
-        return redirect('delivery_login') # Dashboard ki jagah login par redirect
+        try:
 
-    return render(request, 'registration.html', {'vendors': vendors})
+            vendor_obj = Vendor.objects.get(vendor_id=v_id)
+            area_obj = Area.objects.get(area_id=a_id)
+        
+            new_boy = DeliveryBoy(
+                vendor_id=vendor_obj,
+                area_id=area_obj,
+                deliveryboy_name=name,
+                email=email,
+                contact=contact,
+                password=make_password(password),
+                is_approved=False       # Default False (Vendor approve karega)
+            )
+            if profile_img:
+                new_boy.deliveryboy_profile = profile_img
+            
+            new_boy.save()
+            messages.success(request, "Registration successful! Please wait for Vendor approval before login.")
+            return redirect('delivery_login') # Dashboard ki jagah login par redirect
+
+        except Exception as e:
+            messages.error(request, f"Registration failed: {e}")
+            return render(request, 'registration.html', {'vendors': vendors, 'areas': areas})
+        
+    return render(request, 'registration.html', {'vendors': vendors,'areas': areas})
 
 # --- 2. LOGIN ---
 def delivery_login(request):

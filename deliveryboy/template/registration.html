@@ -180,6 +180,16 @@
                                     </select>
                                 </div>
 
+                                <div class="form-grp">
+                                    <label class="form-label">Your Delivery Area</label>
+                                    <select name="area_id" class="custom-input" style="appearance: auto;" required>
+                                        <option value="" disabled selected>Select your operating area...</option>
+                                        {% for area in areas %}
+                                            <option value="{{ area.area_id }}">{{ area.area_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-grp">

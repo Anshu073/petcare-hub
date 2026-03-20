@@ -132,11 +132,13 @@ class Vendor(models.Model):
 class DeliveryBoy(models.Model):
     deliveryboy_id = models.AutoField(primary_key=True)
     vendor_id = models.ForeignKey(Vendor, on_delete=models.CASCADE)
+    area_id = models.ForeignKey(Area, on_delete=models.CASCADE)
     deliveryboy_name = models.CharField(max_length=15)
     password = models.CharField(max_length=128)  # Increased length for hashed passwords
     email = models.EmailField(max_length=20, unique=True)
     contact = models.CharField(max_length=10)
-    is_available = models.IntegerField(default=1) # Default: 1 (Available)
+    is_approved = models.BooleanField(default=False) # Vendor approval logic
+    is_available = models.IntegerField(default=0) # Default: 0 (Offline)
     deliveryboy_profile = models.ImageField(upload_to='delivery_profiles/', null=True, blank=True)
 
     class Meta:
@@ -190,6 +192,8 @@ class Order(models.Model):
     address = models.CharField(max_length=200)
     order_date = models.DateField(auto_now_add=True) # Automatically sets to today
     order_status = models.IntegerField(default=0) # Default: 0 (Placed/Pending)
+    is_cancelled = models.BooleanField(default=False) # Client side cancellation
+    reschedule_status = models.IntegerField(default=0) # 0: No Request, 1: Pending, 2: Accepted
     delivery_date = models.DateField()
 
     class Meta:
