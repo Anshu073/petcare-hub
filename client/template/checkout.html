@@ -94,8 +94,8 @@
                         <div class="checkout-item-row d-flex align-items-center mb-3 p-3"
                             style="background: #fff; border-radius: 12px; border: 1px solid #eee;">
                             <div class="item-thumb me-3">
-                                <img src="{% static item.product.cover_img_path %}" alt="{{ item.product.prod_name }}"
-                                    style="width: 80px; border-radius: 8px;">
+                                <img src="{{ item.product.cover_img_path.url }}" alt="{{ item.product.prod_name }}"
+     style="width: 80px; border-radius: 8px; object-fit: cover; height: 80px;">
                             </div>
                             <div class="item-details flex-grow-1">
                                 <h5 class="mb-1" style="color: #894B8D; font-weight: 700;">{{ item.product.prod_name }}
