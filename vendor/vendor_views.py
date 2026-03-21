@@ -87,7 +87,7 @@ def vendor_login(request):
     return render(request, 'vendor_login.html')
 
 from django.shortcuts import render, redirect, get_object_or_404
-from test2.models import Vendor, Product, ProductCategory, Gallery #
+from test2.models import Vendor, Product, ProductCategory, Gallery,DeliveryBoy #
 
 def vendor_dashboard(request):
     if 'vendor_id' not in request.session:
@@ -96,6 +96,8 @@ def vendor_dashboard(request):
 
     vendor = get_object_or_404(Vendor, vendor_id=request.session['vendor_id'])
     
+    all_boys = DeliveryBoy.objects.filter(vendor_id=vendor)
+
     # Database se categories uthao dropdown ke liye
     categories = ProductCategory.objects.all()
     # Vendor ke purane products list karne ke liye
@@ -156,8 +158,40 @@ def vendor_dashboard(request):
     return render(request, 'vendor_dashboard.html', {
         'vendor': vendor,
         'categories': categories,
-        'products': my_products
+        'products': my_products,
+        'all_boys': all_boys,
     })
+
+def update_db_status(request, db_id, new_status):
+    if 'vendor_id' not in request.session:
+        return redirect('vendor_login')
+    
+    boy = get_object_or_404(DeliveryBoy, deliveryboy_id=db_id)
+
+    # STRICT LOGIC: Rejected (2) case closed hai, koi badlav nahi hoga
+    if boy.status == 2:
+        messages.error(request, f"Access Denied: {boy.deliveryboy_name} is already Rejected.", extra_tags='vendor_login')
+        return redirect('vendor_dashboard')
+
+    # Status update karo
+    boy.status = new_status
+    boy.save()
+    
+    # Sirf wahi messages rakhe hain jo actually trigger honge
+    status_msgs = {
+        1: f"{boy.deliveryboy_name} is now Active! ✅",
+        2: f"{boy.deliveryboy_name} Registration Rejected. ❌",
+        3: f"{boy.deliveryboy_name} is now Restricted. 🚫"
+    }
+    
+    # Reactivate ke liye special message
+    if new_status == 1 and boy.status == 3:
+        msg = f"{boy.deliveryboy_name} Reactivated successfully! 🔄"
+    else:
+        msg = status_msgs.get(new_status, "Status Updated!")
+
+    messages.success(request, msg, extra_tags='vendor_login')
+    return redirect('vendor_dashboard')
 
 def vendor_logout(request):
     if 'vendor_id' in request.session:

@@ -163,6 +163,9 @@
                             <li class="nav-item">
                                 <button class="nav-link fw-bold px-4 py-2 rounded-pill shadow-sm" id="pills-edit-tab" data-bs-toggle="pill" data-bs-target="#pills-edit" type="button">Edit Store</button>
                             </li>
+                            <li class="nav-item">
+                                <button class="nav-link fw-bold px-4 py-2 rounded-pill shadow-sm" id="pills-approval-tab" data-bs-toggle="pill" data-bs-target="#pills-approval" type="button">Pending Approvals</button>
+                            </li>
                         </ul>
 
                         <div class="tab-content" id="pills-tabContent">
@@ -248,6 +251,76 @@
         </button>
     </form>
 </div>
+
+                            <div class="tab-pane fade" id="pills-approval" role="tabpanel">
+                                <div class="card border-0 shadow-sm rounded-4">
+                                    <div class="card-header bg-white border-0 py-3">
+                                        <h5 class="fw-bold m-0" style="color: #894B8D;">Delivery Staff Management</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table align-middle">
+                                                <thead class="table-light">
+                                                    <tr class="small fw-bold text-muted text-uppercase">
+                                                        <th>Name</th>
+                                                        <th>Contact</th>
+                                                        <th>Area</th>
+                                                        <th>Status</th>
+                                                        <th class="text-center">Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for boy in all_boys %}
+                                                    <tr>
+                                                        <td>
+                                                            <div class="fw-bold text-dark">{{ boy.deliveryboy_name }}</div>
+                                                        </td>
+                                                        <td class="small text-muted">{{ boy.contact }}</td>
+                                                        <td class="small text-muted">
+                                                            <i class="fas fa-map-marker-alt me-1 text-primary"></i>
+                                                            {{ boy.area_id.area_name }}
+                                                        </td>
+                                                        <td>
+                                                            {% if boy.status == 0 %}
+                                                                <span class="badge bg-warning text-dark px-3 rounded-pill">Pending</span>
+                                                            {% elif boy.status == 1 %}
+                                                                <span class="badge bg-success px-3 rounded-pill">Active</span>
+                                                            {% elif boy.status == 2 %}
+                                                                <span class="badge bg-danger px-3 rounded-pill">Rejected</span>
+                                                            {% elif boy.status == 3 %}
+                                                                <span class="badge bg-secondary px-3 rounded-pill">Restricted</span>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td class="text-center">
+                                                            {% if boy.status == 0 %}
+                                                                <a href="{% url 'db_status' boy.deliveryboy_id 1 %}" class="btn btn-sm btn-success rounded-pill px-3 me-1">Approve</a>
+                                                                <a href="{% url 'db_status' boy.deliveryboy_id 2 %}" class="btn btn-sm btn-danger rounded-pill px-3">Reject</a>
+                                                            
+                                                            {% elif boy.status == 1 %}
+                                                                <a href="{% url 'db_status' boy.deliveryboy_id 3 %}" class="btn btn-sm btn-outline-danger rounded-pill px-3">Restrict</a>
+                                                            
+                                                            {% elif boy.status == 3 %}
+                                                                <a href="{% url 'db_status' boy.deliveryboy_id 1 %}" class="btn btn-sm btn-primary rounded-pill px-3">
+                                                                    <i class="fas fa-redo-alt me-1 small"></i> Reactivate
+                                                                </a>
+
+                                                            {% elif boy.status == 2 %}
+                                                                <span class="text-danger small fw-bold">Case Closed</span>
+                                                            {% endif %}
+                                                        </td>
+                                                    </tr>
+                                                    {% empty %}
+                                                    <tr>
+                                                        <td colspan="5" class="text-center py-5 text-muted">No delivery staff found.</td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
 <div class="modal fade" id="addProductModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content rounded-4 border-0 shadow-lg">

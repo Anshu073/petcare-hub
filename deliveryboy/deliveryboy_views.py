@@ -19,7 +19,7 @@ def delivery_register(request):
         profile_img = request.FILES.get('deliveryboy_profile')
 
         if DeliveryBoy.objects.filter(email=email).exists():
-            messages.error(request, "Email already registered!")
+            messages.error(request, "This email is already registered!",extra_tags='del_reg')
             return render(request, 'registration.html', {'vendors': vendors})
 
         try:
@@ -34,53 +34,74 @@ def delivery_register(request):
                 email=email,
                 contact=contact,
                 password=make_password(password),
-                is_approved=False       # Default False (Vendor approve karega)
+                status=0       # Default 0 (Vendor approve karega)
             )
             if profile_img:
                 new_boy.deliveryboy_profile = profile_img
             
             new_boy.save()
-            messages.success(request, "Registration successful! Please wait for Vendor approval before login.")
+            messages.success(request, "Registration successful! Please wait for Vendor approval before login.",extra_tags='delivery_login')
             return redirect('delivery_login') # Dashboard ki jagah login par redirect
 
         except Exception as e:
-            messages.error(request, f"Registration failed: {e}")
+            messages.error(request, f"Registration failed: {e}",extra_tags='del_reg')
             return render(request, 'registration.html', {'vendors': vendors, 'areas': areas})
         
     return render(request, 'registration.html', {'vendors': vendors,'areas': areas})
 
 # --- 2. LOGIN ---
 def delivery_login(request):
-    if 'delivery_id' in request.session:
-        return redirect('delivery_dashboard')
-
     if request.method == "POST":
         email = request.POST.get('email')
         password = request.POST.get('password')
-
         try:
             agent = DeliveryBoy.objects.get(email=email)
             if check_password(password, agent.password):
+                # Status checks
+                if agent.status == 0:
+                    messages.error(request, "Pending Approval: Wait for vendor to approve.", extra_tags='delivery_login')
+                    return render(request, 'dlogin.html')
+                elif agent.status == 2:
+                    messages.error(request, "Rejected: Your account was denied.", extra_tags='delivery_login')
+                    return render(request, 'dlogin.html')
+                elif agent.status == 3:
+                    messages.error(request, "Restricted: Account is blocked.", extra_tags='delivery_login')
+                    return render(request, 'dlogin.html')
+
+                # Login Success
                 request.session['delivery_id'] = agent.deliveryboy_id
-                request.session['delivery_name'] = agent.deliveryboy_name
-                messages.success(request, f"Welcome back, {agent.deliveryboy_name}!")
+                messages.success(request, f"Welcome back, {agent.deliveryboy_name}!", extra_tags='delivery_login')
                 return redirect('delivery_dashboard')
             else:
-                messages.error(request, "Invalid password. Please try again.")
+                messages.error(request, "Invalid Password!", extra_tags='delivery_login')
         except DeliveryBoy.DoesNotExist:
-            messages.error(request, "Email not found in our records.")
-
+            messages.error(request, "Account not found!", extra_tags='delivery_login')
     return render(request, 'dlogin.html')
 
 # --- 3. DASHBOARD ---
 def delivery_dashboard(request):
+    # 1. Pehle session check karo (Login hai ya nahi)
     if 'delivery_id' not in request.session:
         return redirect('delivery_login')
 
     delivery_id = request.session['delivery_id']
+    
+    # 2. Latest status check (Har refresh par database se check hoga)
     agent = get_object_or_404(DeliveryBoy, pk=delivery_id)
     
-    # Active vs Completed logic
+    # --- MANUAL VALIDATION ---
+    if agent.status != 1:
+        # Agar status Active nahi hai, toh session delete karo aur login pe bhejo
+        del request.session['delivery_id']
+        if 'delivery_name' in request.session:
+            del request.session['delivery_name']
+            
+        # Yahan 'danger' tag add kiya hai taaki Red side-line aaye
+        messages.error(request, "Access Denied: Your account is no longer active. 🚫", extra_tags='danger')
+        return redirect('delivery_login')
+    # -------------------------
+
+    # Baki ka dashboard logic waisa hi rahega
     active_tasks = Order.objects.filter(deliveryboy_id=agent, order_status__in=[0, 1])
     completed_count = Order.objects.filter(deliveryboy_id=agent, order_status=2).count()
 

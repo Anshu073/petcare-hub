@@ -152,10 +152,17 @@
 
                             {% if messages %}
                                 {% for message in messages %}
-                                <div class="alert shadow-sm" style="border-radius: 12px; margin-bottom: 20px; padding: 15px; background: #fff; border-left: 6px solid {% if message.tags == 'error' %}#dc3545{% else %}#28a745{% endif %};">
-                                    <strong style="color: {% if message.tags == 'error' %}#dc3545{% else %}#28a745{% endif %}; text-transform: uppercase;">{{ message.tags }}!</strong>
-                                    <span style="font-weight: 500; margin-left: 5px;">{{ message }}</span>
-                                </div>
+                                    {% if 'delivery_login' in message.tags %}  <div class="alert alert-dismissible fade show shadow-lg" role="alert" 
+                                        style="border-radius: 10px; background: #fff; border: none; 
+                                        border-left: 8px solid {% if 'success' in message.tags %}#28a745{% else %}#dc3545{% endif %}; 
+                                        margin-bottom: 20px; padding: 15px;">
+                                        <strong style="color: {% if 'success' in message.tags %}#28a745{% else %}#dc3545{% endif %};">
+                                            {% if 'success' in message.tags %}SUCCESS!{% else %}WAIT!{% endif %}
+                                        </strong>
+                                        <p class="mb-0" style="font-size: 14px; color: #555;">{{ message }}</p>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" style="margin-top: 5px;"></button>
+                                    </div>
+                                    {% endif %}
                                 {% endfor %}
                             {% endif %}
 
@@ -197,12 +204,16 @@
     <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
     <script>
-        $(document).ready(function () {
-            // Auto-remove alerts matched to client
-            setTimeout(function () {
-                $(".alert").fadeTo(500, 0).slideUp(500, function () { $(this).remove(); });
-            }, 5000);
-        });
-    </script>
+    $(document).ready(function () {
+        setTimeout(function () {
+            $(".alert").each(function() {
+                $(this).addClass('animate__fadeOutRight');
+                $(this).fadeTo(1000, 0).slideUp(500, function () {
+                    $(this).remove();
+                });
+            });
+        }, 5000);
+    });
+</script>
 </body>
 </html>

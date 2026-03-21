@@ -137,7 +137,7 @@ class DeliveryBoy(models.Model):
     password = models.CharField(max_length=128)  # Increased length for hashed passwords
     email = models.EmailField(max_length=20, unique=True)
     contact = models.CharField(max_length=10)
-    is_approved = models.BooleanField(default=False) # Vendor approval logic
+    status = models.IntegerField(default=0) # 0:Pending, 1:Approved, 2:Rejected, 3:Restricted
     is_available = models.IntegerField(default=0) # Default: 0 (Offline)
     deliveryboy_profile = models.ImageField(upload_to='delivery_profiles/', null=True, blank=True)
 

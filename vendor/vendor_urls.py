@@ -7,4 +7,5 @@ urlpatterns = [
     path('login/', vendor_views.vendor_login, name='vendor_login'),
     path('vendor/dashboard/', vendor_views.vendor_dashboard, name='vendor_dashboard'),
     path('vendor/logout/', vendor_views.vendor_logout, name='vendor_logout'),
+    path('vendor/db-status/<int:db_id>/<int:new_status>/', vendor_views.update_db_status, name='db_status'),
 ]
