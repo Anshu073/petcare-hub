@@ -23,7 +23,7 @@
                                 <tr>
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            <img src="{% static item.prod_id.cover_img_path %}" width="60" class="me-3" style="border-radius: 5px;"> 
+                                            <img src="{{ item.prod_id.cover_img_path.url }}" width="60" class="me-3" style="border-radius: 5px; object-fit: cover; height: 60px;">
                                             <span>{{ item.prod_id.prod_name }}</span>
                                         </div>
                                     </td>

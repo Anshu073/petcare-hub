@@ -37,8 +37,8 @@
     {% for item in items %}
     <tr style="vertical-align: middle;"> <td style="min-width: 300px;">
             <div class="d-flex align-items-center">
-                <img src="{% static item.prod_id.cover_img_path %}" width="80" height="80" 
-                     class="me-3" style="border-radius: 10px; object-fit: cover; border: 1px solid #eee;">
+                <img src="{{ item.prod_id.cover_img_path.url }}" width="80" height="80" 
+     class="me-3" style="border-radius: 10px; object-fit: cover; border: 1px solid #eee;">
                 <div>
                     <h6 class="mb-0" style="font-weight: 600; color: #333;">{{ item.prod_id.prod_name }}</h6>
                     <small class="text-muted">{{ item.prod_id.category_id.category_name }}</small>

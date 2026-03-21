@@ -39,15 +39,15 @@
                     <div class="product__details-images-wrap">
                         <div class="tab-content" id="myTabContent">
                             <div class="tab-pane show active" id="itemMain-tab-pane" role="tabpanel">
-                                <a href="{% static product.cover_img_path %}" class="popup-image">
-                                    <img src="{% static product.cover_img_path %}" alt="{{ product.prod_name }}">
-                                </a>
+                                <a href="{{ product.cover_img_path.url }}" class="popup-image">
+    <img src="{{ product.cover_img_path.url }}" alt="{{ product.prod_name }}">
+</a>
                             </div>
                             {% for image in gallery %}
                             <div class="tab-pane fade" id="item{{ forloop.counter }}-tab-pane" role="tabpanel">
-                                <a href="{% static image.image_path %}" class="popup-image">
-                                    <img src="{% static image.image_path %}" alt="Gallery Image">
-                                </a>
+                                <a href="{{ image.image_path.url }}" class="popup-image">
+        <img src="{{ image.image_path.url }}" alt="Gallery Image">
+    </a>
                             </div>
                             {% endfor %}
                         </div>
@@ -56,14 +56,14 @@
                             <li class="nav-item">
                                 <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#itemMain-tab-pane"
                                     type="button">
-                                    <img src="{% static product.cover_img_path %}" alt="Main">
+                                    <img src="{{ product.cover_img_path.url }}" alt="Main">
                                 </button>
                             </li>
                             {% for image in gallery %}
                             <li class="nav-item">
                                 <button class="nav-link" data-bs-toggle="tab"
                                     data-bs-target="#item{{ forloop.counter }}-tab-pane" type="button">
-                                    <img src="{% static image.image_path %}" alt="Thumbnail">
+                                    <img src="{{ image.image_path.url }}" alt="Thumbnail">
                                 </button>
                             </li>
                             {% endfor %}
@@ -377,8 +377,11 @@
                 <div class="swiper-slide">
                     <div class="product__item" style="border: 1px solid #f0f0f0; border-radius: 15px; background: #fff; margin: 10px; transition: 0.3s;">
                         <div class="product__thumb" style="padding: 25px; background: #f9f9f9; border-radius: 12px; position: relative;">
-                            <a href="{% url 'product_details' related.prod_id %}">
-                                <img src="{% static related.cover_img_path %}" alt="{{ related.prod_name }}" style="width: 100%; height: 230px; object-fit: contain;">
+                               <a href="{% url 'product_details' related.prod_id %}">
+    <img src="{{ related.cover_img_path.url }}" 
+         alt="{{ related.prod_name }}" 
+         style="width: 100%; height: 230px; object-fit: contain;">
+</a>
                             </a>
                             
                             <div class="product__action">

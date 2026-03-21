@@ -78,7 +78,7 @@
                     <div class="product__item">
                         <div class="product__thumb">
                             <a href="{% url 'product_details' p.prod_id %}">
-                                <img src="{% static p.cover_img_path %}" alt="{{ p.prod_name }}">
+                                <img src="{{ p.cover_img_path.url }}" alt="{{ p.prod_name }}">
                             </a>
                             <div class="product__action">
                                 <a href="{% url 'add_to_wishlist' p.prod_id %}">
