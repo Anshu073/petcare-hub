@@ -1,6 +1,7 @@
 {% extends 'header1.html' %}
 {% load static %}
 {% block content %}
+
 <!-- offCanvas-menu -->
 <div class="offCanvas__info">
     <div class="offCanvas__close-icon menu-close">
@@ -95,8 +96,102 @@
                                     class="injectable">
                             </div>
                             <h5 class="title">Watch Our <br> Working Video</h5>
-                            <a href="https://www.youtube.com/watch?v=XdFfCPK5ycw" class="popup-video play-btn"><i
-                                    class="fas fa-play"></i></a>
+                            <style>
+        /* PetCareHub Gold Theme */
+        .play-btn {
+            width: 80px; height: 80px;
+            background: #d4af37; /* Match with PetCareHub Logo */
+            color: white;
+            border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 24px; cursor: pointer; border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: 0.3s;
+        }
+        .play-btn:hover { transform: scale(1.1); }
+
+        /* Full Screen Overlay */
+        .video-overlay {
+            display: none; position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 10000; /* High Z-index for safety */
+            justify-content: center; align-items: center;
+        }
+
+        .video-content { position: relative; width: 90%; max-width: 800px; }
+        
+        .close-video {
+            position: absolute; top: -45px; right: 0;
+            color: white; font-size: 40px; cursor: pointer;
+        }
+
+        .video-responsive {
+            position: relative; padding-bottom: 56.25%; height: 0;
+            background: #000;
+        }
+
+        /* Iframe styling for API injection */
+        #player {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%; border: none;
+        }
+    </style>
+                            <button class="play-btn" id="openBtn">
+        <i class="fas fa-play"></i>
+    </button>
+
+    <div id="videoPopup" class="video-overlay">
+        <div class="video-content">
+            <span class="close-video" id="closeBtn">&times;</span>
+            <div class="video-responsive">
+                <div id="player"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 1. YouTube IFrame API Load
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        var player;
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                videoId: 'go0pw_SGi_M', // PetCareHub Video ID
+                playerVars: {
+                    'autoplay': 0,
+                    'rel': 0,
+                    'enablejsapi': 1,
+                    'origin': window.location.origin
+                }
+            });
+        }
+
+        const overlay = document.getElementById('videoPopup');
+        
+        // Open & Play
+        document.getElementById('openBtn').onclick = function() {
+            overlay.style.display = "flex";
+            if (player && player.playVideo) {
+                player.playVideo();
+            }
+        };
+
+        // Close & Pause
+        function closePopup() {
+            overlay.style.display = "none";
+            if (player && player.pauseVideo) {
+                player.pauseVideo();
+            }
+        }
+
+        document.getElementById('closeBtn').onclick = closePopup;
+        
+        // Background click to close
+        window.onclick = (e) => { if (e.target == overlay) closePopup(); };
+    </script>
                         </div>
                     </div>
                 </div>
