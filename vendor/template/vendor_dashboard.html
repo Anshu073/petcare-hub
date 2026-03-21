@@ -17,6 +17,28 @@
         #pills-tab .nav-link { background-color: #f8f9fa; color: #333; transition: all 0.3s ease; }
         #pills-tab .nav-link:hover:not(.active) { background-color: #e9ecef; }
     </style>
+
+    <style>
+    /* Card ki height fix aur scrollbar lane ke liye */
+    .logistics-scroll-container {
+        max-height: 400px; /* Isse zyada hone par scroll aayega */
+        overflow-y: auto;
+        padding-right: 10px;
+    }
+
+    /* Custom Scrollbar Styling (3rd image jaisa) */
+    .logistics-scroll-container::-webkit-scrollbar {
+        width: 6px;
+    }
+    .logistics-scroll-container::-webkit-scrollbar-thumb {
+        background: #894B8D;
+        border-radius: 10px;
+    }
+    .logistics-scroll-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+</style>
+
 </head>
 
 <body>
@@ -73,7 +95,6 @@
             top: 80px; /* Mobile par thoda upar */
         }
     }
-</style>
 </style>
     <header class="header-area">
         <div class="container">
@@ -162,10 +183,7 @@
                             </li>
                             <li class="nav-item">
                                 <button class="nav-link fw-bold px-4 py-2 rounded-pill shadow-sm" id="pills-edit-tab" data-bs-toggle="pill" data-bs-target="#pills-edit" type="button">Edit Store</button>
-                            </li>
-                            <li class="nav-item">
-                                <button class="nav-link fw-bold px-4 py-2 rounded-pill shadow-sm" id="pills-approval-tab" data-bs-toggle="pill" data-bs-target="#pills-approval" type="button">Pending Approvals</button>
-                            </li>
+                            </li>                        
                         </ul>
 
                         <div class="tab-content" id="pills-tabContent">
@@ -179,7 +197,7 @@
 
                             <div class="tab-pane fade" id="pills-products">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h5 class="fw-bold m-0">Inventory List</h5>
+        <h5 class="fw-bold mb-4">Inventory List</h5>
         <button class="btn btn-primary btn-sm rounded-pill px-3" 
                 style="background-color: #894B8D; border: none;"
                 data-bs-toggle="modal" data-bs-target="#addProductModal">+ Add Product</button>
@@ -225,7 +243,7 @@
 </div>
 
                             <div class="tab-pane fade" id="pills-edit">
-    <h5 class="fw-bold mb-4" style="color: #894B8D;">Store Settings</h5>
+    <h5 class="fw-bold mb-4" class="fw-bold mb-4">Store Settings</h5>
     <form action="{% url 'vendor_dashboard' %}" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="row">
@@ -252,74 +270,7 @@
     </form>
 </div>
 
-                            <div class="tab-pane fade" id="pills-approval" role="tabpanel">
-                                <div class="card border-0 shadow-sm rounded-4">
-                                    <div class="card-header bg-white border-0 py-3">
-                                        <h5 class="fw-bold m-0" style="color: #894B8D;">Delivery Staff Management</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="table-responsive">
-                                            <table class="table align-middle">
-                                                <thead class="table-light">
-                                                    <tr class="small fw-bold text-muted text-uppercase">
-                                                        <th>Name</th>
-                                                        <th>Contact</th>
-                                                        <th>Area</th>
-                                                        <th>Status</th>
-                                                        <th class="text-center">Actions</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {% for boy in all_boys %}
-                                                    <tr>
-                                                        <td>
-                                                            <div class="fw-bold text-dark">{{ boy.deliveryboy_name }}</div>
-                                                        </td>
-                                                        <td class="small text-muted">{{ boy.contact }}</td>
-                                                        <td class="small text-muted">
-                                                            <i class="fas fa-map-marker-alt me-1 text-primary"></i>
-                                                            {{ boy.area_id.area_name }}
-                                                        </td>
-                                                        <td>
-                                                            {% if boy.status == 0 %}
-                                                                <span class="badge bg-warning text-dark px-3 rounded-pill">Pending</span>
-                                                            {% elif boy.status == 1 %}
-                                                                <span class="badge bg-success px-3 rounded-pill">Active</span>
-                                                            {% elif boy.status == 2 %}
-                                                                <span class="badge bg-danger px-3 rounded-pill">Rejected</span>
-                                                            {% elif boy.status == 3 %}
-                                                                <span class="badge bg-secondary px-3 rounded-pill">Restricted</span>
-                                                            {% endif %}
-                                                        </td>
-                                                        <td class="text-center">
-                                                            {% if boy.status == 0 %}
-                                                                <a href="{% url 'db_status' boy.deliveryboy_id 1 %}" class="btn btn-sm btn-success rounded-pill px-3 me-1">Approve</a>
-                                                                <a href="{% url 'db_status' boy.deliveryboy_id 2 %}" class="btn btn-sm btn-danger rounded-pill px-3">Reject</a>
-                                                            
-                                                            {% elif boy.status == 1 %}
-                                                                <a href="{% url 'db_status' boy.deliveryboy_id 3 %}" class="btn btn-sm btn-outline-danger rounded-pill px-3">Restrict</a>
-                                                            
-                                                            {% elif boy.status == 3 %}
-                                                                <a href="{% url 'db_status' boy.deliveryboy_id 1 %}" class="btn btn-sm btn-primary rounded-pill px-3">
-                                                                    <i class="fas fa-redo-alt me-1 small"></i> Reactivate
-                                                                </a>
-
-                                                            {% elif boy.status == 2 %}
-                                                                <span class="text-danger small fw-bold">Case Closed</span>
-                                                            {% endif %}
-                                                        </td>
-                                                    </tr>
-                                                    {% empty %}
-                                                    <tr>
-                                                        <td colspan="5" class="text-center py-5 text-muted">No delivery staff found.</td>
-                                                    </tr>
-                                                    {% endfor %}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            
 
 <div class="modal fade" id="addProductModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -380,7 +331,302 @@
     </div>
 </div>
                 </div>
+
             </div>
+
+            <div class="clearfix"></div> <section class="logistics-wrapper mt-5 pb-5">
+    <div class="container-fluid p-0">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="dashboard-card p-4 bg-white shadow-sm rounded-4">
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="fw-bold m-0" style="color: #333;">
+                            <i class="fas fa-truck-loading me-2" style="color: #894B8D;"></i> Logistics Center
+                        </h4>
+                    </div>
+
+                    <ul class="nav nav-pills mb-4 gap-3" id="pills-logistics-tab" role="tablist">
+                        <li class="nav-item">
+                            <button class="nav-link active fw-bold px-4 py-2 rounded-pill shadow-sm" 
+                                    id="logistics-active-tab" data-bs-toggle="pill" data-bs-target="#logistics-active" 
+                                    type="button">Active Force</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link fw-bold px-4 py-2 rounded-pill shadow-sm" 
+                                    id="logistics-manage-tab" data-bs-toggle="pill" data-bs-target="#logistics-manage" 
+                                    type="button">Manage Partners</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link fw-bold px-4 py-2 rounded-pill shadow-sm" 
+                                    id="logistics-requests-tab" data-bs-toggle="pill" data-bs-target="#logistics-requests" 
+                                    type="button">New Requests</button>
+                        </li>                        
+                    </ul>
+
+                    <div class="tab-content">
+                        
+                        <div class="tab-pane fade show active" id="logistics-active">
+                            <h5 class="fw-bold mb-4">On-Duty Partners</h5>
+                            <div class="logistics-scroll-container" style="max-height: 350px; overflow-y: auto; padding-right: 10px;">
+                                <table class="table align-middle">
+                                    <thead class="table-light" style="position: sticky; top: 0; z-index: 1;">
+                                        <tr class="small fw-bold text-muted text-uppercase">
+                                            <th>Partner Details</th>
+                                            <th>Contact No.</th>
+                                            <th>Area</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for boy in all_boys %}
+                                            {% if boy.status == 1 %} <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center gap-3">
+                                                        {% if boy.deliveryboy_profile %}
+                                                            <img src="/media/{{ boy.deliveryboy_profile }}" 
+                                                                class="rounded-circle shadow-sm" 
+                                                                style="width: 45px; height: 45px; object-fit: cover; border: 2px solid #fff; outline: 1px solid #eee;">
+                                                        {% else %}
+                                                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center shadow-sm" 
+                                                                style="width: 45px; height: 45px; border: 1px solid #eee; color: #894B8D;">
+                                                                <i class="fas fa-user"></i>
+                                                            </div>
+                                                        {% endif %}
+                                                        
+                                                        <div>
+                                                            <h6 class="mb-0 fw-bold text-dark">{{ boy.deliveryboy_name }}</h6>
+                                                            <small class="text-muted" style="font-size: 0.75rem;">ID: #DB-0{{ boy.deliveryboy_id }}</small>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span class="text-muted fw-bold small">
+                                                        <i class="fas fa-phone-alt me-1 text-primary" style="font-size: 0.8rem;"></i> 
+                                                        {{ boy.contact }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                            <span class="badge bg-light text-dark border px-3 py-2 shadow-sm rounded-pill" style="font-weight: 600;">
+                                                <i class="fas fa-map-marker-alt text-danger me-1" style="font-size: 0.8rem;"></i> 
+                                                {{ boy.area_id.area_name }}
+                                            </span>
+                                        </td>
+                                                <td>
+                                                    {% if boy.is_available == 1 %}
+                                                        <span class="badge bg-success-subtle text-success rounded-pill px-3 border border-success">
+                                                            <i class="fas fa-circle me-1" style="font-size: 8px;"></i> Online
+                                                        </span>
+                                                    {% else %}
+                                                        <span class="badge bg-danger-subtle text-danger rounded-pill px-3 border border-danger">
+                                                            <i class="fas fa-circle me-1" style="font-size: 8px;"></i> Offline
+                                                        </span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            {% endif %}
+                                        {% empty %}
+                                            <tr>
+                                                <td colspan="4" class="text-center py-5 text-muted">No partners found. 🐾</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="logistics-manage">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h5 class="fw-bold m-0">Partner Management</h5>
+                                <span class="small text-muted">Update partner access and visibility</span>
+                            </div>
+
+                            <div class="logistics-scroll-container" style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
+                                <div class="table-responsive">
+                                    <table class="table align-middle">
+                                        <thead class="table-light" style="position: sticky; top: 0; z-index: 1;">
+                                            <tr class="small fw-bold text-muted text-uppercase">
+                                                <th>Partner Details</th>
+                                                <th>Contact & Area</th>
+                                                <th>Current Status</th>
+                                                <th class="text-center">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for boy in all_boys %}
+                                                {% if boy.status == 1 or boy.status == 3 %}
+                                                <tr>
+                                                    <td>
+                                                        <div class="d-flex align-items-center gap-3">
+                                                            {% if boy.deliveryboy_profile %}
+                                                                <img src="/media/{{ boy.deliveryboy_profile }}" 
+                                                                    class="rounded-circle shadow-sm" 
+                                                                    style="width: 45px; height: 45px; object-fit: cover; border: 1px solid #eee;">
+                                                            {% else %}
+                                                                <div class="rounded-circle bg-light d-flex align-items-center justify-content-center shadow-sm" 
+                                                                    style="width: 45px; height: 45px; border: 1px solid #eee; color: #894B8D;">
+                                                                    <i class="fas fa-user"></i>
+                                                                </div>
+                                                            {% endif %}
+
+                                                            <div>
+                                                                <h6 class="mb-0 fw-bold text-dark">{{ boy.deliveryboy_name }}</h6>
+                                                                <small class="text-muted">ID: #DB-0{{ boy.deliveryboy_id }}</small>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+
+                                                    <td>
+                                                        <div class="d-flex flex-column gap-2">
+                                                            <span class="small fw-bold text-muted">
+                                                                <i class="fas fa-phone-alt me-1 text-primary"></i> {{ boy.contact }}
+                                                            </span>
+                                                            
+                                                            <span class="badge bg-light text-dark border rounded-pill px-3 py-2 shadow-sm" style="width: fit-content; font-weight: 600;">
+                                                                <i class="fas fa-map-marker-alt me-1 text-danger"></i> {{ boy.area_id.area_name }}
+                                                            </span>
+                                                        </div>
+                                                    </td>
+
+                                                    <td>
+                                                        {% if boy.status == 1 %}
+                                                            <span class="badge bg-success-subtle text-success rounded-pill px-3 border border-success">Approved</span>
+                                                        {% elif boy.status == 3 %}
+                                                            <span class="badge bg-danger-subtle text-danger rounded-pill px-3 border border-danger">Restricted</span>
+                                                        {% endif %}
+                                                    </td>
+
+                                                    <td class="text-center">
+                                                        <div class="d-flex flex-column gap-2 align-items-center">
+                                                            {% if boy.status == 1 %}
+                                                                <a href="{% url 'db_status' boy.deliveryboy_id 3 %}" 
+                                                                class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold shadow-sm w-100" 
+                                                                style="font-size: 11px;">
+                                                                    <i class="fas fa-ban me-1"></i> Restrict
+                                                                </a>
+                                                            {% elif boy.status == 3 %}
+                                                                <a href="{% url 'db_status' boy.deliveryboy_id 1 %}" 
+                                                                class="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm w-100" 
+                                                                style="font-size: 11px;">
+                                                                    <i class="fas fa-check-circle me-1"></i> Reactivate
+                                                                </a>
+                                                            {% endif %}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                {% endif %}
+                                            {% empty %}
+                                                <tr><td colspan="4" class="text-center py-5 text-muted">No partners to manage.</td></tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="logistics-requests">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5 class="fw-bold m-0">Join Requests</h5>
+        <span class="small text-muted">Reviewing new applications</span>
+    </div>
+
+    <div class="logistics-scroll-container" style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead class="table-light" style="position: sticky; top: 0; z-index: 1;">
+                    <tr class="small fw-bold text-muted text-uppercase">
+                        <th>Partner Details</th>
+                        <th>Contact & Area</th>
+                        <th>Current Status</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for boy in all_boys %}
+                        {% if boy.status == 0 or boy.status == 2 %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    {% if boy.deliveryboy_profile %}
+                                        <img src="/media/{{ boy.deliveryboy_profile }}" 
+                                             class="rounded-circle shadow-sm" 
+                                             style="width: 45px; height: 45px; object-fit: cover; border: 2px solid #fff; outline: 1px solid #eee;">
+                                    {% else %}
+                                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center shadow-sm" 
+                                             style="width: 45px; height: 45px; border: 1px solid #eee; color: #894B8D;">
+                                            <i class="fas fa-user-plus"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <h6 class="mb-0 fw-bold text-dark">{{ boy.deliveryboy_name }}</h6>
+                                        <small class="text-muted" style="font-size: 0.75rem;">ID: #DB-0{{ boy.deliveryboy_id }}</small>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="d-flex flex-column gap-2">
+                                    <span class="small fw-bold text-muted">
+                                        <i class="fas fa-phone-alt me-1 text-primary"></i> {{ boy.contact }}
+                                    </span>
+                                    <span class="badge bg-light text-dark border rounded-pill px-3 py-2 shadow-sm" style="width: fit-content;">
+                                        <i class="fas fa-map-marker-alt me-1 text-danger"></i> {{ boy.area_id.area_name }}
+                                    </span>
+                                </div>
+                            </td>
+
+                            <td>
+                                {% if boy.status == 0 %}
+                                    <span class="badge bg-warning-subtle text-warning rounded-pill px-3 border border-warning">Pending</span>
+                                {% elif boy.status == 2 %}
+                                    <span class="badge bg-danger-subtle text-danger rounded-pill px-3 border border-danger">Rejected</span>
+                                {% endif %}
+                            </td>
+
+                            <td class="text-center">
+                                {% if boy.status == 0 %}
+                                    <div class="d-flex flex-column gap-2 align-items-center">
+                                        <button onclick="location.href='{% url 'db_status' boy.deliveryboy_id 1 %}'" 
+                                                class="btn btn-success btn-sm rounded-pill px-4 fw-bold shadow-sm w-75">
+                                            <i class="fas fa-check-circle me-1"></i> Approve
+                                        </button>
+                                        <button onclick="location.href='{% url 'db_status' boy.deliveryboy_id 2 %}'" 
+                                                class="btn btn-outline-danger btn-sm rounded-pill px-4 fw-bold shadow-sm w-75">
+                                            <i class="fas fa-times-circle me-1"></i> Reject
+                                        </button>
+                                    </div>
+                                {% else %}
+                                    <span class="text-muted small fw-bold">
+                                        <i class="fas fa-lock me-1"></i> Decision Fixed
+                                    </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endif %}
+                    {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-5">
+                                <div class="text-muted">
+                                    <i class="fas fa-clipboard-check fa-3x mb-3 opacity-25"></i>
+                                    <p class="mb-0 fw-bold">No Pending Requests</p>
+                                    <small>All applications have been processed.</small>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
         </div>
     </main>
     <script>
@@ -390,6 +636,39 @@
         });
     }, 4000);
     </script>
+
+    <style>
+    /* Sirf Logistics Center ke tabs ka active color set karne ke liye */
+    #pills-logistics-tab .nav-link.active { 
+        background-color: #1a237e !important; 
+        color: white !important; 
+        border: none;
+        box-shadow: 0 4px 10px rgba(26, 35, 126, 0.2); /* Thoda extra effect jaisa main dashboard mein hai */
+    }
+
+    /* Logistics ke normal tabs ka background */
+    #pills-logistics-tab .nav-link { 
+        background-color: #f8f9fa; 
+        color: #333; 
+        transition: all 0.3s ease; 
+        border: 1px solid transparent;
+    }
+
+    /* Hover effect sirf logistics tabs ke liye */
+    #pills-logistics-tab .nav-link:hover:not(.active) { 
+        background-color: #e9ecef; 
+    }
+
+    /* Scrollbar Styling (Only for Logistics scroll container) */
+    .logistics-scroll-container::-webkit-scrollbar { width: 5px; }
+    .logistics-scroll-container::-webkit-scrollbar-thumb { 
+        background: #894B8D; 
+        border-radius: 10px; 
+    }
+    .logistics-scroll-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+</style>
 
     <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>

@@ -186,6 +186,7 @@ class Product(models.Model):
 class Order(models.Model):
     order_id = models.AutoField(primary_key=True)
     cust_id = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    vendor_id = models.ForeignKey(Vendor, on_delete=models.CASCADE)
     deliveryboy_id = models.ForeignKey(DeliveryBoy, on_delete=models.CASCADE)
     area_id = models.ForeignKey(Area, on_delete=models.CASCADE)
     total_amount = models.IntegerField()
