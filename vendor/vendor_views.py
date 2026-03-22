@@ -250,18 +250,45 @@ def assign_order(request):
         order_id = request.POST.get('order_id')
         boy_id = request.POST.get('delivery_boy')
         delivery_date = request.POST.get('delivery_date')
+        vendor_id = request.session['vendor_id']
 
         try:
             order = get_object_or_404(Order, order_id=order_id)
             boy = get_object_or_404(DeliveryBoy, deliveryboy_id=boy_id)
+            vendor = get_object_or_404(Vendor, vendor_id=vendor_id)
 
-            # Delivery boy assign karo
+            # STEP 1: Is vendor ke OrderDetails ka detail_status 1 karo
+            OrderDetail.objects.filter(
+                order_id=order,
+                vendor_id=vendor
+            ).update(detail_status=1)  # 1: Assigned
+
+            # STEP 2: Delivery boy assign karo order pe
             order.deliveryboy_id = boy
-            # Delivery date vendor ne set ki toh update karo
+
+            # STEP 3: Delivery date update karo
             if delivery_date:
                 order.delivery_date = delivery_date
-            # Status 0 -> 1 (Assigned)
-            order.order_status = 1
+
+            # STEP 4: Order.order_status auto-calculate karo
+            # Saare OrderDetails fetch karo is order ke
+            all_details = OrderDetail.objects.filter(order_id=order)
+
+            all_statuses = list(all_details.values_list('detail_status', flat=True))
+
+            # Rule: Saare assigned (1) hone pe Order = 1
+            # Rule: Saare out for delivery (2) hone pe Order = 2
+            # Rule: Saare delivered (3) hone pe Order = 3
+            # Rule: Koi bhi processing (0) ho toh Order = 0
+            if all(s == 3 for s in all_statuses):
+                order.order_status = 3  # Saare delivered
+            elif all(s >= 2 for s in all_statuses):
+                order.order_status = 2  # Saare out for delivery
+            elif all(s >= 1 for s in all_statuses):
+                order.order_status = 1  # Saare assigned
+            else:
+                order.order_status = 0  # Koi abhi bhi processing mein hai
+
             order.save()
 
             messages.success(request, f"Order #{order_id} assigned to {boy.deliveryboy_name}! ✅", extra_tags='vendor_login')

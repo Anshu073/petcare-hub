@@ -206,6 +206,7 @@ class OrderDetail(models.Model):
     prod_id = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.IntegerField()
     price = models.IntegerField()
+    detail_status = models.IntegerField(default=0) # 0:Processing, 1:Assigned, 2:Out for Delivery, 3:Delivered
 
     class Meta:
         db_table = 'ORDER_DETAIL_TABLE'

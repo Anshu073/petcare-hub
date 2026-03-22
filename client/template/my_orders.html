@@ -35,19 +35,19 @@
         <div class="mb-4 p-3 rounded-4" style="border: 1px solid #f0e6f1;">
 
             <!-- Vendor Name -->
-            <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
                 <span class="badge rounded-pill px-3 py-2" style="background: #f4eef5; color: #894B8D; font-weight: 700;">
                     🏪 {{ vg.vendor.vendor_name }}
                 </span>
                 <!-- Status Badge -->
-                <span class="badge rounded-pill px-3 py-2 ms-2
-                    {% if group.order.order_status == 0 %}bg-warning text-dark
-                    {% elif group.order.order_status == 1 %}bg-info text-white
-                    {% elif group.order.order_status == 2 %}bg-primary text-white
+                <span class="badge rounded-pill px-3 py-2
+                    {% if vg.detail_status == 0 %}bg-warning text-dark
+                    {% elif vg.detail_status == 1 %}bg-info text-white
+                    {% elif vg.detail_status == 2 %}bg-primary text-white
                     {% else %}bg-success text-white{% endif %}">
-                    {% if group.order.order_status == 0 %}🕐 Processing
-                    {% elif group.order.order_status == 1 %}📦 Assigned
-                    {% elif group.order.order_status == 2 %}🚚 Out for Delivery
+                    {% if vg.detail_status == 0 %}🕐 Processing
+                    {% elif vg.detail_status == 1 %}📦 Assigned
+                    {% elif vg.detail_status == 2 %}🚚 Out for Delivery
                     {% else %}✅ Delivered{% endif %}
                 </span>
             </div>
@@ -74,13 +74,13 @@
             <div class="position-relative mx-2 mt-3 mb-1">
                 <div class="progress" style="height: 7px; border-radius: 10px; background-color: #eee;">
                     <div class="progress-bar progress-bar-striped progress-bar-animated"
-                        style="width: {% if group.order.order_status == 0 %}10%{% elif group.order.order_status == 1 %}40%{% elif group.order.order_status == 2 %}70%{% else %}100%{% endif %}; background-color: #894B8D;"></div>
+                        style="width: {% if vg.detail_status == 0 %}10%{% elif vg.detail_status == 1 %}40%{% elif vg.detail_status == 2 %}70%{% else %}100%{% endif %}; background-color: #894B8D;"></div>
                 </div>
                 <div class="d-flex justify-content-between mt-2 small fw-bold">
                     <span style="color: #894B8D;">Processing</span>
-                    <span class="{% if group.order.order_status >= 1 %}text-purple{% else %}text-muted{% endif %}">Assigned</span>
-                    <span class="{% if group.order.order_status >= 2 %}text-purple{% else %}text-muted{% endif %}">Out for Delivery</span>
-                    <span class="{% if group.order.order_status == 3 %}text-success{% else %}text-muted{% endif %}">Delivered</span>
+                    <span class="{% if vg.detail_status >= 1 %}text-purple{% else %}text-muted{% endif %}">Assigned</span>
+                    <span class="{% if vg.detail_status >= 2 %}text-purple{% else %}text-muted{% endif %}">Out for Delivery</span>
+                    <span class="{% if vg.detail_status == 3 %}text-success{% else %}text-muted{% endif %}">Delivered</span>
                 </div>
             </div>
 

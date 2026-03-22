@@ -871,8 +871,11 @@ def my_orders(request):
                 }
             vendor_dict[vid]['products'].append({
                 'detail': detail,
-                'subtotal': detail.price * detail.quantity  # Subtotal calculate karo
+                'subtotal': detail.price * detail.quantity
             })
+            # Vendor group ka detail_status = us vendor ke pehle product ka detail_status
+            # (saare products same vendor ke hain toh same status hoga)
+            vendor_dict[vid]['detail_status'] = detail.detail_status
 
         grouped_orders.append({
             'order': order,
