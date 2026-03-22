@@ -16,16 +16,24 @@
         
         <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
             <div>
-                <span class="text-muted small">Order ID</span>
-                <h6 class="fw-bold m-0 text-dark">#ORD-{{ order.order_id }}</h6>
+                <span class="text-muted small">Expected Delivery</span>
+                <h6 class="fw-bold m-0 text-dark">
+                    {% if order.delivery_date %}
+                        {{ order.delivery_date|date:"d M Y" }}
+                    {% else %}
+                        To be confirmed
+                    {% endif %}
+                </h6>
             </div>
             <span class="badge rounded-pill px-4 py-2 shadow-sm 
                 {% if order.order_status == 0 %}bg-warning text-dark
                 {% elif order.order_status == 1 %}bg-info text-white
+                {% elif order.order_status == 2 %}bg-primary text-white
                 {% else %}bg-success text-white{% endif %}">
-                {% if order.order_status == 0 %}Order Placed
-                {% elif order.order_status == 1 %}Out for Delivery
-                {% else %}Delivered ✅{% endif %}
+                {% if order.order_status == 0 %}🕐 Processing
+                {% elif order.order_status == 1 %}📦 Assigned
+                {% elif order.order_status == 2 %}🚚 Out for Delivery
+                {% else %}✅ Delivered{% endif %}
             </span>
         </div>
 
@@ -51,12 +59,13 @@
         <div class="position-relative mx-3 mb-5 mt-2">
             <div class="progress" style="height: 8px; border-radius: 10px; background-color: #eee;">
                 <div class="progress-bar progress-bar-striped progress-bar-animated" 
-                     style="width: {% if order.order_status == 0 %}20%{% elif order.order_status == 1 %}65%{% else %}100%{% endif %}; background-color: #894B8D;"></div>
+                    style="width: {% if order.order_status == 0 %}10%{% elif order.order_status == 1 %}40%{% elif order.order_status == 2 %}70%{% else %}100%{% endif %}; background-color: #894B8D;"></div>
             </div>
             <div class="d-flex justify-content-between mt-2 small fw-bold">
-                <span style="color: #894B8D;">Placed</span>
-                <span class="{% if order.order_status >= 1 %}text-purple{% else %}text-muted{% endif %}">On the Way</span>
-                <span class="{% if order.order_status == 2 %}text-success{% else %}text-muted{% endif %}">Delivered</span>
+                <span style="color: #894B8D;">Processing</span>
+                <span class="{% if order.order_status >= 1 %}text-purple{% else %}text-muted{% endif %}">Assigned</span>
+                <span class="{% if order.order_status >= 2 %}text-purple{% else %}text-muted{% endif %}">Out for Delivery</span>
+                <span class="{% if order.order_status == 3 %}text-success{% else %}text-muted{% endif %}">Delivered</span>
             </div>
         </div>
 

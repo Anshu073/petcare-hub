@@ -186,16 +186,15 @@ class Product(models.Model):
 class Order(models.Model):
     order_id = models.AutoField(primary_key=True)
     cust_id = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    vendor_id = models.ForeignKey(Vendor, on_delete=models.CASCADE)
-    deliveryboy_id = models.ForeignKey(DeliveryBoy, on_delete=models.CASCADE)
+    deliveryboy_id = models.ForeignKey(DeliveryBoy, on_delete=models.SET_NULL, null=True, blank=True)
     area_id = models.ForeignKey(Area, on_delete=models.CASCADE)
     total_amount = models.IntegerField()
     address = models.CharField(max_length=200)
     order_date = models.DateField(auto_now_add=True) # Automatically sets to today
-    order_status = models.IntegerField(default=0) # Default: 0 (Placed/Pending)
+    order_status = models.IntegerField(default=0) # 0:Processing, 1:Assigned, 2:Out for Delivery, 3:Delivered
     is_cancelled = models.BooleanField(default=False) # Client side cancellation
     reschedule_status = models.IntegerField(default=0) # 0: No Request, 1: Pending, 2: Accepted
-    delivery_date = models.DateField()
+    delivery_date = models.DateField(null=True, blank=True)
 
     class Meta:
         db_table = 'ORDER_TABLE'
@@ -203,6 +202,7 @@ class Order(models.Model):
 class OrderDetail(models.Model):
     order_details_id = models.AutoField(primary_key=True)
     order_id = models.ForeignKey(Order, on_delete=models.CASCADE)
+    vendor_id = models.ForeignKey(Vendor, on_delete=models.CASCADE)
     prod_id = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.IntegerField()
     price = models.IntegerField()

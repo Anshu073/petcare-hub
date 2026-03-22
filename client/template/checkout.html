@@ -116,47 +116,63 @@
                     <h4 class="section-h">2. Delivery Address 📍</h4>
                     <div class="row">
                         <div class="col-md-6"><input type="text" id="ship-name" class="pay-field"
-                                placeholder="Full Name*" value="{{ user.cust_name }}"></div>
+                                placeholder="Full Name*" value="{{customer.cust_name }}"></div>
                         <div class="col-md-6"><input type="tel" id="ship-phone" class="pay-field"
-                                placeholder="Phone Number*" value="{{ user.contact }}"></div>
+                                placeholder="Phone Number*" value="{{ customer.contact }}"></div>
                         <div class="col-12"><input type="text" id="ship-street" class="pay-field"
-                                placeholder="Street Address*" value="{{ user.address }}"></div>
+                                placeholder="Street Address*" value="{{ customer.address }}"></div>
                         <div class="col-md-5"><input type="text" class="pay-field" placeholder="City*"></div>
                         <div class="col-md-4"><input type="text" class="pay-field" placeholder="State*"></div>
                         <div class="col-md-3"><input type="text" class="pay-field" placeholder="Pincode*"></div>
                     </div>
                 </div>
 
-                <div id="payment-section" class="cart-pro-card wow fadeInLeft" data-wow-delay="0.2s">
+                <!-- =============================================
+                    SECTION 3: SECURE PAYMENT
+                    - Razorpay custom handler use kar rahe hain
+                    - Payment success hone ke baad razorpay_payment_id
+                    hidden field mein save hoga aur form checkout/ pe POST hoga
+                    ============================================= -->
+                <div id="payment-section" class="cart-pro-card">
                     <div class="premium-payment-wrapper">
                         <h4 class="section-h">3. Secure Payment 🔒</h4>
 
-                        <form class="text-center payment-form-custom" action="{% url 'order_success' %}" method="POST">
+                        <!-- Yeh form Razorpay success ke baad checkout/ pe POST karega -->
+                        {% if prod_id %}
+                            <!-- Buy It Now: prod_id URL mein pass karo -->
+                            <form id="order-form" method="POST" action="{% url 'checkout_single' prod_id %}">
+                            {% else %}
+                            <!-- Cart: normal checkout URL -->
+                            <form id="order-form" method="POST" action="{% url 'checkout' %}">
+                        {% endif %}
                             {% csrf_token %}
-                            <input type="hidden" name="name" id="name" required class="form-control mb-4"
-                                placeholder="Name">
+
+                            <!-- Address hidden field: Address section se value yahan aayegi -->
+                            <input type="hidden" name="address" id="hidden-address">
+
+                            <!-- Razorpay Payment ID: JS se fill hoga payment success pe -->
+                            <input type="hidden" name="razorpay_payment_id" id="hidden-payment-id">
+
+                            <input type="hidden" name="qty" id="hidden-qty" value="{{ checkout_items.0.quantity }}">
 
                             <div class="payment-info-box">
                                 <i class="fas fa-shield-check secure-icon"></i>
                                 <p>Click below to complete your payment via our secure partner.</p>
-                                <div class="amount-display">Total: ₹{{grand_total}}</div>
+                                <div class="amount-display">Total: ₹{{ grand_total }}</div>
                             </div>
 
-                            <script src="https://checkout.razorpay.com/v1/checkout.js"
-                                data-key="rzp_test_SNQx37pa2es1Wb" data-amount="{{grand_total|mul:100}}"
-                                data-currency="INR" data-order_id="{{payment.id}}" data-buttontext="Pay with Razorpay"
-                                data-name="PetCareHub" data-description="Premium Pet Healthcare"
-                                data-image="{% static 'assets/img/logo/logo.png' %}"
-                                data-prefill.name="{{ request.session.cust_name }}" data-theme.color="#894B8D">
-                                </script>
+                            <!-- Custom Razorpay Button -->
+                            <button type="button" id="rzp-pay-btn" class="btn-order mt-3">
+                                Pay with Razorpay
+                            </button>
                         </form>
                     </div>
                 </div>
-                </div>
+            </div>
                 <style>
                     /* Container Box */
                     .premium-payment-wrapper {
-                        background: #fff;
+                            background: #fff;
                         border-radius: 20px;
                         padding: 30px;
                         border: 1px solid #f1e9f2;
@@ -236,27 +252,53 @@
             </div>
         </div>
 </main>
+
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
+    document.getElementById('rzp-pay-btn').onclick = function(e) {
 
-
-
-    function switchPay(mode) {
-        const cardForm = document.getElementById('card-form');
-        const upiForm = document.getElementById('upi-form');
-        const cardTab = document.getElementById('tab-card');
-        const upiTab = document.getElementById('tab-upi');
-
-        if (mode === 'card') {
-            if (cardTab) cardTab.classList.add('active');
-            if (upiTab) upiTab.classList.remove('active');
-            if (cardForm) cardForm.style.display = 'block';
-            if (upiForm) upiForm.style.display = 'none';
-        } else {
-            if (upiTab) upiTab.classList.add('active');
-            if (cardTab) cardTab.classList.remove('active');
-            if (cardForm) cardForm.style.display = 'none';
-            if (upiForm) upiForm.style.display = 'block';
+        // Address field se value uthao
+        var address = document.getElementById('ship-street').value.trim();
+        if (!address) {
+            alert('Please enter your delivery address!');
+            return;
         }
-    }
+        // Hidden field mein daalo taaki POST mein jaye
+        document.getElementById('hidden-address').value = address;
+
+        // Razorpay options configure karo
+        var options = {
+            "key": "rzp_test_SNQx37pa2es1Wb",
+            "amount": "{{ grand_total|mul:100 }}",
+            "currency": "INR",
+            "name": "PetCareHub",
+            "description": "Premium Pet Healthcare",
+            "image": "{% static 'assets/img/logo/logo.png' %}",
+            "theme": { "color": "#894B8D" },
+            "prefill": {
+                "name": "{{ request.session.cust_name }}",
+            },
+
+            // Payment SUCCESS hone pe chalega
+            "handler": function(response) {
+                // Razorpay payment ID hidden field mein save karo
+                document.getElementById('hidden-payment-id').value = response.razorpay_payment_id;
+
+                // Form checkout/ pe POST karega — Order DB mein save hoga
+                document.getElementById('order-form').submit();
+            },
+
+            // Payment cancel/dismiss hone pe
+            "modal": {
+                "ondismiss": function() {
+                    alert('Payment cancelled. Your order was not placed.');
+                }
+            }
+        };
+
+        var rzp = new Razorpay(options);
+        rzp.open();
+    };
 </script>
 {% endblock %}

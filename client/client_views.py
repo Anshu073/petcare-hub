@@ -322,39 +322,142 @@ def logout_view(request):
     messages.success(request, "Logged out successfully! Come back soon. 🐾", extra_tags='client_logout_succ')
     return redirect('home')
 
+from django.db import transaction
+from datetime import date, timedelta
+from test2.models import Order, OrderDetail, OrderPayment
+
 def checkout(request, prod_id=None):
+    # --- LOGIN CHECK ---
     cust_id = request.session.get('cust_id')
     if not cust_id:
+        messages.warning(request, "Please login to proceed to checkout.")
         return redirect('login1')
-    
+
     customer = get_object_or_404(Customer, cust_id=cust_id)
     checkout_items = []
     grand_total = 0
 
+    # --- PATH B: BUY IT NOW (Single Product) ---
     if prod_id:
         product = get_object_or_404(Product, prod_id=prod_id)
         qty = int(request.GET.get('qty', 1))
         total = product.price * qty
         checkout_items.append({
-            'product': product,
-            'quantity': qty,
-            'total_price': total
+            'product': product,       # Product object
+            'quantity': qty,          # Kitne quantity
+            'total_price': total,     # qty * price
+            'vendor': product.vendor_id  # Vendor kaun hai (OrderDetail ke liye)
         })
         grand_total = total
+
+    # --- PATH A: CART CHECKOUT (Multiple Products) ---
     else:
         items = Cart.objects.filter(cust_id=customer, status=1)
+        
+        # Agar cart khali hai toh product page pe bhejo
+        if not items:
+            messages.info(request, "Your cart is empty!")
+            return redirect('product')
+        
         for item in items:
             checkout_items.append({
-                'product': item.prod_id,
+                'product': item.prod_id,          # Product object (ForeignKey)
                 'quantity': item.quantity,
-                'total_price': item.total_price
+                'total_price': item.total_price,
+                'vendor': item.prod_id.vendor_id  # Product ka vendor
             })
-        grand_total = items.aggregate(Sum('total_price'))['total_price__sum'] or 0
+        grand_total = sum(i['total_price'] for i in checkout_items)
 
+    # --- POST: RAZORPAY SUCCESS KE BAAD YAHAN AAYEGA ---
+    if request.method == "POST":
+        address = request.POST.get('address', customer.address)
+        razorpay_payment_id = request.POST.get('razorpay_payment_id', '')
+        auto_delivery_date = date.today() + timedelta(days=3)
+
+        # POST mein prod_id aur qty uthao (Buy It Now ke liye)
+        post_prod_id = prod_id  # Function parameter se directly lo
+
+        post_qty = request.GET.get('qty') or request.POST.get('qty') or 1
+
+        # POST ke time checkout_items rebuild karo
+        post_checkout_items = []
+        post_grand_total = 0
+
+        if post_prod_id:
+            # --- PATH B: BUY IT NOW ---
+            product = get_object_or_404(Product, prod_id=post_prod_id)
+            qty = int(post_qty or 1)
+            total = product.price * qty
+            post_checkout_items.append({
+                'product': product,
+                'quantity': qty,
+                'total_price': total,
+                'vendor': product.vendor_id
+            })
+            post_grand_total = total
+        else:
+            # --- PATH A: CART ---
+            items = Cart.objects.filter(cust_id=customer, status=1)
+            for item in items:
+                post_checkout_items.append({
+                    'product': item.prod_id,
+                    'quantity': item.quantity,
+                    'total_price': item.total_price,
+                    'vendor': item.prod_id.vendor_id
+                })
+            post_grand_total = sum(i['total_price'] for i in post_checkout_items)
+
+        try:
+            with transaction.atomic():
+
+                # STEP 1: Main Order entry banao
+                new_order = Order.objects.create(
+                    cust_id=customer,
+                    area_id=customer.area_id,
+                    total_amount=post_grand_total,
+                    address=address,
+                    order_status=0,
+                    delivery_date=auto_delivery_date
+                )
+
+                # STEP 2: Har product ke liye alag OrderDetail entry banao
+                for item in post_checkout_items:
+                    OrderDetail.objects.create(
+                        order_id=new_order,
+                        vendor_id=item['vendor'],
+                        prod_id=item['product'],
+                        quantity=item['quantity'],
+                        price=item['product'].price
+                    )
+
+                # STEP 3: Payment record save karo
+                OrderPayment.objects.create(
+                    order_id=new_order,
+                    payment_mode='Online',
+                    amount=post_grand_total,
+                    payment_status=1,
+                    payment_token=razorpay_payment_id
+                )
+
+                # STEP 4: Cart clear karo (sirf cart wale order mein)
+                if not post_prod_id:
+                    Cart.objects.filter(cust_id=customer, status=1).delete()
+
+                messages.success(request, "Order placed successfully! 🎉")
+                return redirect('order_success')
+
+        except Exception as e:
+            print(f"--- ORDER ERROR: {e} ---")
+            messages.error(request, f"Something went wrong: {str(e)}")
+            return redirect('cart')
+
+    # --- GET: Checkout page render karo ---
     return render(request, 'checkout.html', {
         'checkout_items': checkout_items,
         'grand_total': grand_total,
-        'customer': customer
+        'customer': customer,
+        'prod_id': prod_id,  # Template ko pata chale ki Buy It Now hai ya Cart
+
     })
 
 def add_to_wishlist(request, prod_id):
@@ -734,28 +837,20 @@ def edit_profile(request):
 
     return render(request, 'edit_profile.html', {'customer': customer})
 
-from test2.models import Order #
-# 2. My Orders View (With Tracking Logic)
-def my_orders(request):
-    cust_id = request.session.get('cust_id')
-    if not cust_id: return redirect('login1')
-
-    # Latest orders top par dikhane ke liye order_by('-order_id')
-    orders = Order.objects.filter(cust_id=cust_id).order_by('-order_id')
-    return render(request, 'my_orders.html', {'orders': orders})
-
 def order_success(request):
     return render(request, 'order_success.html')
 
 def my_orders(request):
-    if 'cust_id' not in request.session:
-        return redirect('customer_login')
-    
-    # Model name 'OrderDetail' hai, toh reverse 'orderdetail_set' hoga
+    # --- LOGIN CHECK ---
+    cust_id = request.session.get('cust_id')
+    if not cust_id:
+        return redirect('login1')
+
+    # Prefetch se OrderDetail bhi saath mein aayega (extra queries nahi lagenge)
     user_orders = Order.objects.filter(
-        cust_id=request.session['cust_id']
+        cust_id=cust_id
     ).prefetch_related('orderdetail_set').order_by('-order_date')
-    
+
     return render(request, 'my_orders.html', {'user_orders': user_orders})
 
 def contact(request):

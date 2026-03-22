@@ -506,7 +506,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const productId = "{{ product.prod_id }}";
         // Redirect to checkout with prod_id and selected quantity
         // product-details.html
-        window.location.href = `/client/checkout/${productId}/?qty=${qty}`;
+        window.location.href = "{% url 'checkout_single' product.prod_id %}?qty=" + qty;
     });
 </script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
