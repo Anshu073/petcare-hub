@@ -2,6 +2,50 @@
 {% load static %}
 
 {% block content %}
+<style>
+  /* ===== MAIN IMAGE BOX ===== */
+.product__details-images-wrap .tab-content {
+    width: 100%;
+    aspect-ratio: 1 / 1;   /* 🔥 SQUARE BOX */
+    background: #f9f9f9;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+}
+
+/* All tab panes */
+.product__details-images-wrap .tab-pane {
+    position: absolute;
+    inset: 0;
+    display: none;
+}
+.product__details-images-wrap .tab-pane.fade.show.active {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+}
+/* 🔥 MAIN FIX (yaha galti thi pehle) */
+.main-product-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+/* ===== THUMBNAILS ===== */
+.product__details-images-wrap .nav-tabs {
+    margin-top: 15px;
+    gap: 10px;
+}
+
+.product__details-images-wrap .nav-tabs img.thumb-img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    background: #f9f9f9;
+    padding: 5px;
+    border-radius: 8px;
+    border: 1px solid #eee;
+}
+</style>
 <main class="fix">
     <section class="breadcrumb__area fix">
         <div class="container">
@@ -38,16 +82,24 @@
                 <div class="col-lg-6">
                     <div class="product__details-images-wrap">
                         <div class="tab-content" id="myTabContent">
-                            <div class="tab-pane show active" id="itemMain-tab-pane" role="tabpanel">
-                                <a href="{{ product.cover_img_path.url }}" class="popup-image">
-    <img src="{{ product.cover_img_path.url }}" alt="{{ product.prod_name }}">
+                            <div class="tab-pane fade show active" id="itemMain-tab-pane" role="tabpanel">
+                                <a href="{{ product.cover_img_path.url }}" class="popup-image"
+   style="display:flex; align-items:center; justify-content:center; width:100%; height:100%; background:#f9f9f9;">
+    
+    <img src="{{ product.cover_img_path.url }}" 
+         alt="{{ product.prod_name }}"
+         style="max-width:100%; max-height:100%; object-fit:contain;">
 </a>
                             </div>
                             {% for image in gallery %}
                             <div class="tab-pane fade" id="item{{ forloop.counter }}-tab-pane" role="tabpanel">
-                                <a href="{{ image.image_path.url }}" class="popup-image">
-        <img src="{{ image.image_path.url }}" alt="Gallery Image">
-    </a>
+                                <a href="{{ image.image_path.url }}" class="popup-image"
+   style="display:flex; align-items:center; justify-content:center; width:100%; height:100%; background:#f9f9f9;">
+    
+    <img src="{{ image.image_path.url }}" 
+         alt="Gallery Image"
+         style="max-width:100%; max-height:100%; object-fit:contain;">
+</a>
                             </div>
                             {% endfor %}
                         </div>
@@ -56,14 +108,14 @@
                             <li class="nav-item">
                                 <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#itemMain-tab-pane"
                                     type="button">
-                                    <img src="{{ product.cover_img_path.url }}" alt="Main">
+                                    <img src="{{ product.cover_img_path.url }}" alt="Main" class="thumb-img">
                                 </button>
                             </li>
                             {% for image in gallery %}
                             <li class="nav-item">
                                 <button class="nav-link" data-bs-toggle="tab"
                                     data-bs-target="#item{{ forloop.counter }}-tab-pane" type="button">
-                                    <img src="{{ image.image_path.url }}" alt="Thumbnail">
+                                    <img src="{{ image.image_path.url }}" alt="Thumbnail" class="thumb-img">
                                 </button>
                             </li>
                             {% endfor %}
@@ -378,11 +430,15 @@
                     <div class="product__item" style="border: 1px solid #f0f0f0; border-radius: 15px; background: #fff; margin: 10px; transition: 0.3s;">
                         <div class="product__thumb" style="padding: 25px; background: #f9f9f9; border-radius: 12px; position: relative;">
                                <a href="{% url 'product_details' related.prod_id %}">
-    <img src="{{ related.cover_img_path.url }}" 
-         alt="{{ related.prod_name }}" 
-         style="width: 100%; height: 230px; object-fit: contain;">
+    <div style="width:100%; height:230px; display:flex; align-items:center; justify-content:center; background:#f9f9f9; border-radius:12px;">
+        
+        <img src="{{ related.cover_img_path.url }}" 
+             alt="{{ related.prod_name }}" 
+             style="max-width:100%; max-height:100%; object-fit:contain;">
+             
+    </div>
 </a>
-                            </a>
+                            
                             
                             <div class="product__action">
                                 <a href="{% url 'add_to_wishlist' related.prod_id %}">

@@ -1,7 +1,22 @@
 {% extends 'header1.html' %}
 {% load static %}
 {% block content %}
+<style>
+    .product__thumb {
+    height: 220px;           /* box size fix */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f9f9f9;
+    overflow: hidden;
+}
 
+.product-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;     /* IMPORTANT */
+}
+</style>
 <main class="fix">
     <section class="breadcrumb__area fix">
         <div class="container">
@@ -78,7 +93,7 @@
                     <div class="product__item">
                         <div class="product__thumb">
                             <a href="{% url 'product_details' p.prod_id %}">
-                                <img src="{{ p.cover_img_path.url }}" alt="{{ p.prod_name }}">
+                                <img src="{{ p.cover_img_path.url }}" alt="{{ p.prod_name }}" class="product-img">
                             </a>
                             <div class="product__action">
                                 <a href="{% url 'add_to_wishlist' p.prod_id %}">

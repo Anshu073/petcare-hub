@@ -109,21 +109,46 @@
             transition: 0.3s;
         }
         .play-btn:hover { transform: scale(1.1); }
+/* Scrolling ko forcefully rokne ke liye */
+.no-scroll {
+    overflow: hidden !important;
+    height: 100vh !important;
+    position: fixed !important;
+    width: 100% !important;
+}
 
-        /* Full Screen Overlay */
-        .video-overlay {
-            display: none; position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 10000; /* High Z-index for safety */
-            justify-content: center; align-items: center;
-        }
+/* Overlay ko sabse upar rakhne ke liye */
+.video-overlay {
+    display: none; 
+    position: fixed;
+    top: 0; left: 0; 
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.95); 
+    z-index: 9999999 !important; /* Header ke z-index se zyada rakha hai */
+    justify-content: center; 
+    align-items: center;
+}
 
         .video-content { position: relative; width: 90%; max-width: 800px; }
         
-        .close-video {
-            position: absolute; top: -45px; right: 0;
-            color: white; font-size: 40px; cursor: pointer;
-        }
+        /* UI Fix */
+.close-video {
+    position: absolute;
+    top: -40px;      /* Thoda kam kiya taaki dikhe */
+    right: -10px;    /* Thoda bahar nikala */
+    color: #d4af37;  /* Theme gold color use karo taaki highlight ho */
+    font-size: 35px;
+    cursor: pointer;
+    z-index: 10001;  /* Video content se upar rakho */
+    background: rgba(0,0,0,0.5); /* Halki background taaki white cross dikhe */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    line-height: 1;
+    transition: 0.3s;
+}
+
+
 
         .video-responsive {
             position: relative; padding-bottom: 56.25%; height: 0;
@@ -135,6 +160,7 @@
             position: absolute; top: 0; left: 0;
             width: 100%; height: 100%; border: none;
         }
+   
     </style>
                             <button class="play-btn" id="openBtn">
         <i class="fas fa-play"></i>
@@ -150,48 +176,59 @@
     </div>
 
     <script>
-        // 1. YouTube IFrame API Load
-        var tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        var firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    // 1. YouTube IFrame API Load
+    var tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-        var player;
-        function onYouTubeIframeAPIReady() {
-            player = new YT.Player('player', {
-                videoId: 'go0pw_SGi_M', // PetCareHub Video ID
-                playerVars: {
-                    'autoplay': 1,
-                    'rel': 0,
-                    'enablejsapi': 1,
-                    'origin': window.location.origin
-                }
-            });
-        }
-
-        const overlay = document.getElementById('videoPopup');
-        
-        // Open & Play
-        document.getElementById('openBtn').onclick = function() {
-            overlay.style.display = "flex";
-            if (player && player.playVideo) {
-                player.playVideo();
+    var player;
+    function onYouTubeIframeAPIReady() {
+        player = new YT.Player('player', {
+            videoId: 'go0pw_SGi_M', // PetCareHub Video ID
+            playerVars: {
+                'autoplay': 0,
+                'rel': 0,
+                'enablejsapi': 1,
+                'origin': window.location.origin
             }
-        };
+        });
+    }
 
-        // Close & Pause
-        function closePopup() {
-            overlay.style.display = "none";
-            if (player && player.pauseVideo) {
-                player.pauseVideo();
-            }
-        }
+    const overlay = document.getElementById('videoPopup');
+    const rootElement = document.documentElement; // HTML tag ko target kiya
 
-        document.getElementById('closeBtn').onclick = closePopup;
+    // Open & Play logic
+    document.getElementById('openBtn').onclick = function() {
+        overlay.style.display = "flex";
+        // Background ko lock karne ke liye
+        rootElement.classList.add('no-scroll');
+        document.body.classList.add('no-scroll'); 
         
-        // Background click to close
-        window.onclick = (e) => { if (e.target == overlay) closePopup(); };
-    </script>
+        if (player && typeof player.playVideo === 'function') {
+            player.playVideo();
+        }
+    };
+
+    // Close & Pause logic
+    function closePopup() {
+        overlay.style.display = "none";
+        // Background ko unlock karne ke liye
+        rootElement.classList.remove('no-scroll');
+        document.body.classList.remove('no-scroll');
+        
+        if (player && typeof player.pauseVideo === 'function') {
+            player.pauseVideo();
+        }
+    }
+
+    document.getElementById('closeBtn').onclick = closePopup;
+    
+    // Background click pe band aur unlock ho jaye
+    window.onclick = (e) => { 
+        if (e.target == overlay) closePopup(); 
+    };
+</script>
                         </div>
                     </div>
                 </div>
