@@ -377,7 +377,7 @@ def checkout(request, prod_id=None):
         # POST mein prod_id aur qty uthao (Buy It Now ke liye)
         post_prod_id = prod_id  # Function parameter se directly lo
 
-        post_qty = request.GET.get('qty') or request.POST.get('qty') or 1
+        post_qty = request.POST.get('qty', 1)
 
         # POST ke time checkout_items rebuild karo
         post_checkout_items = []
@@ -846,12 +846,40 @@ def my_orders(request):
     if not cust_id:
         return redirect('login1')
 
-    # Prefetch se OrderDetail bhi saath mein aayega (extra queries nahi lagenge)
+    # Orders fetch karo latest pehle
     user_orders = Order.objects.filter(
         cust_id=cust_id
-    ).prefetch_related('orderdetail_set').order_by('-order_date')
+    ).prefetch_related(
+        'orderdetail_set__prod_id',         # Product details
+        'orderdetail_set__vendor_id'        # Vendor details
+    ).order_by('-order_id')
 
-    return render(request, 'my_orders.html', {'user_orders': user_orders})
+    # Har order ke andar vendor-wise group karo
+    # grouped_orders = [ { 'order': order_obj, 'vendor_groups': [ { 'vendor': vendor_obj, 'products': [detail1, detail2] } ] } ]
+    grouped_orders = []
+
+    for order in user_orders:
+        vendor_dict = {}
+
+        for detail in order.orderdetail_set.all():
+            vid = detail.vendor_id.vendor_id
+
+            if vid not in vendor_dict:
+                vendor_dict[vid] = {
+                    'vendor': detail.vendor_id,  # Vendor object
+                    'products': []               # Is vendor ke products
+                }
+            vendor_dict[vid]['products'].append({
+                'detail': detail,
+                'subtotal': detail.price * detail.quantity  # Subtotal calculate karo
+            })
+
+        grouped_orders.append({
+            'order': order,
+            'vendor_groups': list(vendor_dict.values())  # List of vendor groups
+        })
+
+    return render(request, 'my_orders.html', {'grouped_orders': grouped_orders})
 
 def contact(request):
     return render(request, 'contact.html')

@@ -87,7 +87,8 @@ def vendor_login(request):
     return render(request, 'vendor_login.html')
 
 from django.shortcuts import render, redirect, get_object_or_404
-from test2.models import Vendor, Product, ProductCategory, Gallery,DeliveryBoy #
+from test2.models import Vendor, Product, ProductCategory, Gallery,DeliveryBoy,Order,OrderDetail #
+from django.db.models import Count, Q
 
 def vendor_dashboard(request):
     if 'vendor_id' not in request.session:
@@ -155,11 +156,55 @@ def vendor_dashboard(request):
             messages.success(request, "Profile updated successfully!", extra_tags='vendor_login')
             return redirect('vendor_dashboard')
 
+    # OrderDetail se fetch karo aur order_id ke basis pe group karo
+    raw_details = OrderDetail.objects.filter(
+        vendor_id=vendor
+    ).select_related(
+        'order_id',
+        'prod_id',
+        'order_id__cust_id',
+        'order_id__cust_id__area_id',
+        'order_id__deliveryboy_id'
+    ).order_by('-order_id__order_id')
+
+    # Python mein order_id ke basis pe group karo
+    # grouped_orders = { order_id: { 'order': order_obj, 'products': [detail1, detail2] } }
+    grouped_orders = {}
+    for detail in raw_details:
+        oid = detail.order_id.order_id
+        if oid not in grouped_orders:
+            grouped_orders[oid] = {
+                'order': detail.order_id,       # Order object (common info)
+                'products': []                   # Is order ke products list
+            }
+        grouped_orders[oid]['products'].append({
+            'detail': detail,
+            'subtotal': detail.price * detail.quantity
+        })
+
+    # Dict ko list mein convert karo template ke liye
+    order_groups = list(grouped_orders.values())
+
+    # Sirf approved delivery boys (status=1)
+    approved_boys = DeliveryBoy.objects.filter(
+        vendor_id=vendor, 
+        status=1,
+        is_available=1  # Sirf online boys
+    ).annotate(
+        # Har boy ko kitne active orders assigned hain (status 1 ya 2)
+        active_order_count=Count(
+            'order', 
+            filter=Q(order__order_status__in=[1, 2])
+        )
+    )
+
     return render(request, 'vendor_dashboard.html', {
         'vendor': vendor,
         'categories': categories,
         'products': my_products,
         'all_boys': all_boys,
+        'order_groups': order_groups,   # Grouped orders
+        'approved_boys': approved_boys,  # Delivery boy assign dropdown ke liye
     })
 
 def update_db_status(request, db_id, new_status):
@@ -191,6 +236,40 @@ def update_db_status(request, db_id, new_status):
         msg = status_msgs.get(new_status, "Status Updated!")
 
     messages.success(request, msg, extra_tags='vendor_login')
+    return redirect('vendor_dashboard')
+
+from test2.models import Order, OrderDetail, DeliveryBoy
+from datetime import date
+
+def assign_order(request):
+    # --- LOGIN CHECK ---
+    if 'vendor_id' not in request.session:
+        return redirect('vendor_login')
+
+    if request.method == "POST":
+        order_id = request.POST.get('order_id')
+        boy_id = request.POST.get('delivery_boy')
+        delivery_date = request.POST.get('delivery_date')
+
+        try:
+            order = get_object_or_404(Order, order_id=order_id)
+            boy = get_object_or_404(DeliveryBoy, deliveryboy_id=boy_id)
+
+            # Delivery boy assign karo
+            order.deliveryboy_id = boy
+            # Delivery date vendor ne set ki toh update karo
+            if delivery_date:
+                order.delivery_date = delivery_date
+            # Status 0 -> 1 (Assigned)
+            order.order_status = 1
+            order.save()
+
+            messages.success(request, f"Order #{order_id} assigned to {boy.deliveryboy_name}! ✅", extra_tags='vendor_login')
+
+        except Exception as e:
+            print(f"--- ASSIGN ORDER ERROR: {e} ---")
+            messages.error(request, f"Something went wrong: {str(e)}", extra_tags='vendor_login')
+
     return redirect('vendor_dashboard')
 
 def vendor_logout(request):

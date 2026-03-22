@@ -189,58 +189,208 @@
                         <div class="tab-content" id="pills-tabContent">
                             <div class="tab-pane fade show active" id="pills-orders">
                                 <h5 class="fw-bold mb-4">Order Queue</h5>
-                                <div class="text-center py-5">
-                                    <i class="fas fa-shopping-basket fa-3x text-light mb-3"></i>
-                                    <p class="text-muted">No new orders received yet.</p>
-                                </div>
+
+                                <!-- Scrollable container -->
+                                <div style="max-height: 520px; overflow-y: auto; padding-right: 8px;">
+
+                                    {% for group in order_groups %}
+                                    <div class="card border-0 shadow-sm rounded-4 mb-4 p-3">
+
+                                        <!-- Order Header: Customer + Status Badge -->
+                                        <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+                                            <div>
+                                                <span class="text-muted small">Customer</span>
+                                                <h6 class="fw-bold m-0">{{ group.order.cust_id.cust_name }}</h6>
+                                                <small class="text-muted">
+                                                    📞 {{ group.order.cust_id.contact }} &nbsp;|&nbsp;
+                                                    📍 {{ group.order.cust_id.area_id.area_name }}
+                                                </small>
+                                            </div>
+                                            <span class="badge rounded-pill px-3 py-2
+                                                {% if group.order.order_status == 0 %}bg-warning text-dark
+                                                {% elif group.order.order_status == 1 %}bg-info text-white
+                                                {% elif group.order.order_status == 2 %}bg-primary text-white
+                                                {% else %}bg-success text-white{% endif %}">
+                                                {% if group.order.order_status == 0 %}🕐 Processing
+                                                {% elif group.order.order_status == 1 %}📦 Assigned
+                                                {% elif group.order.order_status == 2 %}🚚 Out for Delivery
+                                                {% else %}✅ Delivered{% endif %}
+                                            </span>
+                                        </div>
+
+                                        <!-- Products List (same order ke saare products) -->
+                                        {% for item in group.products %}
+                                        <div class="d-flex align-items-center mb-2 p-2 bg-light rounded-3">
+                                            <img src="{{ item.detail.prod_id.cover_img_path.url }}"
+                                                style="width: 55px; height: 55px; object-fit: cover; border-radius: 8px;" class="me-3">
+                                            <div class="flex-grow-1">
+                                                <h6 class="fw-bold mb-0">{{ item.detail.prod_id.prod_name }}</h6>
+                                                <small class="text-muted">Qty: {{ item.detail.quantity }} | Unit Price: ₹{{ item.detail.price }}</small>
+                                            </div>
+                                            <div class="text-end">
+                                                <small class="text-muted d-block">Subtotal</small>
+                                                <span class="fw-bold" style="color: #894B8D;">₹{{ item.subtotal }}</span>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+
+                                        <!-- Order Info: Address + Dates + Total -->
+                                        <div class="bg-light rounded-3 p-3 mb-3 mt-2">
+                                            <div class="row small">
+                                                <div class="col-md-4">
+                                                    <span class="text-muted fw-bold">📍 Delivery Address:</span>
+                                                    <p class="mb-0">{{ group.order.address }}</p>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <span class="text-muted fw-bold">📅 Order Date:</span>
+                                                    <p class="mb-0">{{ group.order.order_date|date:"d M Y" }}</p>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <span class="text-muted fw-bold">🚚 Expected:</span>
+                                                    <p class="mb-0">{{ group.order.delivery_date|date:"d M Y" }}</p>
+                                                </div>
+                                                <div class="col-md-2 text-end">
+                                                    <span class="text-muted fw-bold">💰 Total:</span>
+                                                    <p class="mb-0 fw-bold" style="color: #894B8D;">₹{{ group.order.total_amount }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Progress Bar -->
+                                        <div class="mb-3">
+                                            <div class="progress" style="height: 7px; border-radius: 10px; background: #eee;">
+                                                <div class="progress-bar" style="background: #894B8D;
+                                                    width: {% if group.order.order_status == 0 %}10%
+                                                        {% elif group.order.order_status == 1 %}40%
+                                                        {% elif group.order.order_status == 2 %}70%
+                                                        {% else %}100%{% endif %};">
+                                                </div>
+                                            </div>
+                                            <div class="d-flex justify-content-between mt-1" style="font-size: 11px; font-weight: 700;">
+                                                <span style="color: {% if group.order.order_status >= 0 %}#894B8D{% else %}#aaa{% endif %};">Processing</span>
+                                                <span style="color: {% if group.order.order_status >= 1 %}#894B8D{% else %}#aaa{% endif %};">Assigned</span>
+                                                <span style="color: {% if group.order.order_status >= 2 %}#894B8D{% else %}#aaa{% endif %};">Out for Delivery</span>
+                                                <span style="color: {% if group.order.order_status == 3 %}#28a745{% else %}#aaa{% endif %};">Delivered</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Assign Form: Sirf Processing orders ke liye -->
+                                        {% if group.order.order_status == 0 %}
+                                        <form action="{% url 'assign_order' %}" method="POST">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="order_id" value="{{ group.order.order_id }}">
+                                            <div class="row g-2 align-items-end">
+
+                                                <!-- Delivery Boy Dropdown -->
+                                                <div class="col-md-5">
+                                                    <label class="small fw-bold mb-1">Assign Delivery Boy</label>
+                                                    <select name="delivery_boy" class="form-select rounded-pill" required>
+                                                        <option value="">-- Select --</option>
+                                                        {% if approved_boys %}
+                                                            {% for boy in approved_boys %}
+                                                                {% if boy.active_order_count < 10 %}
+                                                                    <option value="{{ boy.deliveryboy_id }}">
+                                                                        {{ boy.deliveryboy_name }} ({{ boy.active_order_count }}/10)
+                                                                    </option>
+                                                                {% else %}
+                                                                    <option disabled>
+                                                                        {{ boy.deliveryboy_name }} — Busy (10/10)
+                                                                    </option>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        {% else %}
+                                                            <option disabled>⚠️ No delivery boy online right now</option>
+                                                        {% endif %}
+                                                    </select>
+                                                </div>
+
+                                                <!-- Delivery Date -->
+                                                <div class="col-md-4">
+                                                    <label class="small fw-bold mb-1">Confirm Delivery Date</label>
+                                                    <input type="date" name="delivery_date" class="form-control rounded-pill"
+                                                        value="{{ group.order.delivery_date|date:'Y-m-d' }}"
+                                                        min="{{ group.order.order_date|date:'Y-m-d' }}">
+                                                </div>
+
+                                                <!-- Assign Button -->
+                                                <div class="col-md-3">
+                                                    <button type="submit" class="btn w-100 rounded-pill fw-bold"
+                                                            style="background: #894B8D; color: #fff; border: none;">
+                                                        Assign ✅
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </form>
+
+                                        {% else %}
+                                        <!-- Already assigned info -->
+                                        <div class="small text-muted p-2 bg-light rounded-3">
+                                            <i class="fas fa-truck me-1"></i>
+                                            Assigned to: <strong>{{ group.order.deliveryboy_id.deliveryboy_name }}</strong> |
+                                            Delivery Date: <strong>{{ group.order.delivery_date|date:"d M Y" }}</strong>
+                                        </div>
+                                        {% endif %}
+
+                                    </div>
+                                    {% empty %}
+                                    <div class="text-center py-5">
+                                        <i class="fas fa-shopping-basket fa-3x text-light mb-3"></i>
+                                        <p class="text-muted">No orders received yet. 🐾</p>
+                                    </div>
+                                    {% endfor %}
+
+                                </div><!-- end scrollable container -->
                             </div>
 
                             <div class="tab-pane fade" id="pills-products">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h5 class="fw-bold mb-4">Inventory List</h5>
-        <button class="btn btn-primary btn-sm rounded-pill px-3" 
-                style="background-color: #894B8D; border: none;"
-                data-bs-toggle="modal" data-bs-target="#addProductModal">+ Add Product</button>
-    </div>
-    
-    <div class="table-responsive">
-        <table class="table align-middle">
-            <thead class="table-light">
-                <tr class="small fw-bold text-muted text-uppercase">
-                    <th>Product Details</th>
-                    <th>Category</th>
-                    <th>Price</th>
-                    <th>Stock</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for p in products %}
-                <tr>
-                    <td>
-                        <div class="d-flex align-items-center gap-2">
-                            <img src="/media/{{ p.cover_img_path }}" class="rounded" style="width: 45px; height: 45px; object-fit: cover; border: 1px solid #eee;">
-                            <span class="fw-bold text-dark">{{ p.prod_name }}</span>
-                        </div>
-                    </td>
-                    <td><span class="badge bg-light text-dark border">{{ p.category_id.category_name }}</span></td>
-                    <td class="fw-bold text-primary">₹{{ p.price }}</td>
-                    <td>{{ p.qty }}</td>
-                    <td>
-                        {% if p.qty > 0 %}
-                        <span class="badge bg-success-subtle text-success rounded-pill px-3">In Stock</span>
-                        {% else %}
-                        <span class="badge bg-danger-subtle text-danger rounded-pill px-3">Out of Stock</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% empty %}
-                <tr><td colspan="5" class="text-center py-5 text-muted">No products found. Start by adding one! 🐾</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <h5 class="fw-bold mb-4">Inventory List</h5>
+                                    <button class="btn btn-primary btn-sm rounded-pill px-3" 
+                                            style="background-color: #894B8D; border: none;"
+                                            data-bs-toggle="modal" data-bs-target="#addProductModal">+ Add Product</button>
+                                </div>
+                                
+                                <!-- Scrollable wrapper -->                
+                                <div style="max-height: 400px; overflow-y: scroll; padding-right: 8px; display: block;">
+                                    <div class="table-responsive">
+                                        <table class="table align-middle">
+                                            <thead class="table-light" style="position: sticky; top: 0; z-index: 1;">
+                                                <tr class="small fw-bold text-muted text-uppercase">
+                                                    <th>Product Details</th>
+                                                    <th>Category</th>
+                                                    <th>Price</th>
+                                                    <th>Stock</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for p in products %}
+                                                <tr>
+                                                    <td>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <img src="/media/{{ p.cover_img_path }}" class="rounded" style="width: 45px; height: 45px; object-fit: cover; border: 1px solid #eee;">
+                                                            <span class="fw-bold text-dark">{{ p.prod_name }}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td><span class="badge bg-light text-dark border">{{ p.category_id.category_name }}</span></td>
+                                                    <td class="fw-bold text-primary">₹{{ p.price }}</td>
+                                                    <td>{{ p.qty }}</td>
+                                                    <td>
+                                                        {% if p.qty > 0 %}
+                                                        <span class="badge bg-success-subtle text-success rounded-pill px-3">In Stock</span>
+                                                        {% else %}
+                                                        <span class="badge bg-danger-subtle text-danger rounded-pill px-3">Out of Stock</span>
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                                {% empty %}
+                                                <tr><td colspan="5" class="text-center py-5 text-muted">No products found. Start by adding one! 🐾</td></tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div><!-- end scrollable wrapper -->
+                            </div>
 
                             <div class="tab-pane fade" id="pills-edit">
     <h5 class="fw-bold mb-4" class="fw-bold mb-4">Store Settings</h5>
