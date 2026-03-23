@@ -326,3 +326,9 @@ def vendor_logout(request):
         del request.session['vendor_id']
         del request.session['vendor_name']
     return redirect('vendor_login')
+
+def vendor_contact(request):
+    if 'vendor_id' not in request.session:
+        return redirect('vendor_login')
+
+    return render(request, 'vendor_contact.html')
