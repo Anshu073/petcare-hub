@@ -167,14 +167,27 @@ def vendor_dashboard(request):
         'order_id__deliveryboy_id'
     ).order_by('-order_id__order_id')
 
-    # Active orders (detail_status 0, 1, 2) aur Delivered (detail_status 3) alag karo
+    # Active orders (0,1,2), Delivered (3), Cancelled (4) alag karo
     active_grouped = {}
     delivered_grouped = {}
+    cancelled_grouped = {}
 
     for detail in raw_details:
         oid = detail.order_id.order_id
 
-        if detail.detail_status == 3:
+        if detail.detail_status == 4:
+            # Cancelled orders
+            if oid not in cancelled_grouped:
+                cancelled_grouped[oid] = {
+                    'order': detail.order_id,
+                    'products': [],
+                    'detail_status': detail.detail_status
+                }
+            cancelled_grouped[oid]['products'].append({
+                'detail': detail,
+                'subtotal': detail.price * detail.quantity
+            })
+        elif detail.detail_status == 3:
             # Delivered orders
             if oid not in delivered_grouped:
                 delivered_grouped[oid] = {
@@ -200,9 +213,11 @@ def vendor_dashboard(request):
             })
 
     # Lists mein convert karo
-    order_groups = list(active_grouped.values())          # Active orders
-    delivered_groups = list(delivered_grouped.values())   # Delivered orders
+    order_groups = list(active_grouped.values())
+    delivered_groups = list(delivered_grouped.values())
+    cancelled_groups = list(cancelled_grouped.values())   # NEW
     delivered_count = len(delivered_groups)
+    cancelled_count = len(cancelled_groups)               # NEW
 
     # Sirf approved delivery boys (status=1)
     # Har approved online boy ke liye active OrderDetail count karo
@@ -223,10 +238,12 @@ def vendor_dashboard(request):
         'categories': categories,
         'products': my_products,
         'all_boys': all_boys,
-        'order_groups': order_groups,   # Grouped orders
+        'order_groups': order_groups,
         'delivered_groups': delivered_groups,
         'delivered_count': delivered_count,
-        'approved_boys': approved_boys,  # Delivery boy assign dropdown ke liye
+        'cancelled_groups': cancelled_groups,   # NEW
+        'cancelled_count': cancelled_count,     # NEW
+        'approved_boys': approved_boys,
     })
 
 def update_db_status(request, db_id, new_status):

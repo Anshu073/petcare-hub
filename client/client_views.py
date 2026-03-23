@@ -877,12 +877,43 @@ def my_orders(request):
             # (saare products same vendor ke hain toh same status hoga)
             vendor_dict[vid]['detail_status'] = detail.detail_status
 
+        # Cancel button ke liye: kisi bhi vendor ne assign kiya?
+        any_assigned = order.orderdetail_set.filter(detail_status__gte=1).exists()
+
         grouped_orders.append({
             'order': order,
-            'vendor_groups': list(vendor_dict.values())  # List of vendor groups
+            'vendor_groups': list(vendor_dict.values()),
+            'any_assigned': any_assigned   # NEW FLAG
         })
 
     return render(request, 'my_orders.html', {'grouped_orders': grouped_orders})
+
+def cancel_order(request, order_id):
+    cust_id = request.session.get('cust_id')
+    if not cust_id:
+        return redirect('login1')
+
+    order = get_object_or_404(Order, order_id=order_id, cust_id=cust_id)
+
+    # Already cancelled check
+    if order.is_cancelled:
+        messages.warning(request, "This order is already cancelled.")
+        return redirect('my_orders')
+
+    # KEY CHECK: Kisi bhi vendor ne assign kar diya toh cancel band
+    any_assigned = order.orderdetail_set.filter(detail_status__gte=1).exists()
+    if any_assigned:
+        messages.error(request, "Order cannot be cancelled — it has already been assigned to a vendor. 🚫")
+        return redirect('my_orders')
+
+    # Safe to cancel
+    order.is_cancelled = True
+    order.cancelled_at = timezone.now()
+    order.orderdetail_set.update(detail_status=4) # Saare vendors ke details cancel
+    order.save()
+    
+    messages.success(request, "Your order has been cancelled successfully. 🐾")
+    return redirect('my_orders')
 
 def contact(request):
     return render(request, 'contact.html')

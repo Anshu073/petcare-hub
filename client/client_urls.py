@@ -42,5 +42,6 @@ urlpatterns = [
    path('my-orders/', client_views.my_orders, name='my_orders'),
    path('order-success/', client_views.order_success, name='order_success'),
    path('my-orders/', client_views.my_orders, name='my_orders'),
+   path('cancel-order/<int:order_id>/', client_views.cancel_order, name='cancel_order'),  # NEW
    path('contact/', client_views.contact, name='contact'),
 ]
