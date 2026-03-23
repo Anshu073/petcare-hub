@@ -167,23 +167,42 @@ def vendor_dashboard(request):
         'order_id__deliveryboy_id'
     ).order_by('-order_id__order_id')
 
-    # Python mein order_id ke basis pe group karo
-    # grouped_orders = { order_id: { 'order': order_obj, 'products': [detail1, detail2] } }
-    grouped_orders = {}
+    # Active orders (detail_status 0, 1, 2) aur Delivered (detail_status 3) alag karo
+    active_grouped = {}
+    delivered_grouped = {}
+
     for detail in raw_details:
         oid = detail.order_id.order_id
-        if oid not in grouped_orders:
-            grouped_orders[oid] = {
-                'order': detail.order_id,       # Order object (common info)
-                'products': []                   # Is order ke products list
-            }
-        grouped_orders[oid]['products'].append({
-            'detail': detail,
-            'subtotal': detail.price * detail.quantity
-        })
 
-    # Dict ko list mein convert karo template ke liye
-    order_groups = list(grouped_orders.values())
+        if detail.detail_status == 3:
+            # Delivered orders
+            if oid not in delivered_grouped:
+                delivered_grouped[oid] = {
+                    'order': detail.order_id,
+                    'products': [],
+                    'detail_status': detail.detail_status
+                }
+            delivered_grouped[oid]['products'].append({
+                'detail': detail,
+                'subtotal': detail.price * detail.quantity
+            })
+        else:
+            # Active orders (0, 1, 2)
+            if oid not in active_grouped:
+                active_grouped[oid] = {
+                    'order': detail.order_id,
+                    'products': [],
+                    'detail_status': detail.detail_status
+                }
+            active_grouped[oid]['products'].append({
+                'detail': detail,
+                'subtotal': detail.price * detail.quantity
+            })
+
+    # Lists mein convert karo
+    order_groups = list(active_grouped.values())          # Active orders
+    delivered_groups = list(delivered_grouped.values())   # Delivered orders
+    delivered_count = len(delivered_groups)
 
     # Sirf approved delivery boys (status=1)
     approved_boys = DeliveryBoy.objects.filter(
@@ -204,6 +223,8 @@ def vendor_dashboard(request):
         'products': my_products,
         'all_boys': all_boys,
         'order_groups': order_groups,   # Grouped orders
+        'delivered_groups': delivered_groups,
+        'delivered_count': delivered_count,
         'approved_boys': approved_boys,  # Delivery boy assign dropdown ke liye
     })
 
