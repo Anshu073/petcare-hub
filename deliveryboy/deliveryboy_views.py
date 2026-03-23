@@ -80,34 +80,85 @@ def delivery_login(request):
 
 # --- 3. DASHBOARD ---
 def delivery_dashboard(request):
-    # 1. Pehle session check karo (Login hai ya nahi)
     if 'delivery_id' not in request.session:
         return redirect('delivery_login')
 
     delivery_id = request.session['delivery_id']
-    
-    # 2. Latest status check (Har refresh par database se check hoga)
     agent = get_object_or_404(DeliveryBoy, pk=delivery_id)
-    
-    # --- MANUAL VALIDATION ---
+
+    # Status check
     if agent.status != 1:
-        # Agar status Active nahi hai, toh session delete karo aur login pe bhejo
         del request.session['delivery_id']
         if 'delivery_name' in request.session:
             del request.session['delivery_name']
-            
-        # Yahan 'danger' tag add kiya hai taaki Red side-line aaye
         messages.error(request, "Access Denied: Your account is no longer active. 🚫", extra_tags='danger')
         return redirect('delivery_login')
-    # -------------------------
 
-    # Baki ka dashboard logic waisa hi rahega
-    active_tasks = Order.objects.filter(deliveryboy_id=agent, order_status__in=[0, 1])
-    completed_count = Order.objects.filter(deliveryboy_id=agent, order_status=2).count()
+    from test2.models import OrderDetail
+
+    # Sirf is delivery boy ke assigned orders ke OrderDetails fetch karo
+    # detail_status=1 (Assigned) ya 2 (Out for Delivery) wale active tasks hain
+    active_details = OrderDetail.objects.filter(
+        order_id__deliveryboy_id=agent,   # Is delivery boy ke assigned orders
+        vendor_id=agent.vendor_id,        # Sirf apne vendor ke products
+        detail_status__in=[1, 2]
+    ).select_related(
+        'order_id',
+        'prod_id',
+        'order_id__cust_id',
+        'order_id__cust_id__area_id'
+    ).order_by('order_id__order_id')
+
+    # Order-wise group karo (ek order ke saare products ek saath)
+    from collections import OrderedDict
+    order_groups = OrderedDict()
+    for detail in active_details:
+        oid = detail.order_id.order_id
+        if oid not in order_groups:
+            order_groups[oid] = {
+                'order': detail.order_id,
+                'products': [],
+                'detail_status': detail.detail_status  # Pehle product ka status
+            }
+        order_groups[oid]['products'].append({
+            'detail': detail,
+            'subtotal': detail.price * detail.quantity
+        })
+
+    # Completed orders fetch karo (detail_status=3)
+    completed_details = OrderDetail.objects.filter(
+        order_id__deliveryboy_id=agent,
+        vendor_id=agent.vendor_id,        # Sirf apne vendor ke products
+        detail_status=3
+    ).select_related(
+        'order_id',
+        'prod_id',
+        'order_id__cust_id',
+        'order_id__cust_id__area_id',
+        'vendor_id'
+    ).order_by('-order_id__order_id')
+
+    # Completed orders bhi group karo
+    completed_groups = OrderedDict()
+    for detail in completed_details:
+        oid = detail.order_id.order_id
+        if oid not in completed_groups:
+            completed_groups[oid] = {
+                'order': detail.order_id,
+                'products': [],
+                'detail_status': detail.detail_status
+            }
+        completed_groups[oid]['products'].append({
+            'detail': detail,
+            'subtotal': detail.price * detail.quantity
+        })
+
+    completed_count = len(completed_groups)
 
     context = {
         'agent': agent,
-        'active_tasks': active_tasks,
+        'order_groups': list(order_groups.values()),        # Active orders
+        'completed_groups': list(completed_groups.values()), # Completed orders
         'completed_count': completed_count,
     }
     return render(request, 'delivery_dashboard.html', context)
@@ -153,13 +204,6 @@ def toggle_status(request):
         messages.success(request, f"Status set to {'Online' if agent.is_available == 1 else 'Offline'}.")
     return redirect('delivery_dashboard')
 
-def deliver_order(request, order_id):
-    order = get_object_or_404(Order, pk=order_id)
-    order.order_status = 2 # Delivered status
-    order.save()
-    messages.success(request, f"Order #ORD-{order_id} has been delivered.")
-    return redirect('delivery_dashboard')
-
 # --- 6. LOGOUT ---
 def delivery_logout(request):
     if 'delivery_id' in request.session:
@@ -172,16 +216,47 @@ def delivery_logout(request):
 def update_delivery_status(request, order_id, new_status):
     if 'delivery_id' not in request.session:
         return redirect('delivery_login')
+
+    from test2.models import OrderDetail
     
-    # Validation: Order wahi update ho jo is delivery boy ko assigned hai
-    order = get_object_or_404(Order, pk=order_id, deliveryboy_id=request.session['delivery_id']) 
-    
-    # Logical Flow: Pehle status 1 hoga tabhi 2 ho sakta hai
-    if new_status == 2 and order.order_status != 1:
+    agent = get_object_or_404(DeliveryBoy, pk=request.session['delivery_id'])
+    order = get_object_or_404(Order, pk=order_id, deliveryboy_id=agent)
+
+    # Logical check: Status sirf aage badh sakta hai
+    # 1 (Assigned) → 2 (Out for Delivery) → 3 (Delivered)
+    # Sirf is delivery boy ke vendor ke products update karo
+    current_details = OrderDetail.objects.filter(
+        order_id=order,
+        order_id__deliveryboy_id=agent,
+        vendor_id=agent.vendor_id         # Sirf apne vendor ke products
+    )
+
+    current_status = current_details.first().detail_status if current_details.exists() else 0
+
+    if new_status == 2 and current_status != 1:
         messages.error(request, "Pehle order pick-up karna zaroori hai!")
         return redirect('delivery_dashboard')
 
-    order.order_status = new_status
+    if new_status == 3 and current_status != 2:
+        messages.error(request, "Pehle Out for Delivery karna zaroori hai!")
+        return redirect('delivery_dashboard')
+
+    # STEP 1: Is delivery boy ke is order ke saare OrderDetails update karo
+    current_details.update(detail_status=new_status)
+
+    # STEP 2: Order.order_status auto-calculate karo
+    all_details = OrderDetail.objects.filter(order_id=order)
+    all_statuses = list(all_details.values_list('detail_status', flat=True))
+
+    if all(s == 3 for s in all_statuses):
+        order.order_status = 3
+    elif all(s >= 2 for s in all_statuses):
+        order.order_status = 2
+    elif all(s >= 1 for s in all_statuses):
+        order.order_status = 1
+    else:
+        order.order_status = 0
+
     order.save()
     messages.success(request, "Status Updated! 🐾")
     return redirect('delivery_dashboard')

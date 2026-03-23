@@ -237,22 +237,18 @@
                                         <!-- Order Info: Address + Dates + Total -->
                                         <div class="bg-light rounded-3 p-3 mb-3 mt-2">
                                             <div class="row small">
-                                                <div class="col-md-4">
+                                                <div class="col-md-5">
                                                     <span class="text-muted fw-bold">📍 Delivery Address:</span>
                                                     <p class="mb-0">{{ group.order.address }}</p>
                                                 </div>
-                                                <div class="col-md-3">
+                                                <div class="col-md-4">
                                                     <span class="text-muted fw-bold">📅 Order Date:</span>
                                                     <p class="mb-0">{{ group.order.order_date|date:"d M Y" }}</p>
                                                 </div>
                                                 <div class="col-md-3">
                                                     <span class="text-muted fw-bold">🚚 Expected:</span>
                                                     <p class="mb-0">{{ group.order.delivery_date|date:"d M Y" }}</p>
-                                                </div>
-                                                <div class="col-md-2 text-end">
-                                                    <span class="text-muted fw-bold">💰 Total:</span>
-                                                    <p class="mb-0 fw-bold" style="color: #894B8D;">₹{{ group.order.total_amount }}</p>
-                                                </div>
+                                                </div>                                    
                                             </div>
                                         </div>
 
