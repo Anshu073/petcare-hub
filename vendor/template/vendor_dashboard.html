@@ -290,12 +290,14 @@
                                                         {% if approved_boys %}
                                                             {% for boy in approved_boys %}
                                                                 {% if boy.active_order_count < 10 %}
+                                                                    <!-- Available boy -->
                                                                     <option value="{{ boy.deliveryboy_id }}">
                                                                         {{ boy.deliveryboy_name }} ({{ boy.active_order_count }}/10)
                                                                     </option>
                                                                 {% else %}
-                                                                    <option disabled>
-                                                                        {{ boy.deliveryboy_name }} — Busy (10/10)
+                                                                    <!-- Busy boy — disabled aur grey -->
+                                                                    <option disabled style="color: #ccc; background: #f8f8f8;">
+                                                                        🔴 {{ boy.deliveryboy_name }} — Busy (10/10)
                                                                     </option>
                                                                 {% endif %}
                                                             {% endfor %}

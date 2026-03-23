@@ -205,15 +205,16 @@ def vendor_dashboard(request):
     delivered_count = len(delivered_groups)
 
     # Sirf approved delivery boys (status=1)
+    # Har approved online boy ke liye active OrderDetail count karo
+    # detail_status 1 (Assigned) ya 2 (Out for Delivery) wale count honge
     approved_boys = DeliveryBoy.objects.filter(
-        vendor_id=vendor, 
+        vendor_id=vendor,
         status=1,
-        is_available=1  # Sirf online boys
+        is_available=1
     ).annotate(
-        # Har boy ko kitne active orders assigned hain (status 1 ya 2)
         active_order_count=Count(
-            'order', 
-            filter=Q(order__order_status__in=[1, 2])
+            'order',
+            filter=Q(order__orderdetail__detail_status__in=[1, 2])
         )
     )
 
