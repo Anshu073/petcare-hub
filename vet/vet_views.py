@@ -488,3 +488,9 @@ def vet_reset_password(request):
         else:
             messages.error(request, "Invalid or already used OTP.")
     return render(request, 'vet_reset_password.html')
+
+def vet_contact(request):
+    if 'vet_id' not in request.session:
+        return redirect('vet_login')
+    
+    return render(request,'vet_contact.html')
