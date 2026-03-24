@@ -88,7 +88,7 @@ def vendor_login(request):
 
 from django.shortcuts import render, redirect, get_object_or_404
 from test2.models import Vendor, Product, ProductCategory, Gallery,DeliveryBoy,Order,OrderDetail #
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Sum, F
 
 def vendor_dashboard(request):
     if 'vendor_id' not in request.session:
@@ -219,6 +219,19 @@ def vendor_dashboard(request):
     delivered_count = len(delivered_groups)
     cancelled_count = len(cancelled_groups)               # NEW
 
+    # Stats calculate karo
+    # Total Sales: sirf delivered orders ke products ka sum
+    from django.db.models import Sum
+    total_sales = OrderDetail.objects.filter(
+        vendor_id=vendor,
+        detail_status=3
+    ).aggregate(
+        total=Sum(F('price') * F('quantity'))
+    )['total'] or 0
+
+    # Orders fulfilled = delivered orders count
+    orders_fulfilled = delivered_count
+
     # Sirf approved delivery boys (status=1)
     # Har approved online boy ke liye active OrderDetail count karo
     # detail_status 1 (Assigned) ya 2 (Out for Delivery) wale count honge
@@ -244,6 +257,8 @@ def vendor_dashboard(request):
         'cancelled_groups': cancelled_groups,   # NEW
         'cancelled_count': cancelled_count,     # NEW
         'approved_boys': approved_boys,
+        'total_sales': total_sales,
+        'orders_fulfilled': orders_fulfilled,
     })
 
 def update_db_status(request, db_id, new_status):

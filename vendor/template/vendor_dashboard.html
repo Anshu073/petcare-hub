@@ -128,21 +128,30 @@
     <main class="dashboard-wrapper py-5">
         <div class="container">
             <div class="row mb-4">
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="stat-widget shadow-sm" style="background: #894B8D; border-radius: 25px; padding: 30px; color: #ffffff;">
                         <small class="text-uppercase fw-bold" style="letter-spacing: 1px; color: rgba(255, 255, 255, 0.8);">Total Sales</small>
-                        <h2 class="mt-2 mb-1" style="font-size: 38px; font-weight: 800; color: #ffffff;">₹0</h2>
+                        <h2 class="mt-2 mb-1" style="font-size: 38px; font-weight: 800; color: #ffffff;">₹{{ total_sales }}</h2>
                         <div class="small mt-2" style="color: rgba(255, 255, 255, 0.7);">
                             <i class="fas fa-wallet me-1"></i> Lifetime Earnings
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="stat-widget shadow-sm" style="background: #333333; border-radius: 25px; padding: 30px; color: #ffffff;">
                         <small class="text-uppercase fw-bold" style="letter-spacing: 1px; color: rgba(255, 255, 255, 0.8);">Orders Fulfilled</small>
-                        <h2 class="mt-2 mb-1" style="font-size: 38px; font-weight: 800; color: #ffffff;">0</h2>
+                        <h2 class="mt-2 mb-1" style="font-size: 38px; font-weight: 800; color: #ffffff;">{{ orders_fulfilled }}</h2>
                         <div class="small mt-2" style="color: rgba(255, 255, 255, 0.7);">
                             <i class="fas fa-check-circle me-1"></i> Successfully Delivered
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-widget shadow-sm" style="background: #dc3545; border-radius: 25px; padding: 30px; color: #ffffff;">
+                        <small class="text-uppercase fw-bold" style="letter-spacing: 1px; color: rgba(255, 255, 255, 0.8);">Cancelled Orders</small>
+                        <h2 class="mt-2 mb-1" style="font-size: 38px; font-weight: 800; color: #ffffff;">{{ cancelled_count }}</h2>
+                        <div class="small mt-2" style="color: rgba(255, 255, 255, 0.7);">
+                            <i class="fas fa-times-circle me-1"></i> Customer Cancellations
                         </div>
                     </div>
                 </div>
