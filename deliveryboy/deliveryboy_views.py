@@ -197,11 +197,30 @@ def edit_profile(request):
 
 # --- 5. TOGGLE STATUS & ORDER UPDATES ---
 def toggle_status(request):
-    if 'delivery_id' in request.session:
-        agent = DeliveryBoy.objects.get(pk=request.session['delivery_id'])
-        agent.is_available = 0 if agent.is_available == 1 else 1
-        agent.save()
-        messages.success(request, f"Status set to {'Online' if agent.is_available == 1 else 'Offline'}.")
+    if 'delivery_id' not in request.session:
+        return redirect('delivery_login')
+
+    from test2.models import OrderDetail
+    agent = DeliveryBoy.objects.get(pk=request.session['delivery_id'])
+
+    # Sirf Online → Offline pe check karo
+    if agent.is_available == 1:
+        # Check: Koi Out for Delivery (detail_status=2) pending hai?
+        pending_ofd = OrderDetail.objects.filter(
+            order_id__deliveryboy_id=agent,
+            vendor_id=agent.vendor_id,
+            detail_status=2
+        ).count()
+
+        if pending_ofd > 0:
+            # Block karo — pending deliveries hain
+            messages.error(request, f"⚠️ {pending_ofd} deliver{'y' if pending_ofd == 1 else 'ies'} still Out for Delivery — please complete all deliveries before going offline!")
+            return redirect('delivery_dashboard')
+
+    # Safe to toggle
+    agent.is_available = 0 if agent.is_available == 1 else 1
+    agent.save()
+    messages.success(request, f"Status set to {'Online' if agent.is_available == 1 else 'Offline'}.")
     return redirect('delivery_dashboard')
 
 # --- 6. LOGOUT ---

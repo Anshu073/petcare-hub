@@ -276,78 +276,17 @@
 </div>
 {% endfor %}
 
-                                        <div class="review__form-wrap mt-40 p-4"
-                                            style="background: #fdfafb; border-radius: 15px; border: 1px solid #f1e9f2;">
-
-                                            {% if request.session.cust_id %}
-                                            <h4 class="title mb-30" style="color: #4b2c4d; font-weight: 700;">Write a
-                                                Review</h4>
-
-                                            <form id="review-form" action="{% url 'submit_review' product.prod_id %}"
-                                                method="POST">
-                                                {% csrf_token %}
-
-                                                <div class="d-flex align-items-center mb-20">
-                                                    <div class="user-avatar me-3">
-    {% if current_user.user_profile %}
-        <img src="{{ current_user.user_profile.url }}" alt="My Profile"
-             style="width: 55px; height: 55px; border-radius: 50%; object-fit: cover;">
-    {% else %}
-        <img src="{% static 'assets/img/users/default.png' %}" alt="Default"
-             style="width: 55px; height: 55px; border-radius: 50%;">
-    {% endif %}
-</div>
-
-                                                    <div class="rating-selection">
-                                                        <label class="form-label mb-0 d-block"
-                                                            style="font-size: 14px; font-weight: 600; color: #666;">Your
-                                                            Rating</label>
-                                                        <div class="star-rating">
-                                                            <input type="radio" id="star5" name="rating"
-                                                                value="5" /><label for="star5">★</label>
-                                                            <input type="radio" id="star4" name="rating"
-                                                                value="4" /><label for="star4">★</label>
-                                                            <input type="radio" id="star3" name="rating"
-                                                                value="3" /><label for="star3">★</label>
-                                                            <input type="radio" id="star2" name="rating"
-                                                                value="2" /><label for="star2">★</label>
-                                                            <input type="radio" id="star1" name="rating"
-                                                                value="1" /><label for="star1">★</label>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="mb-25">
-                                                    <label class="form-label" style="font-size: 14px; font-weight: 600; color: #666;">
-                                                        Your Review
-                                                    </label>
-                                                    <textarea name="comments" id="review_comments" class="form-control" rows="4"
-                                                        placeholder="Share your experience with this product..."
-                                                        style="border-radius: 10px; border: 1px solid #e5dbe6; padding: 15px; resize: none; background: #fff;"
-                                                        required></textarea>
-                                                    
-                                                    <div id="review-error" class="text-danger small mt-2" style="display:none; font-weight: 600;">
-                                                        <i class="fas fa-exclamation-circle me-1"></i> Please enter at least 3 letters. Only numbers or dots are not allowed.
-                                                    </div>
-                                                </div>
-
-                                                <button type="submit" id="submitReviewBtn" class="btn"
-                                                    style="padding: 12px 35px; border-radius: 50px; font-weight: 700; background-color: #894B8D; color: white; opacity: 0.5; cursor: not-allowed;" 
-                                                    disabled>
-                                                    Submit Review
-                                                </button>
-                                            </form>
-
-                                            {% else %}
-                                            <div class="text-center p-4">
-                                                <h4 class="title mb-2" style="color: #4b2c4d;">Want to write a review?
-                                                </h4>
-                                                <p>Please <a href="{% url 'login1' %}"
-                                                        style="color: #894B8D; font-weight: bold; text-decoration: underline;">Login</a>
-                                                    to share your feedback with us. 🐾</p>
-                                            </div>
-                                            {% endif %}
-
+                                        <div class="mt-40 p-4 text-center"
+                                            style="background: #fdfafb; border-radius: 15px; border: 1px dashed #e5dbe6;">
+                                            <i class="fas fa-shopping-bag fa-2x mb-3" style="color: #894B8D; opacity: 0.5;"></i>
+                                            <h5 class="fw-bold mb-2" style="color: #4b2c4d;">Purchased this product?</h5>
+                                            <p class="text-muted small mb-0">
+                                                You can rate and review products from 
+                                                <a href="{% url 'my_orders' %}" style="color: #894B8D; font-weight: 700; text-decoration: underline;">
+                                                    My Orders
+                                                </a> 
+                                                after delivery. 🐾
+                                            </p>
                                         </div>
 
                                     </div>

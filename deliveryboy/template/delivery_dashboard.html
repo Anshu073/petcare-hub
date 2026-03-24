@@ -269,13 +269,40 @@
                     
                     <div class="text-start">
                         <label class="small fw-bold mb-2">Set Availability Status:</label>
-                        <form action="{% url 'toggle_status' %}" method="POST">
+                        <form action="{% url 'toggle_status' %}" method="POST" id="toggleForm">
                             {% csrf_token %}
-                            <select name="availability_status" class="form-select rounded-pill shadow-sm py-2 px-3 border-info" onchange="this.form.submit()">
+                            <select name="availability_status" class="form-select rounded-pill shadow-sm py-2 px-3 border-info" id="statusSelect" onchange="handleStatusChange(this)">
                                 <option value="1" {% if agent.is_available == 1 %}selected{% endif %}>Online (Available)</option>
                                 <option value="0" {% if agent.is_available == 0 %}selected{% endif %}>Offline (Not Available)</option>
                             </select>
                         </form>
+
+                        <script>
+                        function handleStatusChange(select) {
+                            if (select.value === '0') {
+                                {% if order_groups %}
+                                // Pending orders hain — block karo, modal dikhao
+                                select.value = '1';
+                                const modal = new bootstrap.Modal(document.getElementById('pendingBlockModal'));
+                                modal.show();
+                                return;
+                                {% endif %}
+                            }
+                            document.getElementById('toggleForm').submit();
+                        }
+                        </script>
+                        <!-- Pending OFD warning — sirf tab dikhao -->
+                        {% if agent.is_available == 1 %}
+                        {% with pending_count=order_groups|length %}
+                        {% if pending_count > 0 %}
+                        <div class="mt-2 p-2 rounded-3 text-center" style="background: #fff3cd; border: 1px solid #ffc107;">
+                            <small class="text-warning fw-bold">
+                                ⚠️ {{ pending_count }} active order{{ pending_count|pluralize }} pending — please complete before going offline!
+                            </small>
+                        </div>
+                        {% endif %}
+                        {% endwith %}
+                        {% endif %}
                     </div>
                 </div>
                 <!-- Vendor Details Card -->
@@ -664,6 +691,44 @@ function handlePhotoLogic(trigger) {
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<!-- Pending Orders Block Modal -->
+<div class="modal fade" id="pendingBlockModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 25px; overflow: hidden;">
+
+            <!-- Red top bar -->
+            <div style="background: #dc3545; padding: 25px 30px 20px;">
+                <div class="text-center">
+                    <div style="width: 60px; height: 60px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px;">
+                        <i class="fas fa-exclamation-triangle" style="color: white; font-size: 26px;"></i>
+                    </div>
+                    <h5 class="fw-bold text-white mb-0">Cannot Go Offline</h5>
+                </div>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body text-center px-4 py-4">
+                <p class="fw-bold text-dark mb-1" style="font-size: 16px;">
+                    You have <span style="color: #dc3545;">{{ order_groups|length }} active order{{ order_groups|length|pluralize }}</span> pending!
+                </p>
+                <p class="text-muted small mb-0">
+                    Please complete all deliveries before going offline.
+                </p>
+            </div>
+
+            <!-- Footer -->
+            <div class="modal-footer border-0 justify-content-center pb-4">
+                <button type="button" class="btn fw-bold px-5 py-2 rounded-pill"
+                        style="background: #894B8D; color: white; border: none;"
+                        data-bs-dismiss="modal">
+                    OK, Got It!
+                </button>
+            </div>
+
         </div>
     </div>
 </div>
