@@ -279,3 +279,6 @@ def update_delivery_status(request, order_id, new_status):
     order.save()
     messages.success(request, "Status Updated! 🐾")
     return redirect('delivery_dashboard')
+
+def delivery_contact(request):
+    return render(request,'delivery_contact.html')
