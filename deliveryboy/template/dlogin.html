@@ -5,14 +5,15 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Partner Login - PetPal Logistics</title>
+    <title>PetCareHub - All in one hub for all your furry friends</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/img/petcarehub_roundlogo_bgremoved.png' %}">
     <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/animate.min.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/fontawesome-all.min.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/main.css' %}">
-
+    <link rel="stylesheet" href="{% static 'assets/css/default.css' %}">
+    
     <style>
         :root {
             --tg-brand-color: #894B8D;
@@ -117,14 +118,35 @@
         }
 
         .shake-anim { animation: shake 3s infinite linear; }
+        
+        .fixed-doodles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .doodle-asset {
+            position: absolute;
+            filter: grayscale(100%) opacity(0.12);
+        }
     </style>
 </head>
 
 <body>
 
     <div class="fixed-doodles">
-        <img src="{% static 'assets/img/banner/banner_img01.png' %}" class="doodle-left">
-        <img src="{% static 'assets/img/images/about_img.png' %}" class="doodle-right">
+        <img src="{% static 'assets/img/banner/banner_img01.png' %}" class="doodle-asset"
+            style="bottom: -10px; left: -10px; width: 350px;">
+        <img src="{% static 'assets/img/images/about_img.png' %}" class="doodle-asset"
+            style="top: -10px; right: -10px; width: 300px; transform: rotate(-10deg);">
+        <img src="{% static 'assets/img/icon/pet_icon02.svg' %}" class="injectable doodle-asset"
+            style="top: 20%; left: 10%; width: 25px;">
+        <img src="{% static 'assets/img/petcarehub_roundlogo_bgremoved.png' %}" class="injectable doodle-asset"
+            style="bottom: 20%; right: 10%; width: 80px;">
     </div>
 
     <main>
@@ -134,7 +156,10 @@
                     <div class="col-12 d-flex justify-content-center">
 
                         <div class="login-card">
-                            
+                            <div style="position: absolute; top: -30px; right: -20px; transform: rotate(15deg);">
+    <img src="{% static 'assets/img/petcarehub_roundlogo_bgremoved.png' %}" 
+         class="shake-anim" style="width: 70px;">
+</div>
 
                             {% if request.session.delivery_id %}
                             <div class="text-center mb-40">
@@ -146,8 +171,7 @@
                             </div>
                             {% else %}
                             <div class="text-center mb-40">
-                                <span style="color: var(--tg-brand-color); font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">Welcome Back</span>
-                                <h2 style="margin-top: 10px; font-weight: 800; color: #333;">Deliver Boy Login</h2>
+                                <h2 style="margin-top: 10px; font-weight: 800; color: #333;">Delivery Boy Login</h2>
                             </div>
 
                             {% if messages %}

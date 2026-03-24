@@ -10,4 +10,5 @@ urlpatterns = [
     path('edit-profile/', deliveryboy_views.edit_profile, name='edit__profile'),
     path('toggle-status/', deliveryboy_views.toggle_status, name='toggle_status'),
     path('update-status/<int:order_id>/<int:new_status>/', deliveryboy_views.update_delivery_status, name='update_status'),
+    path('delivery_support/',deliveryboy_views.delivery_contact,name='delivery_support'),
 ]

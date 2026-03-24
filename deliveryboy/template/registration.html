@@ -5,12 +5,13 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Join the Logistics Team - PetPal</title>
+    <title>PetCareHub - All in one hub for all your furry friends</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/img/petcarehub_roundlogo_bgremoved.png' %}">
+<link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/animate.min.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/fontawesome-all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/default.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/main.css' %}">
 
     <style>
@@ -19,17 +20,15 @@
             --tg-brand-light: #f4eef5;
         }
 
-        /* Matches Client Style */
         body {
             background-color: var(--tg-brand-light);
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Baloo Bhaina 2', cursive;
             margin: 0;
-            padding: 0;
             overflow-y: auto !important;
         }
 
         .register-wrapper {
-            padding: 80px 0;
+            padding: 50px 0;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -37,94 +36,80 @@
             position: relative;
         }
 
-        /* Fixed Background Doodles */
-        /* Fixed Doodles Container */
-.fixed-doodles {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    pointer-events: none;
-}
+        .fixed-doodles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
 
-/* Individual Image Styling */
-.doodle-left {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    /* Height use karne se width apne aap proportionate choti ho jayegi */
-    height: 72vh; 
-    filter: grayscale(100%) opacity(0.12); /* Matches client opacity */
-    object-fit: contain;
-}
+        .doodle-asset {
+            position: absolute;
+            filter: grayscale(100%) opacity(0.12);
+        }
 
-.doodle-right {
-    position: absolute;
-    top: 50px;
-    right: 0;
-    height: 55vh; /* Dog image nurse se thodi choti hai screenshot mein */
-    filter: grayscale(100%) opacity(0.12);
-    object-fit: contain;
-    transform: rotate(-5deg); /* Subtle tilt like the screenshot */
-}
-
-        /* Centered Premium Card */
         .register-card {
             background: #ffffff;
-            border-radius: 50px;
+            border-radius: 40px;
             border: 6px solid var(--tg-brand-color);
-            box-shadow: 0px 30px 60px rgba(137, 75, 141, 0.12);
-            padding: 50px 40px;
+            box-shadow: 0px 30px 60px rgba(137, 75, 141, 0.1);
+            padding: 40px;
             width: 100%;
-            max-width: 550px;
+            max-width: 600px;
             position: relative;
         }
 
-        .form-grp { margin-bottom: 20px; }
-
-        .form-label {
-            font-weight: 700 !important;
-            color: #4a5568 !important;
-            margin-bottom: 8px;
-            display: block;
-            text-align: left;
+        .form-grp {
+            margin-bottom: 15px;
         }
 
-        /* Inputs - Matching Screenshot Blue Tint */
-        .custom-input {
+        .form-grp label {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--tg-brand-color);
+            margin-left: 10px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .form-grp input,
+        .form-grp textarea,
+        .form-grp select {
             width: 100%;
-            padding: 16px 20px;
-            border-radius: 18px;
+            padding: 14px 20px;
+            border-radius: 15px;
             border: 2px solid #f0f0f0;
-            background: #f0f5ff; /* Light blue tint */
-            font-size: 15px;
+            background: #fafafa;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 14px;
             transition: 0.3s;
             outline: none;
+            appearance: none;
         }
 
-        .custom-input:focus {
+        .form-grp input:focus,
+        .form-grp textarea:focus,
+        .form-grp select:focus {
             border-color: var(--tg-brand-color);
             background: #fff;
             box-shadow: 0px 5px 15px rgba(137, 75, 141, 0.08);
         }
 
-        /* Register Button */
         .btn-brand {
             background-color: var(--tg-brand-color);
             color: #fff;
             border: none;
-            border-radius: 50px;
+            border-radius: 15px;
             padding: 18px;
-            font-weight: 800;
+            font-weight: 700;
             width: 100%;
-            font-size: 16px;
             text-transform: uppercase;
-            letter-spacing: 1px;
             transition: 0.3s;
             cursor: pointer;
-            margin-top: 15px;
+            margin-top: 10px;
         }
 
         .btn-brand:hover {
@@ -133,17 +118,42 @@
             box-shadow: 0 10px 20px rgba(137, 75, 141, 0.2);
         }
 
-        .shake-anim { animation: shake 3s infinite linear; }
+        .shake-anim {
+            animation: shake 3s infinite linear;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: rotate(15deg);
+            }
+
+            50% {
+                transform: rotate(25deg);
+            }
+        }
+
+        .form-grp select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23894B8D' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 20px center;
+            padding-right: 40px !important;
+        }
     </style>
 </head>
 
 <body>
-
     <div class="fixed-doodles">
-    <img src="{% static 'assets/img/banner/banner_img01.png' %}" class="doodle-left">
-    
-    <img src="{% static 'assets/img/images/about_img.png' %}" class="doodle-right">
-</div>
+        <img src="{% static 'assets/img/banner/banner_img01.png' %}" class="doodle-asset"
+            style="bottom: -10px; left: -10px; width: 350px;">
+        <img src="{% static 'assets/img/images/about_img.png' %}" class="doodle-asset"
+            style="top: -10px; right: -10px; width: 300px; transform: rotate(-10deg);">
+        <img src="{% static 'assets/img/icon/pet_icon02.svg' %}" class="injectable doodle-asset"
+            style="top: 20%; left: 10%; width: 25px;">
+        <img src="{% static 'assets/img/petcarehub_roundlogo_bgremoved.png' %}" class="injectable doodle-asset"
+            style="bottom: 20%; right: 10%; width: 80px;">
+    </div>
 
     <main>
         <div class="register-wrapper">
@@ -152,11 +162,14 @@
                     <div class="col-12 d-flex justify-content-center">
 
                         <div class="register-card">
-                            
+                            <div style="position: absolute; top: -35px; right: -20px; transform: rotate(15deg);">
+                                <img src="{% static 'assets/img/petcarehub_roundlogo_bgremoved.png' %}" alt=""
+                                    class="injectable shake-anim" style="width: 80px;">
+                            </div>
 
                             <div class="text-center mb-40">
-                                <span style="color: var(--tg-brand-color); font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">DELIVERY BOY</span>
-                                <h1 style="margin-top: 10px; font-weight: 800; color: #1a202c; font-size: 32px;">Registration</h1>
+                                
+                                <h1 style="margin-top: 10px; font-weight: 800; color: #1a202c; font-size: 32px;">Delivery Boy Registration</h1>
                             </div>
 
                             {% if messages %}
