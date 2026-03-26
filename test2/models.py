@@ -191,7 +191,6 @@ class Order(models.Model):
     total_amount = models.IntegerField()
     address = models.CharField(max_length=200)
     order_date = models.DateField(auto_now_add=True) # Automatically sets to today
-    order_status = models.IntegerField(default=0) # 0:Processing, 1:Assigned, 2:Out for Delivery, 3:Delivered, 4:Cancelled
     is_cancelled = models.BooleanField(default=False) # Client side cancellation
     cancelled_at = models.DateTimeField(null=True, blank=True) # Cancel hone ki date/time
     reschedule_status = models.IntegerField(default=0) # 0: No Request, 1: Pending, 2: Accepted
