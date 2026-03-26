@@ -334,6 +334,42 @@ def assign_order(request):
 
     return redirect('vendor_dashboard')
 
+def update_product_qty(request, prod_id):
+    if 'vendor_id' not in request.session:
+        return redirect('vendor_login')
+
+    vendor = get_object_or_404(Vendor, vendor_id=request.session['vendor_id'])
+    product = get_object_or_404(Product, prod_id=prod_id, vendor_id=vendor)
+
+    if request.method == 'POST':
+        new_qty = request.POST.get('new_qty')
+        try:
+            new_qty = int(new_qty)
+            if new_qty < 0:
+                raise ValueError
+            product.qty = new_qty
+            product.save()
+            messages.success(request, f"Qty for '{product.prod_name}' updated to {new_qty}! ✅", extra_tags='vendor_login')
+        except (ValueError, TypeError):
+            messages.error(request, "Invalid quantity entered.", extra_tags='vendor_login')
+
+    return redirect('vendor_dashboard')
+
+
+def delete_product(request, prod_id):
+    if 'vendor_id' not in request.session:
+        return redirect('vendor_login')
+
+    vendor = get_object_or_404(Vendor, vendor_id=request.session['vendor_id'])
+    product = get_object_or_404(Product, prod_id=prod_id, vendor_id=vendor)
+
+    if request.method == 'POST':
+        prod_name = product.prod_name
+        product.delete()
+        messages.success(request, f"'{prod_name}' has been permanently deleted. 🗑️", extra_tags='vendor_login')
+
+    return redirect('vendor_dashboard')
+
 def vendor_logout(request):
     if 'vendor_id' in request.session:
         del request.session['vendor_id']
@@ -345,3 +381,4 @@ def vendor_contact(request):
         return redirect('vendor_login')
 
     return render(request, 'vendor_contact.html')
+

@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.db import models as db_models
 from test2.models import Area,Customer,Product,ProductCategory,Gallery,Feedback,Vet, Appointment, Cart, Wishlist, VetSchedule
 from django.contrib import messages
 from django.core.paginator import Paginator
@@ -258,6 +259,29 @@ def add_to_cart(request, prod_id):
         customer = get_object_or_404(Customer, cust_id=cust_id)
         qty = int(request.POST.get('quantity', 1))
 
+        # Out of stock check
+        if product.qty <= 0:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'status': 'error', 'message': 'This product is out of stock!'}, status=400)
+            messages.error(request, "This product is out of stock!")
+            return redirect(request.META.get('HTTP_REFERER', 'product'))
+
+        # Cart mein already kitna hai check karo
+        existing_cart = Cart.objects.filter(cust_id=customer, prod_id=product, status=1).first()
+        already_in_cart = existing_cart.quantity if existing_cart else 0
+
+        # Total requested qty stock se zyada nahi honi chahiye
+        if already_in_cart + qty > product.qty:
+            available = product.qty - already_in_cart
+            if available <= 0:
+                msg = f"You already have all available stock ({product.qty}) in your cart!"
+            else:
+                msg = f"Only {available} more unit(s) available. You already have {already_in_cart} in your cart."
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'status': 'error', 'message': msg}, status=400)
+            messages.error(request, msg)
+            return redirect(request.META.get('HTTP_REFERER', 'product'))
+
         cart_item, created = Cart.objects.get_or_create(
             cust_id=customer, prod_id=product, status=1,
             defaults={'quantity': qty, 'price': product.price, 'total_price': product.price * qty}
@@ -419,14 +443,27 @@ def checkout(request, prod_id=None):
                     delivery_date=auto_delivery_date
                 )
 
-                # STEP 2: Har product ke liye alag OrderDetail entry banao
+                # STEP 2: Har product ke liye alag OrderDetail entry banao + qty deduct
                 for item in post_checkout_items:
+                    product_obj = item['product']
+                    ordered_qty = item['quantity']
+
+                    # Stock recheck inside transaction (race condition se bachne ke liye)
+                    product_obj.refresh_from_db()
+                    if product_obj.qty < ordered_qty:
+                        raise Exception(f"Sorry, '{product_obj.prod_name}' is out of stock or has insufficient quantity.")
+
                     OrderDetail.objects.create(
                         order_id=new_order,
                         vendor_id=item['vendor'],
-                        prod_id=item['product'],
-                        quantity=item['quantity'],
-                        price=item['product'].price
+                        prod_id=product_obj,
+                        quantity=ordered_qty,
+                        price=product_obj.price
+                    )
+
+                    # Qty deduct karo
+                    Product.objects.filter(prod_id=product_obj.prod_id).update(
+                        qty=db_models.F('qty') - ordered_qty
                     )
 
                 # STEP 3: Payment record save karo
@@ -913,7 +950,11 @@ def cancel_order(request, order_id):
             messages.error(request, "Cannot cancel — this vendor's items are already assigned. 🚫")
             return redirect('my_orders')
 
-        # Sirf is vendor ke details cancel karo
+        # Sirf is vendor ke details cancel karo — pehle qty restock karo
+        for d in details:
+            Product.objects.filter(prod_id=d.prod_id_id).update(
+                qty=db_models.F('qty') + d.quantity
+            )
         details.update(detail_status=4)
 
         # Agar saare vendors ke details cancel ho gaye toh order bhi cancel mark karo
@@ -938,6 +979,11 @@ def cancel_order(request, order_id):
 
         order.is_cancelled = True
         order.cancelled_at = timezone.now()
+        # Qty restock karo — full cancel ke saare products ke liye
+        for d in order.orderdetail_set.all():
+            Product.objects.filter(prod_id=d.prod_id_id).update(
+                qty=db_models.F('qty') + d.quantity
+            )
         order.orderdetail_set.update(detail_status=4)
         order.save()
         messages.success(request, "Your order has been cancelled successfully. 🐾")

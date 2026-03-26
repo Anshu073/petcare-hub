@@ -57,8 +57,7 @@
                     <!-- Vendor-wise Cancel Button: sirf tab show ho jab assigned nahi aur cancelled nahi -->
                     {% if not vg.is_cancelled and not vg.is_assigned and not group.order.is_cancelled %}
                     <a href="{% url 'cancel_order' group.order.order_id %}?vendor_id={{ vg.vendor.vendor_id }}"
-                    class="btn btn-sm btn-outline-danger rounded-pill fw-bold"
-                    onclick="return confirm('Cancel {{ vg.vendor.vendor_name }}\'s items from this order?')">
+                    class="btn btn-sm btn-outline-danger rounded-pill fw-bold">
                         🚫 Cancel
                     </a>
                     {% endif %}

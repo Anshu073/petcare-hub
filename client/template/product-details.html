@@ -142,8 +142,24 @@
                             </div>
                         </div>
                         <h4 class="price">₹{{ product.price }}</h4>
+
+                        {% if product.qty == 0 %}
+                        <div class="mb-3">
+                            <span style="background:#dc3545; color:#fff; font-size:12px; font-weight:700; padding:5px 15px; border-radius:20px;">
+                                OUT OF STOCK
+                            </span>
+                        </div>
+                        {% elif product.qty <= 3 %}
+                        <div class="mb-3">
+                            <span style="background:#ff9800; color:#fff; font-size:12px; font-weight:700; padding:5px 15px; border-radius:20px;">
+                                Only {{ product.qty }} left — Order soon!
+                            </span>
+                        </div>
+                        {% endif %}
+
                         <p>{{ product.description }}</p>
 
+                        {% if product.qty > 0 %}
                         <form id="add-to-cart-form" action="{% url 'add_to_cart' product.prod_id %}" method="POST">
                             {% csrf_token %}
                             <div class="product__details-qty d-flex align-items-center mb-20">
@@ -166,8 +182,15 @@
                                 </button>
                             </div>
                         </form>
-
                         <a href="#" id="buy-now-btn" class="buy-btn">Buy it Now</a>
+                        {% else %}
+                        <div class="product__details-qty d-flex align-items-center mb-20">
+                            <button class="btn" style="height:55px; background:#ccc; color:#666; padding:0 40px; border-radius:12px; font-weight:700; border:none; cursor:not-allowed;" disabled>
+                                Out of Stock
+                            </button>
+                        </div>
+                        {% endif %}
+
                         <div class="product__wishlist-wrap">
                             <a href="{% url 'add_to_wishlist' product.prod_id %}" 
        class="wishlist-link d-flex align-items-center text-decoration-none">
@@ -489,21 +512,25 @@ document.addEventListener('DOMContentLoaded', function() {
 </main>
 
 <script>
+    const MAX_QTY = {{ product.qty }};
+
     function changeQty(amt) {
         let q = document.getElementById('prod-qty');
+        if (!q) return;
         let v = parseInt(q.value) + amt;
         if (v < 1) v = 1;
+        if (v > MAX_QTY) v = MAX_QTY;
         q.value = v;
     }
+    {% if product.qty > 0 %}
     document.getElementById('buy-now-btn').addEventListener('click', function (e) {
         e.preventDefault();
         const qty = document.getElementById('prod-qty').value;
-        const productId = "{{ product.prod_id }}";
-        // Redirect to checkout with prod_id and selected quantity
-        // product-details.html
         window.location.href = "{% url 'checkout_single' product.prod_id %}?qty=" + qty;
     });
+    {% endif %}
 </script>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 

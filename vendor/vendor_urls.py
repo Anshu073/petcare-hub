@@ -9,5 +9,7 @@ urlpatterns = [
     path('logout/', vendor_views.vendor_logout, name='vendor_logout'),
     path('vendor/db-status/<int:db_id>/<int:new_status>/', vendor_views.update_db_status, name='db_status'),
     path('vendor/assign-order/', vendor_views.assign_order, name='assign_order'),
+    path('vendor/update-qty/<int:prod_id>/', vendor_views.update_product_qty, name='update_product_qty'),
+    path('vendor/delete-product/<int:prod_id>/', vendor_views.delete_product, name='delete_product'),
     path('contact/', vendor_views.vendor_contact, name='vendor_contact'),
 ]
