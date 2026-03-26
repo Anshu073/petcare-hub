@@ -33,6 +33,11 @@
                                             <th>USER_PROFILE</th>
                                             <th>CONTACT</th>
                                             <th>IS_ADMIN</th>
+                                            <th>OTP</th>
+                                            <th>OTP_USED</th>
+                                            <th>STRIKE_COUNT</th>
+                                            <th>IS_CASH_BLOCKED</th>
+                                            <th>PAYMENT_CREDIT</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -57,6 +62,11 @@
                                             </td>
                                             <td>{{ item.contact }}</td>
                                             <td>{{ item.is_admin }}</td>
+                                            <td>*****</td>
+                                            <td>*****</td>
+                                            <td>{{ item.strike_count }}</td>
+                                            <td>{{ item.is_cash_blocked }}</td>
+                                            <td>{{ item.payment_credit }}</td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>

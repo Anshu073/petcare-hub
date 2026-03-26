@@ -31,6 +31,11 @@
                                             <th>DESCRIPTION</th>
                                             <th>APPOINTMENT_DATE</th>
                                             <th>APPOINTMENT_STATUS</th>
+                                            <th>PAYMENT_TIMER_START</th>
+                                            <th>MEDICAL_REPORT</th>
+                                            <th>PAYMENT_MODE</th>
+                                            <th>CHARGES</th>
+                                            <th>CANCEL_RESON</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -43,6 +48,18 @@
                                             <td>{{ item.description }}</td>
                                             <td>{{ item.appointment_date }}</td>
                                             <td>{{ item.appointment_status }}</td>
+                                            <td>{{ item.payment_timer_start }}</td>
+                                            <td>
+                                                {% if item.medical_report %}
+                                                <a href="{{ item.medical_report.url }}" target="_blank"
+                                                    class="btn btn-sm btn-outline-info">View PDF 📄</a>
+                                                {% else %}
+                                                <span class="text-danger small">No Docs</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ item.payment_mode }}</td>
+                                            <td>{{ item.charges }}</td>
+                                            <td>{{ item.cancel_charges }}</td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>

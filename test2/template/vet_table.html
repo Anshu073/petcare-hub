@@ -29,9 +29,19 @@
                                             <th>PASSWORD</th>
                                             <th>EMAIL</th>
                                             <th>PROFILE</th>
+                                            <th>SPECIALIZATION</th>
                                             <th>DOCS</th>
                                             <th>CONTACT</th>
                                             <th>STATUS</th>
+                                            <th>CHARGES</th>
+                                            <th>ADDRESS</th>
+                                            <th>OTP</th>
+                                            <th>OTP_USED</th>
+                                            <th>OPEN_TIME</th>
+                                            <th>CLOSE_TIME</th>
+                                            <th>LAST_TIMING_UPDATE</th>
+                                            <th>IS_FIRST_LOGIN</th>
+                                            <th>CANCEL_COUNT</th>
                                             <th>AVAILABILITY</th>
                                             <th>ACTION</th>
                                         </tr>
@@ -55,6 +65,7 @@
                                                 <span class="badge badge-light">No Image</span>
                                                 {% endif %}
                                             </td>
+                                            <td>{{ item.specialization }}</td>
                                             <td>
                                                 {% if item.documents %}
                                                 <a href="{{ item.documents.url }}" target="_blank"
@@ -77,7 +88,15 @@
                                                 <span class="badge badge-info">Waiting (0)</span>
                                                 {% endif %}
                                             </td>
-
+                                            <td>{{ item.charges }}</td>
+                                            <td>{{ item.address }}</td>
+                                            <td>*****</td>
+                                            <td>*****</td>
+                                            <td>{{ item.open_time }}</td>
+                                            <td>{{ item.close_time }}</td>
+                                            <td>{{ item.last_timing_update }}</td>
+                                            <td>{{ item.is_first_login }}</td>
+                                            <td>{{ item.cancel_count }}</td>
                                             <td>
                                                 {% if item.availability_status == 1 %}
                                                 <div class="badge badge-success">Online</div>

@@ -26,11 +26,13 @@
                                         <tr>
                                             <th>DELIVERYBOY_ID</th>
                                             <th>VENDOR_NAME</th>
+                                            <th>AREA_NAME</th>
                                             <th>DELIVERYBOY_NAME</th>
                                             <th>EMAIL</th>
                                             <th>PASSWORD</th>
                                             <th>DELIVERYBOY_PROFILE</th>
                                             <th>CONTACT</th>
+                                            <th>STATUS</th>
                                             <th>IS_AVAILABLE</th>
                                         </tr>
                                     </thead>
@@ -39,6 +41,7 @@
                                         <tr>
                                             <td>{{ item.deliveryboy_id }}</td>
                                             <td>{{ item.vendor_id.vendor_name }}</td>
+                                            <td>{{ item.area_id.area_name }}</td>
                                             <td>{{ item.deliveryboy_name }}</td>
                                             <td>{{ item.email }}</td>
                                             <td>********</td>
@@ -53,6 +56,7 @@
                                                 {% endif %}
                                             </td>
                                             <td>{{ item.contact }}</td>
+                                            <td>{{ item.status }}</td>
                                             <td>{{ item.is_available }}</td>
                                         </tr>
                                         {% endfor %}
