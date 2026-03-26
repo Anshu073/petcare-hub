@@ -26,9 +26,11 @@
                                         <tr>
                                             <th>ORDER_DETAILS_ID</th>
                                             <th>ORDER_ID</th>
-                                            <th>PROD_ID</th>
+                                            <th>VENDOR_NAME</th>
+                                            <th>PROD_NAME</th>
                                             <th>QUANTITY</th>
                                             <th>PRICE</th>
+                                            <th>DETAIL_STATUS</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -36,9 +38,11 @@
                                         <tr>
                                             <td>{{ item.order_details_id }}</td>
                                             <td>{{ item.order_id_id }}</td>
+                                            <td>{{ item.vendor_id.vendor_name}}</td>
                                             <td>{{ item.prod_id.prod_name }}</td>
                                             <td>{{ item.quantity }}</td>
                                             <td>{{ item.price }}</td>
+                                            <td>{{ item.detail_status }}</td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>

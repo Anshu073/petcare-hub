@@ -27,10 +27,12 @@
                                             <th>ORDER_ID</th>
                                             <th>CUST_ID</th>
                                             <th>DELIVERYBOY_ID</th>
-                                            <th>AREA_ID</th>
+                                            <th>AREA_NAME</th>
+                                            <th>ADDRESS</th>
                                             <th>TOTAL_AMOUNT</th>
                                             <th>ORDER_DATE</th>
-                                            <th>ORDER_STATUS</th>
+                                            <th>IS_CANCELLED</th>
+                                            <th>CANCELLED_AT</th>
                                             <th>DELIVERY_DATE</th>
                                         </tr>
                                     </thead>
@@ -41,9 +43,11 @@
                                             <td>{{ item.cust_id.cust_name }}</td>
                                             <td>{{ item.deliveryboy_id.deliveryboy_name }}</td>
                                             <td>{{ item.area_id.area_name }}</td>
+                                            <td>{{ item.address }}</td>
                                             <td>{{ item.total_amount }}</td>
                                             <td>{{ item.order_date }}</td>
-                                            <td>{{ item.order_status }}</td>
+                                            <td>{{ item.is_cancelled }}</td>
+                                            <td>{{ item.cancelled_at }}</td>
                                             <td>{{ item.delivery_date }}</td>
                                         </tr>
                                         {% endfor %}

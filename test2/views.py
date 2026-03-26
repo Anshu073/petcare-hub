@@ -1,7 +1,7 @@
 import email
 from urllib import request
 from django.shortcuts import render,redirect
-from test2.models import Area,Customer,Vet,Vendor,DeliveryBoy,Appointment,ProductCategory,Product,Order,OrderDetail,AppointmentPayment,OrderPayment,Feedback,Gallery,Wishlist,Cart
+from test2.models import Area,Customer,Vet,Vendor,DeliveryBoy,Appointment,ProductCategory,Product,Order,OrderDetail,AppointmentPayment,OrderPayment,Feedback,Gallery,Wishlist,Cart,VetSchedule
 
 # Create your views here.
 from django.contrib.auth.hashers import make_password, check_password
@@ -512,3 +512,7 @@ def delete_vet(request, v_id):
     if vet.status == 4:
         vet.delete()
     return redirect('vet_table')
+
+def vet_schedule_table(request):
+    items = VetSchedule.objects.all()
+    return render(request, 'vet_schedule.html', {'items': items})

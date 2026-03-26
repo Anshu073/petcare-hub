@@ -61,6 +61,7 @@ urlpatterns = [
     path('insert_product_table/',views.insert_product_table),
     path('insert_gallery_table/',views.insert_gallery_table),
     path('dashboard/',views.dashboard,name="dashboard"),
+    path('vet-schedule/', views.vet_schedule_table, name='vet_schedule_table'),
     path('profile/',views.profile,name="profile"),
     path('logout/', views.logout, name='logout'),
     path('update_vet_status/<int:v_id>/<str:action>/', views.update_vet_status, name='update_vet_status'),

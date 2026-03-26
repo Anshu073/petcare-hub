@@ -3,19 +3,20 @@
 {% block content %}
 <div class="main-content">
   {% if messages %}
-    {% for message in messages %}
-      <div class="alert alert-{% if message.tags == 'success' %}success{% else %}danger{% endif %} alert-dismissible show fade" 
-           style="position: absolute; top: 20px; right: 20px; z-index: 9999; min-width: 300px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-        <div class="alert-body">
-          <button class="close" data-dismiss="alert">
-            <span>&times;</span>
-          </button>
-          <i class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-triangle{% endif %}"></i>
-          &nbsp; <strong>{% if message.tags == 'success' %}Success!{% else %}Error!{% endif %}</strong> 
-          <br> {{ message }}
-        </div>
-      </div>
-    {% endfor %}
+  {% for message in messages %}
+  <div
+    class="alert alert-{% if message.tags == 'success' %}success{% else %}danger{% endif %} alert-dismissible show fade"
+    style="position: absolute; top: 20px; right: 20px; z-index: 9999; min-width: 300px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+    <div class="alert-body">
+      <button class="close" data-dismiss="alert">
+        <span>&times;</span>
+      </button>
+      <i class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-triangle{% endif %}"></i>
+      &nbsp; <strong>{% if message.tags == 'success' %}Success!{% else %}Error!{% endif %}</strong>
+      <br> {{ message }}
+    </div>
+  </div>
+  {% endfor %}
   {% endif %}
   <section class="section">
     <div class="section-header">
@@ -26,7 +27,7 @@
           </div>
         </div>
         <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
-          <div class="section-header-breadcrumb-chart float-right">            
+          <div class="section-header-breadcrumb-chart float-right">
           </div>
         </div>
       </div>
@@ -114,17 +115,19 @@
             <h4>ORDER TABLE</h4>
           </div>
           <div class="card-body">
-            <div class="table-responsive">
-              <table class="table table-striped">
-                <thead>
+            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+              <table class="table table-striped" id="orderTable">
+                <thead style="position: sticky; top: 0; background: #fff; z-index: 10;">
                   <tr>
                     <th>ORDER_ID</th>
                     <th>CUST_ID</th>
                     <th>DELIVERYBOY_ID</th>
-                    <th>AREA_ID</th>
+                    <th>AREA_NAME</th>
+                    <th>ADDRESS</th>
                     <th>TOTAL_AMOUNT</th>
                     <th>ORDER_DATE</th>
-                    <th>ORDER_STATUS</th>
+                    <th>IS_CANCELLED</th>
+                    <th>CANCELLED_AT</th>
                     <th>DELIVERY_DATE</th>
                   </tr>
                 </thead>
@@ -135,9 +138,11 @@
                     <td>{{ item.cust_id.cust_name }}</td>
                     <td>{{ item.deliveryboy_id.deliveryboy_name }}</td>
                     <td>{{ item.area_id.area_name }}</td>
+                    <td>{{ item.address }}</td>
                     <td>{{ item.total_amount }}</td>
                     <td>{{ item.order_date }}</td>
-                    <td>{{ item.order_status }}</td>
+                    <td>{{ item.is_cancelled }}</td>
+                    <td>{{ item.cancelled_at }}</td>
                     <td>{{ item.delivery_date }}</td>
                   </tr>
                   {% endfor %}
@@ -155,9 +160,9 @@
             <h4>APPOINTMENT TABLE</h4>
           </div>
           <div class="card-body">
-            <div class="table-responsive">
+            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
               <table class="table table-striped">
-                <thead>
+                <thead style="position: sticky; top: 0; background: #fff; z-index: 10;">
                   <tr>
                     <th>APPOINTMENT_ID</th>
                     <th>CUST_ID</th>
@@ -166,6 +171,11 @@
                     <th>DESCRIPTION</th>
                     <th>APPOINTMENT_DATE</th>
                     <th>APPOINTMENT_STATUS</th>
+                    <th>PAYMENT_TIMER_START</th>
+                    <th>MEDICAL_REPORT</th>
+                    <th>PAYMENT_MODE</th>
+                    <th>CHARGES</th>
+                    <th>CANCEL_REASON</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -178,6 +188,18 @@
                     <td>{{ item.description }}</td>
                     <td>{{ item.appointment_date }}</td>
                     <td>{{ item.appointment_status }}</td>
+                    <td>{{ item.payment_timer_start }}</td>
+                    <td>
+                      {% if item.medical_report %}
+                      <a href="{{ item.medical_report.url }}" target="_blank" class="btn btn-sm btn-outline-info">View
+                        PDF 📄</a>
+                      {% else %}
+                      <span class="text-danger small">No Docs</span>
+                      {% endif %}
+                    </td>
+                    <td>{{ item.payment_mode }}</td>
+                    <td>{{ item.charges }}</td>
+                    <td>{{ item.cancel_charges }}</td>
                   </tr>
                   {% endfor %}
                 </tbody>
@@ -244,12 +266,12 @@
     $(document).on('click', '.nav-link-user', function (e) {
       e.preventDefault();   // Stops '#' from appearing in URL
       e.stopPropagation();  // Prevents the document-click-close from firing
-      
+
       var $menu = $(this).next('.dropdown-menu');
-      
+
       // Close any other open dropdowns first
       $('.dropdown-menu').not($menu).removeClass('show');
-      
+
       // Toggle the current one
       $menu.toggleClass('show');
     });
@@ -270,11 +292,11 @@
 </script>
 
 <script>
-  $(document).ready(function() {
+  $(document).ready(function () {
     // 5 second baad popup ko dhire se gayab karne ke liye
-    window.setTimeout(function() {
-      $(".alert").fadeTo(500, 0).slideUp(500, function(){
-          $(this).remove(); 
+    window.setTimeout(function () {
+      $(".alert").fadeTo(500, 0).slideUp(500, function () {
+        $(this).remove();
       });
     }, 5000);
   });
