@@ -42,6 +42,40 @@
 </head>
 
 <body>
+<script>
+  (function() {
+    var layout  = localStorage.getItem('themeLayout');
+    var sidebar = localStorage.getItem('sidebarColor');
+    var theme   = localStorage.getItem('themeColor');
+    var mini    = localStorage.getItem('miniSidebar');
+
+    if (layout === '2') {
+      document.body.classList.add('dark');
+      document.body.classList.remove('light');
+    } else {
+      document.body.classList.add('light');
+      document.body.classList.remove('dark');
+    }
+
+    if (sidebar && sidebar !== 'white') {
+      document.body.classList.add(sidebar + '-sidebar');
+      document.body.classList.add('sidebar-' + sidebar);
+    } else {
+      document.body.classList.add('white-sidebar');
+    }
+
+    // White theme ke liye bhi theme-white lagao
+    if (theme && theme !== 'white') {
+      document.body.classList.add('theme-' + theme);
+    } else {
+      document.body.classList.add('theme-white');
+    }
+
+    if (mini === 'true') {
+      document.body.classList.add('sidebar-mini');
+    }
+  })();
+</script>
   <div class="loader"></div>
   <div id="app">
     <div class="main-wrapper main-wrapper-1">
@@ -443,6 +477,121 @@
       margin-left: auto;
     }
   </style>
+
+<!-- STEP 2: jQuery ready — events + active classes -->
+<script>
+  $(document).ready(function () {
+
+    var savedThemeLayout  = localStorage.getItem('themeLayout')  || '1';
+    var savedSidebarColor = localStorage.getItem('sidebarColor') || 'white';
+    var savedThemeColor   = localStorage.getItem('themeColor')   || 'white';
+    var savedMiniSidebar  = localStorage.getItem('miniSidebar')  || 'false';
+
+    // ── 1. THEME LAYOUT (Light / Dark) ─────────────────────────────────────
+    function applyThemeLayout(val) {
+      if (val === '2') {
+        $('body').addClass('dark').removeClass('light');
+      } else {
+        $('body').addClass('light').removeClass('dark');
+      }
+      $('input[name="custom-switch-input"][type="radio"]').each(function () {
+        $(this).prop('checked', $(this).val() === val);
+      });
+    }
+    applyThemeLayout(savedThemeLayout);
+
+    $(document).on('change', 'input[name="custom-switch-input"][type="radio"]', function () {
+      localStorage.setItem('themeLayout', $(this).val());
+      applyThemeLayout($(this).val());
+    });
+
+    // ── 2. SIDEBAR COLOR ───────────────────────────────────────────────────
+    function applySidebarColor(color) {
+  var protectedClasses = ['sidebar-gone', 'sidebar-mini', 'sidebar-style-2'];
+  var filtered = document.body.className.split(' ').filter(function (cls) {
+    if (protectedClasses.indexOf(cls) !== -1) return true;
+    if (cls.endsWith('-sidebar')) return false;
+    if (cls.startsWith('sidebar-') && protectedClasses.indexOf(cls) === -1) return false;
+    return true;
+  });
+  document.body.className = filtered.join(' ');
+
+  // White ke liye 'white-sidebar' explicitly lagao
+  if (color && color !== 'white') {
+    $('body').addClass(color + '-sidebar').addClass('sidebar-' + color);
+  } else {
+    $('body').addClass('white-sidebar');
+  }
+
+  $('.sidebar-color li').removeClass('active');
+  $('.sidebar-color li[title="' + color + '"]').addClass('active');
+}
+    applySidebarColor(savedSidebarColor);
+
+    $(document).on('click', '.sidebar-color li', function () {
+      var color = $(this).attr('title');
+      localStorage.setItem('sidebarColor', color);
+      applySidebarColor(color);
+    });
+
+    // ── 3. THEME COLOR ─────────────────────────────────────────────────────
+    function applyThemeColor(color) {
+  var filtered = document.body.className.split(' ').filter(function (cls) {
+    return !cls.startsWith('theme-');
+  });
+  document.body.className = filtered.join(' ');
+
+  // White ke liye bhi theme-white lagao
+  if (color && color !== 'white') {
+    $('body').addClass('theme-' + color);
+  } else {
+    $('body').addClass('theme-white');
+  }
+
+  $('.choose-theme li').removeClass('active');
+  $('.choose-theme li[title="' + color + '"]').addClass('active');
+}
+    applyThemeColor(savedThemeColor);
+
+    $(document).on('click', '.choose-theme li', function () {
+      var color = $(this).attr('title');
+      localStorage.setItem('themeColor', color);
+      applyThemeColor(color);
+    });
+
+    // ── 4. MINI / COMPACT SIDEBAR ──────────────────────────────────────────
+    function applyMiniSidebar(enabled) {
+      if (enabled === 'true' || enabled === true) {
+        $('body').addClass('sidebar-mini');
+        $('#mini_sidebar_setting').prop('checked', true);
+      } else {
+        $('body').removeClass('sidebar-mini');
+        $('#mini_sidebar_setting').prop('checked', false);
+      }
+    }
+    applyMiniSidebar(savedMiniSidebar);
+
+    $(document).on('change', '#mini_sidebar_setting', function () {
+      var val = $(this).is(':checked') ? 'true' : 'false';
+      localStorage.setItem('miniSidebar', val);
+      applyMiniSidebar(val);
+    });
+
+    // ── 5. RESTORE DEFAULT ─────────────────────────────────────────────────
+    $(document).on('click', '.btn-restore-theme', function (e) {
+      e.preventDefault();
+      localStorage.removeItem('themeLayout');
+      localStorage.removeItem('sidebarColor');
+      localStorage.removeItem('themeColor');
+      localStorage.removeItem('miniSidebar');
+      applyThemeLayout('1');
+      applySidebarColor('white');
+      applyThemeColor('white');
+      applyMiniSidebar(false);
+    });
+
+  });
+</script>
 </body>
 
 </html>
