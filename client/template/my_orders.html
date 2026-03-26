@@ -53,6 +53,15 @@
                         {% elif vg.detail_status == 2 %}🚚 Out for Delivery
                         {% else %}✅ Delivered{% endif %}
                     </span>
+
+                    <!-- Vendor-wise Cancel Button: sirf tab show ho jab assigned nahi aur cancelled nahi -->
+                    {% if not vg.is_cancelled and not vg.is_assigned and not group.order.is_cancelled %}
+                    <a href="{% url 'cancel_order' group.order.order_id %}?vendor_id={{ vg.vendor.vendor_id }}"
+                    class="btn btn-sm btn-outline-danger rounded-pill fw-bold"
+                    onclick="return confirm('Cancel {{ vg.vendor.vendor_name }}\'s items from this order?')">
+                        🚫 Cancel
+                    </a>
+                    {% endif %}
                 </div>
             </div>
 
@@ -99,7 +108,12 @@
                 </div>
                 {% endif %}
             </div>
-
+            <!-- Vendor-wise Refund Message -->
+            {% if vg.is_cancelled %}
+            <div class="mt-2 p-2 rounded-3 text-center" style="background: #fff0f0; border: 1px solid #f5c6cb;">
+                <small class="text-danger fw-bold">⚠️ {{ vg.vendor.vendor_name }}'s items have been cancelled. Refund will be processed within 5-7 business days.</small>
+            </div>
+            {% endif %}
         </div>
         {% endfor %}
 
@@ -115,24 +129,9 @@
                     <h4 class="fw-800 mb-0" style="color: #894B8D;">₹{{ group.order.total_amount }}</h4>
                     <small class="text-muted">Payment Mode: Online</small>
                 </div>
-                <!-- Cancel button: sirf tab jab koi assign nahi hua -->
-                <div class="col-md-3 ps-md-4 mt-3 mt-md-0 text-end">
-                    {% if not group.order.is_cancelled and not group.any_assigned %}
-                    <a href="{% url 'cancel_order' group.order.order_id %}"
-                       class="btn btn-danger rounded-pill px-4 fw-bold"
-                       onclick="return confirm('Cancel this entire order? This cannot be undone.')">
-                        🚫 Cancel Order
-                    </a>
-                    {% endif %}
-                </div>
+                <!-- Cancel button ab vendor group mein hoga, yahan sirf empty div -->
+                <div class="col-md-3"></div>
             </div>
-
-            <!-- Refund msg: sirf cancelled order pe, ek baar footer mein -->
-            {% if group.order.is_cancelled %}
-            <div class="mt-3 p-2 rounded-3 text-center" style="background: #fff0f0; border: 1px solid #f5c6cb;">
-                <small class="text-danger fw-bold">⚠️ This order has been cancelled. Refund will be processed within 5-7 business days.</small>
-            </div>
-            {% endif %}
         </div>
 
     </div>

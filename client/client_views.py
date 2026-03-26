@@ -416,7 +416,6 @@ def checkout(request, prod_id=None):
                     area_id=customer.area_id,
                     total_amount=post_grand_total,
                     address=address,
-                    order_status=0,
                     delivery_date=auto_delivery_date
                 )
 
@@ -866,24 +865,27 @@ def my_orders(request):
 
             if vid not in vendor_dict:
                 vendor_dict[vid] = {
-                    'vendor': detail.vendor_id,  # Vendor object
-                    'products': []               # Is vendor ke products
+                    'vendor': detail.vendor_id,
+                    'products': [],
+                    'detail_status': detail.detail_status,
+                    # Ye vendor assigned hai ya nahi
+                    'is_assigned': detail.detail_status >= 1,
+                    'is_cancelled': detail.detail_status == 4,
                 }
             vendor_dict[vid]['products'].append({
                 'detail': detail,
                 'subtotal': detail.price * detail.quantity
             })
-            # Vendor group ka detail_status = us vendor ke pehle product ka detail_status
-            # (saare products same vendor ke hain toh same status hoga)
+            # Status update: worst/highest status jo bhi ho
             vendor_dict[vid]['detail_status'] = detail.detail_status
-
-        # Cancel button ke liye: kisi bhi vendor ne assign kiya?
-        any_assigned = order.orderdetail_set.filter(detail_status__gte=1).exists()
+            if detail.detail_status >= 1:
+                vendor_dict[vid]['is_assigned'] = True
+            if detail.detail_status == 4:
+                vendor_dict[vid]['is_cancelled'] = True
 
         grouped_orders.append({
             'order': order,
             'vendor_groups': list(vendor_dict.values()),
-            'any_assigned': any_assigned   # NEW FLAG
         })
 
     return render(request, 'my_orders.html', {'grouped_orders': grouped_orders})
@@ -893,26 +895,53 @@ def cancel_order(request, order_id):
     if not cust_id:
         return redirect('login1')
 
+    # vendor_id optional URL param se aayega
+    vendor_id = request.GET.get('vendor_id')
+
     order = get_object_or_404(Order, order_id=order_id, cust_id=cust_id)
 
-    # Already cancelled check
-    if order.is_cancelled:
-        messages.warning(request, "This order is already cancelled.")
-        return redirect('my_orders')
+    if vendor_id:
+        # --- VENDOR-WISE CANCEL ---
+        details = order.orderdetail_set.filter(vendor_id=vendor_id)
 
-    # KEY CHECK: Kisi bhi vendor ne assign kar diya toh cancel band
-    any_assigned = order.orderdetail_set.filter(detail_status__gte=1).exists()
-    if any_assigned:
-        messages.error(request, "Order cannot be cancelled — it has already been assigned to a vendor. 🚫")
-        return redirect('my_orders')
+        if not details.exists():
+            messages.error(request, "Invalid vendor for this order.")
+            return redirect('my_orders')
 
-    # Safe to cancel
-    order.is_cancelled = True
-    order.cancelled_at = timezone.now()
-    order.orderdetail_set.update(detail_status=4) # Saare vendors ke details cancel
-    order.save()
-    
-    messages.success(request, "Your order has been cancelled successfully. 🐾")
+        # Check: kisi bhi detail ka status already assigned/beyond hai?
+        if details.filter(detail_status__gte=1).exists():
+            messages.error(request, "Cannot cancel — this vendor's items are already assigned. 🚫")
+            return redirect('my_orders')
+
+        # Sirf is vendor ke details cancel karo
+        details.update(detail_status=4)
+
+        # Agar saare vendors ke details cancel ho gaye toh order bhi cancel mark karo
+        all_cancelled = not order.orderdetail_set.exclude(detail_status=4).exists()
+        if all_cancelled:
+            order.is_cancelled = True
+            order.cancelled_at = timezone.now()
+            order.save()
+            messages.success(request, "Entire order has been cancelled. 🐾")
+        else:
+            messages.success(request, "Selected vendor's items cancelled successfully. 🐾")
+
+    else:
+        # --- FULL ORDER CANCEL (fallback, pehle jaisa) ---
+        if order.is_cancelled:
+            messages.warning(request, "This order is already cancelled.")
+            return redirect('my_orders')
+
+        if order.orderdetail_set.filter(detail_status__gte=1).exists():
+            messages.error(request, "Order cannot be cancelled — already assigned. 🚫")
+            return redirect('my_orders')
+
+        order.is_cancelled = True
+        order.cancelled_at = timezone.now()
+        order.orderdetail_set.update(detail_status=4)
+        order.save()
+        messages.success(request, "Your order has been cancelled successfully. 🐾")
+
     return redirect('my_orders')
 
 def contact(request):
