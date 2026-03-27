@@ -909,9 +909,17 @@ def my_orders(request):
     user_orders = Order.objects.filter(
         cust_id=cust_id
     ).prefetch_related(
-        'orderdetail_set__prod_id',         # Product details
-        'orderdetail_set__vendor_id'        # Vendor details
+        'orderdetail_set__prod_id',
+        'orderdetail_set__vendor_id'
     ).order_by('-order_id')
+
+    # order_detail_id se exact check — same product alag order mein dobara rate ho sakta hai
+    rated_order_detail_ids = set(
+        Feedback.objects.filter(
+            cust_id=cust_id,
+            order_detail_id__isnull=False
+        ).values_list('order_detail_id', flat=True)
+    )
 
     # Har order ke andar vendor-wise group karo
     # grouped_orders = [ { 'order': order_obj, 'vendor_groups': [ { 'vendor': vendor_obj, 'products': [detail1, detail2] } ] } ]
@@ -934,8 +942,11 @@ def my_orders(request):
                 }
             vendor_dict[vid]['products'].append({
                 'detail': detail,
-                'subtotal': detail.price * detail.quantity
+                'subtotal': detail.price * detail.quantity,
+                # Delivered hone ke baad rating check: kya is product pe review diya?
+                'already_rated': detail.order_details_id in rated_order_detail_ids
             })
+            
             # Status update: worst/highest status jo bhi ho
             vendor_dict[vid]['detail_status'] = detail.detail_status
             if detail.detail_status >= 1:
@@ -1174,3 +1185,40 @@ def reset_password(request):
         return redirect('login1')
 
     return render(request, 'reset_password.html')
+
+
+
+def submit_order_review(request, prod_id):
+    """My Orders page se product review submit karne ke liye"""
+    if request.method == "POST":
+        cust_id = request.session.get('cust_id')
+        if not cust_id:
+            messages.warning(request, "Please login to write a review! 🐾")
+            return redirect('login1')
+
+        # Pehle sab POST data fetch karo
+        order_detail_id  = request.POST.get('order_detail_id')
+        rating           = request.POST.get('rating')
+        comments         = request.POST.get('comments', '').strip()
+
+        product          = get_object_or_404(Product, prod_id=prod_id)
+        customer         = get_object_or_404(Customer, cust_id=cust_id)
+        order_detail_obj = get_object_or_404(OrderDetail, order_details_id=order_detail_id)
+
+        # Duplicate check: sirf order_detail se — same order ka same product dobara rate nahi hoga
+        if Feedback.objects.filter(order_detail_id=order_detail_obj).exists():
+            messages.warning(request, "You have already reviewed this product.")
+            return redirect('my_orders')
+
+        Feedback.objects.create(
+            cust_id=customer,
+            prod_id=product,
+            order_detail_id=order_detail_obj,
+            rating=rating,
+            comments=comments
+        )
+
+        messages.success(request, f"Review submitted for {product.prod_name}! ⭐")
+        return redirect('my_orders')
+
+    return redirect('my_orders')

@@ -75,11 +75,65 @@
                        Qty: {{ item.detail.quantity }} | Unit Price: ₹{{ item.detail.price }}  
                     </p>
                 </div>
-                <div class="text-end">
-                    <small class="text-muted d-block">Subtotal</small>
-                    <span class="fw-bold text-dark">₹{{ item.subtotal }}</span>
+                <div class="text-end d-flex flex-column align-items-end gap-2">
+                    <div>
+                        <small class="text-muted d-block">Subtotal</small>
+                        <span class="fw-bold text-dark">₹{{ item.subtotal }}</span>
+                    </div>
+                    <!-- Review button: sirf delivered orders pe dikhega -->
+                    {% if vg.detail_status == 3 %}
+                        {% if item.already_rated %}
+                        <button class="btn btn-sm btn-light disabled rounded-pill px-3 border" style="font-size: 11px;">
+                            <i class="fas fa-check-circle text-success me-1"></i> Already Rated
+                        </button>
+                        {% else %}
+                        <button class="btn btn-sm btn-warning rounded-pill px-3" style="font-size: 11px;"
+                            data-bs-toggle="modal"
+                            data-bs-target="#reviewModal{{ item.detail.order_details_id }}">
+                            <i class="fas fa-star me-1"></i> Rate Product
+                        </button>
+                        {% endif %}
+                    {% endif %}
                 </div>
             </div>
+
+            <!-- Review Modal: har product ke liye alag (order_details_id se unique) -->
+            {% if vg.detail_status == 3 and not item.already_rated %}
+            <div class="modal fade" id="reviewModal{{ item.detail.order_details_id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content rounded-4 border-0 shadow">
+                        <form method="POST" action="{% url 'submit_order_review' item.detail.prod_id.prod_id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="order_detail_id" value="{{ item.detail.order_details_id }}">
+                            <div class="modal-body p-4 text-start">
+                                <h5 class="fw-bold mb-3" style="color: #894B8D;">
+                                    Rate: {{ item.detail.prod_id.prod_name }}
+                                </h5>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Rating (1-5)</label>
+                                    <select name="rating" class="form-select rounded-pill">
+                                        <option value="5">5 - Excellent</option>
+                                        <option value="4">4 - Very Good</option>
+                                        <option value="3">3 - Good</option>
+                                        <option value="2">2 - Fair</option>
+                                        <option value="1">1 - Poor</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Comment</label>
+                                    <textarea name="comments" class="form-control rounded-4" rows="3"
+                                        placeholder="Share your experience with this product..." required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold"
+                                    style="background-color: #894B8D; border: none;">
+                                    Submit Review
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
             {% endfor %}
 
 
@@ -146,7 +200,7 @@
 <style>
     .text-purple { color: #894B8D !important; }
     .fw-800 { font-weight: 800; }
-    .card { transition: all 0.3s ease; border: 1px solid #f0f0f0 !important; }
-    .card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(137, 75, 141, 0.1) !important; }
+    .card { transition: box-shadow 0.3s ease; border: 1px solid #f0f0f0 !important; }
+    .card:hover { box-shadow: 0 15px 30px rgba(137, 75, 141, 0.1) !important; }
 </style>
 {% endblock %}

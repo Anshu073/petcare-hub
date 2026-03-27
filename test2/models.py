@@ -243,6 +243,7 @@ class Feedback(models.Model):
     prod_id = models.ForeignKey(Product, on_delete=models.CASCADE,null=True)
     vet_id = models.ForeignKey(Vet,on_delete=models.CASCADE,null=True)
     appointment_id = models.ForeignKey(Appointment, on_delete=models.CASCADE, null=True, blank=True)
+    order_detail_id = models.ForeignKey('OrderDetail', on_delete=models.SET_NULL, null=True, blank=True)  # NEW
     comments = models.CharField(max_length=200)
     rating = models.IntegerField()
     feedback_date = models.DateTimeField(auto_now_add=True)
