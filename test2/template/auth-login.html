@@ -55,38 +55,29 @@
 }
 /* - Perfect Theme Matching */
 
-/* 1. Logo Capsule: Width badha di taaki tag line badi dikhe */
+/* - Center Alignment Fix */
+/* - Perfect Symmetry Fix */
 .login-brand {
-    display: inline-block;
-    padding: 0 !important; 
-    border: 5px solid #b294b5 !important; /* Theme Border */
-    border-radius: 60px !important; 
-    width: 380px !important; /* Width aur badha di */
-    height: 110px !important;
-    margin-bottom: 30px !important;
-    background: #fff;
-    overflow: hidden; 
-    box-shadow: 0 10px 25px rgba(137, 75, 141, 0.2) !important;
-}
-
-.login-brand {
-    display: inline-block;
+    display: block !important; /* inline-block hata kar block karein */
+    margin: 0 auto 30px auto !important; /* Isse card ke upar exact center hoga */
+    
     padding: 0 !important; 
     border: 5px solid #b294b5 !important; 
-    border-radius: 60px !important; 
-    width: 380px !important; 
+    border-radius: 80px !important; /* Shape ko aur round kiya taaki borders square na lagein */
+    
+    /* - Width adjust ki taaki card ke borders se bahar na dikhe */
+    width: 350px !important; 
     height: 110px !important;
-    margin-bottom: 30px !important;
+    
     background: #fff;
     overflow: hidden; 
     box-shadow: 0 10px 25px rgba(137, 75, 141, 0.2) !important;
 }
 
-
-/* 2. Login Header: Purple background ko theme purple se match kiya */
+/* Header Gradient Fix (Same as screenshot) */
 .card-header-auth {
-    background: linear-gradient(45deg, #894B8D, #a46ca8) !important; /* Theme Purple */
-    padding: 20px !important;
+    background: linear-gradient(180deg, #894B8D 0%, #7c3f81 100%) !important;
+    padding: 25px !important;
     border-bottom: none !important;
 }
 
@@ -165,10 +156,10 @@
   <div id="app">
     <section class="section">
       <div class="container mt-5">
-        <div class="row">
-          <div class="col-12 col-sm-8 offset-sm-2 col-md-6 offset-md-3 col-lg-6 offset-lg-3 col-xl-4 offset-xl-4">
+        <div class="row justify-content-center">
+    <div class="col-12 col-sm-8 col-md-6 col-lg-5 col-xl-4">
             <div class="login-brand login-brand-color">
-              <img alt="image" src="{% static 'assets/img/logo2.png' %}" style="height:100px;width:320px;" />
+              <img alt="image" src="{% static 'assets/img/posts/logo2.png' %}" style="height:100px;width:320px;" />
             </div>
             <div class="card card-auth">
               <div class="card-header card-header-auth">
