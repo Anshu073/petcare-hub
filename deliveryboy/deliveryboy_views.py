@@ -59,13 +59,13 @@ def delivery_login(request):
             if check_password(password, agent.password):
                 # Status checks
                 if agent.status == 0:
-                    messages.error(request, "Pending Approval: Wait for vendor to approve.", extra_tags='delivery_login')
+                    messages.error(request, "Your account is pending approval. Please wait for your vendor to approve your account.", extra_tags='delivery_login')
                     return render(request, 'dlogin.html')
                 elif agent.status == 2:
-                    messages.error(request, "Rejected: Your account was denied.", extra_tags='delivery_login')
+                    messages.error(request, "Your account request has been rejected. Please contact your vendor for more details.", extra_tags='delivery_login')
                     return render(request, 'dlogin.html')
                 elif agent.status == 3:
-                    messages.error(request, "Restricted: Account is blocked.", extra_tags='delivery_login')
+                    messages.error(request, "Your account has been restricted. Please contact your vendor for further assistance.", extra_tags='delivery_login')
                     return render(request, 'dlogin.html')
 
                 # Login Success
