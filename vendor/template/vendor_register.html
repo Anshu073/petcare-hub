@@ -133,6 +133,22 @@
             background-position: right 20px center;
             padding-right: 40px !important;
         }
+        /* - Eye Toggle & Strength Styling */
+.pass-wrapper input {
+    padding-right: 52px !important; /* Icon ke liye jagah */
+}
+
+.pass-toggle:hover {
+    color: var(--tg-brand-color) !important;
+}
+
+.strength-bar-wrap {
+    text-align: left;
+}
+
+.strength-label {
+    display: block;
+}
     </style>
 </head>
 
@@ -189,11 +205,28 @@
                                     <input type="email" name="email" placeholder="Enter Email Address" required pattern="^[a-zA-Z][a-zA-Z0-9._%+-]*@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$">
                                 </div>
 
-                                <div class="form-grp">
-                                    <label>Create Password</label>
-                                    <input type="password" name="password" placeholder="Create Password" required minlength="8" maxlength="16">
-                                </div>
+<div class="form-grp">
+    <label>Create Password</label>
+    <div class="pass-wrapper" style="position: relative;">
+        <input type="password" name="password" id="vendorPass" 
+               placeholder="Create Password" required 
+               minlength="8" maxlength="16"
+               pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,16}"
+               title="8-16 characters, 1 uppercase, 1 lowercase, 1 number.">
+        
+        <button type="button" class="pass-toggle" onclick="togglePass('vendorPass', this)"
+                style="position: absolute; right: 18px; top: 50%; transform: translateY(-50%); border: none; background: none; color: #aaa; cursor: pointer;">
+            <i class="fas fa-eye"></i>
+        </button>
+    </div>
 
+    <div class="strength-bar-wrap" id="strengthWrap" style="margin-top: 10px; display: none;">
+        <div class="strength-bar-bg" style="height: 6px; background: #f0f0f0; border-radius: 10px; overflow: hidden;">
+            <div class="strength-bar-fill" id="strengthFill" style="height: 100%; width: 0%; border-radius: 10px; transition: 0.4s ease;"></div>
+        </div>
+        <div class="strength-label" id="strengthLabel" style="font-size: 12px; margin-top: 5px; font-weight: 600; text-align: left;"></div>
+    </div>
+</div>
                                 <div class="form-grp">
                                     <label>Contact Number</label>
                                     <input type="text" name="contact" placeholder="Enter Contact Number" maxlength="10" minlength="10" pattern="[6-9][0-9]{9}" required>
@@ -253,6 +286,51 @@
                 }
             }
         });
+        // - Toggle Visibility
+function togglePass(fieldId, btn) {
+    const input = document.getElementById(fieldId);
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
+    }
+}
+
+// - Password Strength Logic for Vendor
+document.getElementById('vendorPass').addEventListener('input', function () {
+    const val = this.value;
+    const wrap = document.getElementById('strengthWrap');
+    const fill = document.getElementById('strengthFill');
+    const label = document.getElementById('strengthLabel');
+
+    if (val.length === 0) {
+        wrap.style.display = 'none';
+        return;
+    }
+
+    wrap.style.display = 'block';
+
+    let score = 0;
+    if (val.length >= 8) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+
+    const levels = [
+        { label: 'Too Weak', color: '#dc3545', width: '25%' },
+        { label: 'Weak',     color: '#fd7e14', width: '50%' },
+        { label: 'Good',     color: '#ffc107', width: '75%' },
+        { label: 'Strong 💪', color: '#28a745', width: '100%' },
+    ];
+    const level = levels[score - 1] || levels[0];
+    fill.style.width = level.width;
+    fill.style.background = level.color;
+    label.textContent = level.label;
+    label.style.color = level.color;
+});
     </script>
 </body>
 </html>

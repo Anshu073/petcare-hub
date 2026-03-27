@@ -428,3 +428,69 @@ def vendor_contact(request):
 
     return render(request, 'vendor_contact.html')
 
+# - Vendor Password Reset Logic
+import random
+import re
+from django.core.mail import send_mail
+from django.conf import settings
+from django.contrib.auth.hashers import make_password
+from test2.models import Vendor
+
+def vendor_forgot_password(request):
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        vendor = Vendor.objects.filter(email=email).first()
+        if vendor:
+            otp = str(random.randint(100000, 999999))
+            request.session['reset_vendor_email'] = email # Vendor specific session
+            vendor.otp = otp
+            vendor.otp_used = 0
+            vendor.save()
+            
+            send_mail(
+                subject='PetCareHub - Vendor Reset OTP',
+                message=f'Hello {vendor.vendor_name},\n\nYour OTP for password reset is: {otp}\n\n- Team PetCareHub 🐾',
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[email],
+                fail_silently=False,
+            )
+            messages.success(request, 'OTP sent to your email!', extra_tags='vendor_login')
+            return redirect('vendor_reset_password_url')
+        messages.error(request, 'No vendor account found with this email.', extra_tags='vendor_login')
+    return render(request, 'vendor_forgot_password.html')
+
+def vendor_reset_password(request):
+    ve = request.session.get('reset_vendor_email')
+    if not ve:
+        return redirect('vendor_forgot_password_url')
+
+    if request.method == 'POST':
+        otp_entered = request.POST.get('otp', '').strip()
+        new_pass = request.POST.get('new_password')
+        confirm_pass = request.POST.get('confirm_password')
+
+        if new_pass != confirm_pass:
+            messages.error(request, 'Passwords do not match!')
+            return render(request, 'vendor_reset_password.html')
+
+        # Regex Validation
+        password_pattern = r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,16}$'
+        if not re.match(password_pattern, new_pass):
+            messages.error(request, 'Password must be 8-16 chars with Uppercase, Lowercase & Number.')
+            return render(request, 'vendor_reset_password.html')
+
+        vendor = Vendor.objects.filter(email=ve, otp=otp_entered, otp_used=0).first()
+        if vendor:
+            vendor.password = make_password(new_pass)
+            vendor.otp_used = 1
+            vendor.otp = None
+            vendor.save()
+            if 'reset_vendor_email' in request.session:
+                del request.session['reset_vendor_email']
+            messages.success(request, 'Password updated! Please login.', extra_tags='vendor_login')
+            return redirect('vendor_login')
+        else:
+            messages.error(request, 'Invalid or used OTP!')
+            
+    return render(request, 'vendor_reset_password.html')
+

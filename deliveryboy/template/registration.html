@@ -88,6 +88,7 @@
             transition: 0.3s;
             outline: none;
             appearance: none;
+            
         }
 
         .form-grp input:focus,
@@ -135,11 +136,27 @@
         }
 
         .form-grp select {
+            /* Double arrow fix */
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23894B8D' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 20px center;
             padding-right: 40px !important;
         }
+.pass-wrapper { position: relative; }
+.pass-wrapper input { padding-right: 52px !important; }
+.pass-toggle {
+    position: absolute; right: 18px; top: 50%; transform: translateY(-50%);
+    cursor: pointer; color: #aaa; border: none; background: none; transition: 0.2s; z-index: 5;
+}
+.pass-toggle:hover { color: var(--tg-brand-color); }
+
+.strength-bar-wrap { margin-top: 12px; display: none; }
+.strength-bar-bg { height: 6px; background: #f0f0f0; border-radius: 10px; overflow: hidden; }
+.strength-bar-fill { height: 100%; width: 0%; border-radius: 10px; transition: 0.4s ease; }
+.strength-label { font-size: 12px; margin-top: 6px; font-weight: 600; text-align: left; }
     </style>
 </head>
 
@@ -195,7 +212,7 @@
 
                                 <div class="form-grp">
                                     <label class="form-label">Linked Vendor / Pet Shop</label>
-                                    <select name="vendor_id" class="custom-input" style="appearance: auto;" required>
+                                    <select name="vendor_id" class="custom-input"  required>
                                         <option value="" disabled selected>Select your store...</option>
                                         {% for v in vendors %}
                                             <option value="{{ v.vendor_id }}">{{ v.vendor_name }}</option>
@@ -205,7 +222,7 @@
 
                                 <div class="form-grp">
                                     <label class="form-label">Your Delivery Area</label>
-                                    <select name="area_id" class="custom-input" style="appearance: auto;" required>
+                                    <select name="area_id" class="custom-input"  required>
                                         <option value="" disabled selected>Select your operating area...</option>
                                         {% for area in areas %}
                                             <option value="{{ area.area_id }}">{{ area.area_name }}</option>
@@ -234,9 +251,23 @@
                                 </div>
 
                                 <div class="form-grp">
-                                    <label class="form-label">Password</label>
-                                    <input type="password" name="password" class="custom-input" placeholder="Enter Your Password" required>
-                                </div>
+    <label class="form-label">Password</label>
+    <div class="pass-wrapper">
+        <input type="password" name="password" id="delPass" class="custom-input" 
+               placeholder="Enter Your Password" required minlength="8" maxlength="16"
+               pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,16}"
+               title="8-16 characters, 1 uppercase, 1 lowercase, 1 number.">
+        <button type="button" class="pass-toggle" onclick="togglePass('delPass', this)">
+            <i class="fas fa-eye"></i>
+        </button>
+    </div>
+    <div class="strength-bar-wrap" id="strengthWrap">
+        <div class="strength-bar-bg">
+            <div class="strength-bar-fill" id="strengthFill"></div>
+        </div>
+        <div class="strength-label" id="strengthLabel"></div>
+    </div>
+</div>
 
                                 <div class="form-grp">
                                     <label class="form-label">Profile Photo</label>
@@ -269,6 +300,48 @@
                 $(".alert").fadeTo(500, 0).slideUp(500, function () { $(this).remove(); });
             }, 5000);
         });
+         function togglePass(fieldId, btn) {
+    const input = document.getElementById(fieldId);
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
+    }
+}
+
+// Strength Logic - Sirf Registration Page ke liye
+const passInput = document.getElementById('delPass');
+if (passInput) {
+    passInput.addEventListener('input', function () {
+        const val = this.value;
+        const wrap = document.getElementById('strengthWrap');
+        const fill = document.getElementById('strengthFill');
+        const label = document.getElementById('strengthLabel');
+        wrap.style.display = val.length > 0 ? 'block' : 'none';
+        
+        let score = 0;
+        if (val.length >= 8) score++;
+        if (/[A-Z]/.test(val)) score++;
+        if (/[0-9]/.test(val)) score++;
+        if (/[^A-Za-z0-9]/.test(val)) score++;
+
+        const levels = [
+            { label: 'Too Weak', color: '#dc3545', width: '25%' },
+            { label: 'Weak', color: '#fd7e14', width: '50%' },
+            { label: 'Good', color: '#ffc107', width: '75%' },
+            { label: 'Strong 💪', color: '#28a745', width: '100%' }
+        ];
+        const level = levels[score - 1] || levels[0];
+        fill.style.width = level.width;
+        fill.style.background = level.color;
+        label.textContent = level.label;
+        label.style.color = level.color;
+    });
+}
+
     </script>
 </body>
 </html>

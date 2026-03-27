@@ -32,6 +32,8 @@
                                             <th>ADDRESS</th>
                                             <th>VENDOR_PROFILE</th>
                                             <th>CONTACT</th>
+                                            <th>OTP</th>
+                                            <th>OTP_USED</th>
                                             <th>STATUS & ACTION</th>
 
                                         </tr>
@@ -56,6 +58,8 @@
                                                 {% endif %}
                                             </td>
                                             <td>{{ item.contact }}</td>
+                                            <td>******</td>
+                                            <td>******</td>
                                             <td>
             {% if item.status == 0 %}
                 <div class="badge badge-info mb-2">Pending Request</div>

@@ -311,3 +311,67 @@ def delivery_change_password(request):
 
 def delivery_contact(request):
     return render(request,'delivery_contact.html')
+
+# - Delivery Boy Password Reset
+import random
+import re
+from django.core.mail import send_mail
+from django.conf import settings
+from django.contrib.auth.hashers import make_password
+from test2.models import DeliveryBoy
+
+def delivery_forgot_password(request):
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        agent = DeliveryBoy.objects.filter(email=email).first()
+        if agent:
+            otp = str(random.randint(100000, 999999))
+            request.session['reset_delivery_email'] = email # Unique session key
+            agent.otp = otp
+            agent.otp_used = 0
+            agent.save()
+            
+            send_mail(
+                subject='PetCareHub - Delivery Boy Reset OTP',
+                message=f'Hello {agent.deliveryboy_name},\n\nYour OTP for password reset is: {otp}\n\n- Team PetCareHub 🐾',
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[email],
+                fail_silently=False,
+            )
+            messages.success(request, 'OTP sent! Check your email.', extra_tags='delivery_login')
+            return redirect('delivery_reset_password_url')
+        messages.error(request, 'Email not found.', extra_tags='delivery_login')
+    return render(request, 'delivery_forgot_password.html')
+
+def delivery_reset_password(request):
+    e = request.session.get('reset_delivery_email')
+    if not e: return redirect('delivery_forgot_password_url')
+
+    if request.method == "POST":
+        otp_entered = request.POST.get('otp')
+        new_pass = request.POST.get('new_password')
+        confirm_pass = request.POST.get('confirm_password')
+        
+        if new_pass != confirm_pass:
+            messages.error(request, "Passwords do not match!")
+            return render(request, 'delivery_reset_password.html')
+        
+        # Regex Validation
+        password_pattern = r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,16}$'
+        if not re.match(password_pattern, new_pass):
+            messages.error(request, "Password must be 8-16 chars (1 Upper, 1 Lower, 1 Number).")
+            return render(request, 'delivery_reset_password.html')
+
+        user = DeliveryBoy.objects.filter(email=e, otp=otp_entered, otp_used=0).first()
+        if user:
+            user.password = make_password(new_pass)
+            user.otp_used = 1  
+            user.otp = None 
+            user.save()
+            if 'reset_delivery_email' in request.session: del request.session['reset_delivery_email']
+            messages.success(request, "Password updated! Please login.", extra_tags='delivery_login')
+            return redirect('delivery_login')
+        else:
+            messages.error(request, "Invalid or used OTP.")
+            
+    return render(request, 'delivery_reset_password.html')
