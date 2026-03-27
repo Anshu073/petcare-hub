@@ -1040,3 +1040,137 @@ def client_change_password(request):
 
 def contact(request):
     return render(request, 'contact.html')
+
+import random
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.core.mail import send_mail
+from django.contrib.auth.hashers import make_password, check_password
+from test2.models import Customer  # apna app name aur model adjust kar lena
+
+
+# ─────────────────────────────────────────
+# FORGOT PASSWORD — Email enter karo
+# ─────────────────────────────────────────
+def forgot_password(request):
+
+    # Already logged in hai toh direct home pe bhej do
+    if request.session.get('cust_id'):
+        return redirect('home')
+
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+
+        # Email format basic check (HTML required bhi hai, ye extra layer hai)
+        if not email:
+            messages.error(request, 'Please enter your email address.')
+            return render(request, 'forgot_password.html')
+
+        try:
+            customer = Customer.objects.get(email=email)
+        except Customer.DoesNotExist:
+            # Security: exact error mat batao ki email registered hai ya nahi
+            messages.error(request, 'No account found with this email address.')
+            return render(request, 'forgot_password.html')
+
+        # 6 digit OTP generate karo
+        otp = str(random.randint(100000, 999999))
+
+        # OTP database mein save karo aur used flag reset karo
+        customer.otp = otp
+        customer.otp_used = 0
+        customer.save()
+
+        # Session mein email save karo (reset page pe kaam aayega)
+        request.session['reset_email'] = email
+
+        # Email bhejo
+        try:
+            send_mail(
+                subject='PetCareHub - Password Reset OTP',
+                message=(
+                    f'Hello {customer.cust_name},\n\n'
+                    f'Your OTP for password reset is: {otp}\n\n'
+                    f'This OTP is valid for one-time use only.\n\n'
+                    f'If you did not request this, please ignore this email.\n\n'
+                    f'- Team PetCareHub 🐾'
+                ),
+                from_email='vraj537github@gmail.com',
+                recipient_list=[email],
+                fail_silently=False,
+            )
+            messages.success(request, 'OTP sent successfully! Please check your email.')
+            return redirect('reset_password')
+
+        except Exception as e:
+            messages.error(request, 'Failed to send OTP. Please try again later.')
+            return render(request, 'forgot_password.html')
+
+    return render(request, 'forgot_password.html')
+
+
+# ─────────────────────────────────────────
+# RESET PASSWORD — OTP + New Password
+# ─────────────────────────────────────────
+def reset_password(request):
+
+    # Agar session mein email nahi hai toh forgot page pe bhej do
+    reset_email = request.session.get('reset_email')
+    if not reset_email:
+        messages.error(request, 'Session expired. Please start again.')
+        return redirect('forgot_password')
+
+    if request.method == 'POST':
+        otp_entered    = request.POST.get('otp', '').strip()
+        new_password   = request.POST.get('new_password', '').strip()
+        confirm_password = request.POST.get('confirm_password', '').strip()
+
+        # ── Server-side Validations ──────────────────────────────
+
+        # 1. OTP format check
+        if not otp_entered.isdigit() or len(otp_entered) != 6:
+            messages.error(request, 'OTP must be exactly 6 digits.')
+            return render(request, 'reset_password.html')
+
+        # 2. Password length
+        if len(new_password) < 8:
+            messages.error(request, 'Password must be at least 8 characters long.')
+            return render(request, 'reset_password.html')
+
+        # 3. Passwords match
+        if new_password != confirm_password:
+            messages.error(request, 'Passwords do not match. Please try again.')
+            return render(request, 'reset_password.html')
+
+        # ── Database Checks ──────────────────────────────────────
+
+        try:
+            customer = Customer.objects.get(email=reset_email)
+        except Customer.DoesNotExist:
+            messages.error(request, 'Invalid session. Please start again.')
+            return redirect('forgot_password')
+
+        # 4. OTP already used check
+        if customer.otp_used == 1:
+            messages.error(request, 'This OTP has already been used. Please request a new one.')
+            return redirect('forgot_password')
+
+        # 5. OTP match check
+        if customer.otp != otp_entered:
+            messages.error(request, 'Invalid OTP. Please enter the correct OTP.')
+            return render(request, 'reset_password.html')
+
+        # ── All Good: Password Reset ─────────────────────────────
+
+        customer.password = make_password(new_password)  # Hashed password save karo
+        customer.otp_used = 1                             # OTP use ho gaya, block karo
+        customer.otp = None                               # OTP clear karo (optional but cleaner)
+        customer.save()
+
+        # Session reset email clear karo
+        del request.session['reset_email']
+
+        messages.success(request, 'Password reset successful! Please login with your new password.')
+        return redirect('login1')
+
+    return render(request, 'reset_password.html')

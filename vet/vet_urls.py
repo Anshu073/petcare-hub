@@ -8,8 +8,8 @@ urlpatterns = [
     path('request_removal/', vet_views.request_removal, name='request_removal'),
     path('check-vet-status/', vet_views.check_vet_status, name='check_vet_status'),
     path('vet-logout/', vet_views.vet_logout, name='vet_logout'),
-    path('vet-forgot-password/', vet_views.vet_forgot_password, name='vet_forgot_password'),
-    path('vet-reset-password/', vet_views.vet_reset_password, name='vet_reset_password'),
+    path('forgot-password/', vet_views.vet_forgot_password, name='vet_forgot_password_url'),
+    path('reset-password/', vet_views.vet_reset_password, name='vet_reset_password_url'),
     path('update-schedule/', vet_views.update_vet_schedule, name='update_vet_schedule'),
     path('vet_contact/',vet_views.vet_contact,name='vet_contact'),
 ]

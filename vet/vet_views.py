@@ -459,42 +459,72 @@ def vet_logout(request):
     if 'vet_id' in request.session: del request.session['vet_id']
     return redirect('vet_login')
 
+# - Corrected Vet Password Reset Logic
+
 def vet_forgot_password(request):
     if request.method == 'POST':
-        v_email = request.POST.get('email')
+        v_email = request.POST.get('email', '').strip()
         vet = Vet.objects.filter(email=v_email).first()
         if vet:
-            otp_val = str(random.randint(10000, 99999))
+            otp_val = str(random.randint(100000, 999999))
             request.session['reset_vet_email'] = v_email 
             vet.otp = otp_val
             vet.otp_used = 0 
             vet.save()
-            send_mail('Vet Portal: Password Reset OTP', f'Your OTP is: {otp_val}', settings.EMAIL_HOST_USER, [v_email])
-            return render(request, 'vet_reset_password.html')
+            
+            send_mail(
+                subject='PetCareHub - Vet Password Reset OTP',
+                message=(
+                    f'Hello Dr. {vet.vet_name},\n\n'
+                    f'Your OTP for Vet Dashboard password reset is: {otp_val}\n\n'
+                    f'This OTP is valid for one-time use only.\n\n'
+                    f'If you did not request this, please ignore this email.\n\n'
+                    f'- Team PetCareHub 🐾'
+                ),
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[v_email],
+                fail_silently=False,
+            )
+            messages.success(request, "OTP sent successfully! Please check your email.")
+            return redirect('vet_reset_password_url')
         else:
-            messages.error(request, "No vet account found with that email.")
-    return render(request, 'forgot_password.html')
+            messages.error(request, "No vet account found with this email.")
+    return render(request, 'vet_forgot_password.html')
 
 def vet_reset_password(request):
+    reset_email = request.session.get('reset_vet_email')
+    if not reset_email:
+        messages.error(request, 'Session expired. Please start again.')
+        return redirect('vet_forgot_password_url')
+
     if request.method == "POST":
-        e = request.session.get('reset_vet_email')
-        otp_entered = request.POST.get('otp')
-        new_pass = request.POST.get('password')
-        confirm_pass = request.POST.get('confirm-password')
+        otp_entered = request.POST.get('otp', '').strip()
+        # FIXED: Names matched with HTML
+        new_pass = request.POST.get('new_password', '').strip()
+        confirm_pass = request.POST.get('confirm_password', '').strip()
+
+        # 1. Match Check
         if new_pass != confirm_pass:
             messages.error(request, "Passwords do not match!")
             return render(request, 'vet_reset_password.html')
-        user = Vet.objects.filter(email=e, otp=otp_entered, otp_used=0).first()
+        
+        # 2. Regex Validation (8-16 chars, Uppercase, Lowercase, Number)
+        password_pattern = r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,16}$'
+        if not re.match(password_pattern, new_pass):
+            messages.error(request, "Password must be 8-16 characters with Uppercase, Lowercase, and a Number.")
+            return render(request, 'vet_reset_password.html')
+
+        user = Vet.objects.filter(email=reset_email, otp=otp_entered, otp_used=0).first()
         if user:
             user.password = make_password(new_pass)
             user.otp_used = 1  
-            user.otp = None 
             user.save()
             if 'reset_vet_email' in request.session: del request.session['reset_vet_email']
-            messages.success(request, "Your password has been updated! Please login.")
+            messages.success(request, "Password updated! Please login.")
             return redirect('vet_login')
         else:
             messages.error(request, "Invalid or already used OTP.")
+            
     return render(request, 'vet_reset_password.html')
 
 def vet_contact(request):
