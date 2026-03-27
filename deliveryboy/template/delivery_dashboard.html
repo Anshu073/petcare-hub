@@ -262,9 +262,6 @@
     {% endif %}
 
 </div>
-                    <button class="btn-brand-solid mb-4" data-bs-toggle="modal" data-bs-target="#editProfileModal">
-    <i class="fas fa-user-edit me-2"></i>Edit Profile
-</button>
                     
                     <div class="text-start">
                         <label class="small fw-bold mb-2">Set Availability Status:</label>
@@ -403,6 +400,18 @@
                             <button class="nav-link fw-bold px-4 py-2 rounded-pill shadow-sm"
                                     id="completed-tab" data-bs-toggle="pill" data-bs-target="#completed-pane" type="button">
                                 ✅ Completed ({{ completed_count }})
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link fw-bold px-4 py-2 rounded-pill shadow-sm"
+                                    id="editprofile-tab" data-bs-toggle="pill" data-bs-target="#editprofile-pane" type="button">
+                                ✏️ Edit Profile
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link fw-bold px-4 py-2 rounded-pill shadow-sm"
+                                    id="security-tab" data-bs-toggle="pill" data-bs-target="#security-pane" type="button">
+                                🔒 Security
                             </button>
                         </li>
                     </ul>
@@ -586,113 +595,102 @@
                             </div><!-- end completed scrollable -->
                         </div><!-- end completed tab pane -->
 
+                        <!-- Edit Profile Tab -->
+                        <div class="tab-pane fade" id="editprofile-pane">
+                            <h5 class="fw-bold mb-4">Edit Profile</h5>
+                            <form action="{% url 'delivery_dashboard' %}" method="POST" enctype="multipart/form-data" id="del-edit-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="edit_profile" value="1">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="small fw-bold mb-1">Full Name</label>
+                                        <input type="text" name="deliveryboy_name" id="del_name"
+                                               class="form-control rounded-pill"
+                                               value="{{ agent.deliveryboy_name }}" required>
+                                        <small id="del_name_err" class="text-danger d-none">Please enter a valid name (letters only, no repeated characters).</small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="small fw-bold mb-1">Contact No.</label>
+                                        <div class="input-group">
+                                            <input type="tel" name="contact" id="del_contact"
+                                                   class="form-control rounded-pill"
+                                                   value="{{ agent.contact }}" required maxlength="10">
+                                            <span class="input-group-text border-0 bg-transparent d-none" id="del_contact_tick">
+                                                <i class="fas fa-check-circle text-success"></i>
+                                            </span>
+                                        </div>
+                                        <small id="del_contact_err" class="text-danger d-none">Must be 10 digits starting with 6-9.</small>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="small fw-bold mb-1">Change Profile Photo</label>
+                                        <input type="file" name="profile_photo" id="del_photo"
+                                            class="form-control rounded-3"
+                                            accept="image/jpeg,image/png,image/jpg">
+                                        <small class="text-muted">Formats: JPG, PNG only. Max size: 2MB.</small>
+                                        <small id="del_photo_err" class="text-danger d-none">Only JPG/PNG allowed, max 2MB.</small>
+                                    </div>
+                                </div>
+                                <button type="submit" id="del_save_btn"
+                                        class="btn btn-primary w-100 rounded-pill py-2 fw-bold mt-4"
+                                        style="background-color: var(--brand-purple); border: none;">
+                                    Save Changes 🐾
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Security Tab -->
+                        <div class="tab-pane fade" id="security-pane">
+                            <div class="p-2">
+                                <h5 class="fw-bold mb-4" style="color: var(--brand-purple);">Security — Update Password</h5>
+                                <form action="{% url 'delivery_change_password' %}" method="POST" id="del-sec-form">
+                                    {% csrf_token %}
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <label class="small fw-bold mb-1">Current Password</label>
+                                            <input type="password" name="old_password" class="form-control rounded-pill" required>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="small fw-bold mb-1">New Password</label>
+                                            <div class="input-group">
+                                                <input type="password" name="new_password" id="del_new_p" class="form-control rounded-pill" required>
+                                                <button class="btn btn-outline-secondary rounded-pill ms-2" type="button"
+                                                        onclick="toggleDelPass('del_new_p', this)">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </div>
+                                            <div class="progress mt-2" style="height: 5px;">
+                                                <div id="del_strength_bar" class="progress-bar" style="width:0%"></div>
+                                            </div>
+                                            <small id="del_strength_text" class="text-muted">Password strength</small>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="small fw-bold mb-1">Confirm New Password</label>
+                                            <div class="input-group">
+                                                <input type="password" name="confirm_password" id="del_conf_p" class="form-control rounded-pill" required>
+                                                <button class="btn btn-outline-secondary rounded-pill ms-2" type="button"
+                                                        onclick="toggleDelPass('del_conf_p', this)">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </div>
+                                            <small id="del_match_text" class="d-none mt-1"></small>
+                                        </div>
+                                    </div>
+                                    <button type="submit" id="del_pass_btn"
+                                            class="btn w-100 rounded-pill py-3 fw-bold mt-4"
+                                            style="background: var(--brand-purple); color: white; border: none;"
+                                            disabled>
+                                        Update Password 🔒
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
                     </div><!-- end tab content -->
                 </div>
             </div>
         </div>
     </div>
 </main>
-
-<div class="modal fade" id="editProfileModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content shadow border-0" style="border-radius: 30px;">
-            <div class="modal-header border-0 p-4 pb-0">
-                <h5 class="fw-bold">Update Profile</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            
-            <form action="{% url 'edit__profile' %}" method="POST" enctype="multipart/form-data">
-                {% csrf_token %}
-                <div class="modal-body p-4">
-                    
-                    <div class="mb-4 text-center">
-    <label class="small fw-bold d-block mb-3">Profile Photo</label>
-
-    {% if agent.deliveryboy_profile %}
-        <div class="mb-3">
-            <img src="{{ agent.deliveryboy_profile.url }}" 
-                 style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid var(--brand-purple);">
-            <p class="small text-muted mt-1">Current Photo</p>
-        </div>
-
-        <div class="mb-2 text-start">
-            <label class="small fw-bold text-muted d-block mb-1">Change Photo:</label>
-            <input type="file" name="profile_photo" id="fileInput" 
-                   class="form-control rounded-pill border-info" accept="image/*" 
-                   onchange="handlePhotoLogic('file')">
-        </div>
-
-        <div class="form-check d-flex justify-content-center align-items-center mt-3" id="removeContainer">
-            <input class="form-check-input me-2" type="checkbox" name="remove_photo" id="rmPhoto" 
-                   onchange="handlePhotoLogic('checkbox')">
-            <label class="form-check-label small fw-bold text-danger" for="rmPhoto" style="cursor: pointer;" id="rmLabel">
-                Remove Current Photo (Set Default) 🗑️
-            </label>
-        </div>
-    {% else %}
-        <div class="mb-2">
-            <input type="file" name="profile_photo" class="form-control rounded-pill border-info" accept="image/*">
-            <small class="text-muted d-block mt-2">No photo set. Upload one to personalize! 🐾</small>
-        </div>
-    {% endif %}
-</div>
-
-<script>
-function handlePhotoLogic(trigger) {
-    const fileInput = document.getElementById('fileInput');
-    const rmCheckbox = document.getElementById('rmPhoto');
-    const rmLabel = document.getElementById('rmLabel');
-
-    if (trigger === 'file') {
-        if (fileInput.files.length > 0) {
-            // Agar File select hui: Remove ko disable karo
-            rmCheckbox.checked = false;
-            rmCheckbox.disabled = true;
-            rmLabel.style.opacity = "0.4";
-            rmLabel.style.cursor = "not-allowed";
-        } else {
-            // Agar File hata di: Remove wapas enable
-            rmCheckbox.disabled = false;
-            rmLabel.style.opacity = "1";
-            rmLabel.style.cursor = "pointer";
-        }
-    } 
-    
-    else if (trigger === 'checkbox') {
-        if (rmCheckbox.checked) {
-            // Agar Remove tick kiya: File input ko disable karo
-            fileInput.value = ""; // Clear any selected file
-            fileInput.disabled = true;
-            fileInput.style.opacity = "0.4";
-            fileInput.style.cursor = "not-allowed";
-        } else {
-            // Agar Remove untick kiya: File input wapas enable
-            fileInput.disabled = false;
-            fileInput.style.opacity = "1";
-            fileInput.style.cursor = "pointer";
-        }
-    }
-}
-</script>
-
-                    <div class="mb-3">
-                        <label class="small fw-bold mb-1">Full Name</label>
-                        <input type="text" name="deliveryboy_name" class="form-control rounded-pill px-3" value="{{ agent.deliveryboy_name }}" required>
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="small fw-bold mb-1">Contact Number</label>
-                        <input type="tel" name="contact" class="form-control rounded-pill px-3" value="{{ agent.contact }}" required>
-                    </div>
-
-                    <button type="submit" class="btn-brand-solid py-3 shadow-sm" style="background: #894B8D; color: white; border-radius: 50px; width: 100%; border: none; font-weight: 700;">
-                        Save Changes 🐾
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 
 <!-- Pending Orders Block Modal -->
 <div class="modal fade" id="pendingBlockModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
@@ -745,6 +743,90 @@ function handlePhotoLogic(trigger) {
             });
         }, 5000); 
     });
+</script>
+
+<script>
+    function validateDelEditForm() {
+        const name = document.getElementById('del_name').value.trim();
+        const contact = document.getElementById('del_contact').value.trim();
+        const photoInput = document.getElementById('del_photo');
+
+        const nameValid = /^[a-zA-Z\s]+$/.test(name) && name.length > 1 && !/^(.)\1+$/i.test(name.replace(/\s/g,''));
+        const contactValid = /^[6-9]\d{9}$/.test(contact);
+
+        let photoValid = true;
+        if (photoInput && photoInput.files.length > 0) {
+            const file = photoInput.files[0];
+            const allowed = ['image/jpeg', 'image/jpg', 'image/png'];
+            const maxSize = 2 * 1024 * 1024;
+            photoValid = allowed.includes(file.type) && file.size <= maxSize;
+            document.getElementById('del_photo_err').classList.toggle('d-none', photoValid);
+        }
+
+        document.getElementById('del_name_err').classList.toggle('d-none', nameValid);
+        document.getElementById('del_contact_err').classList.toggle('d-none', contactValid);
+        document.getElementById('del_contact_tick').classList.toggle('d-none', !contactValid);
+
+        document.getElementById('del_name').classList.toggle('is-valid', nameValid);
+        document.getElementById('del_name').classList.toggle('is-invalid', !nameValid && name.length > 0);
+        document.getElementById('del_contact').classList.toggle('is-valid', contactValid);
+        document.getElementById('del_contact').classList.toggle('is-invalid', !contactValid && contact.length > 0);
+
+        document.getElementById('del_save_btn').disabled = !(nameValid && contactValid && photoValid);
+    }
+
+    document.getElementById('del_name').addEventListener('input', validateDelEditForm);
+    document.getElementById('del_contact').addEventListener('input', validateDelEditForm);
+    document.getElementById('del_photo').addEventListener('change', validateDelEditForm);
+    validateDelEditForm();
+</script>
+
+<script>
+    function validateDelSecurity() {
+        const newP = document.getElementById('del_new_p') ? document.getElementById('del_new_p').value : '';
+        const confP = document.getElementById('del_conf_p') ? document.getElementById('del_conf_p').value : '';
+        let strength = 0;
+        if (newP.length >= 8) strength++;
+        if (/[A-Z]/.test(newP)) strength++;
+        if (/[0-9]/.test(newP)) strength++;
+        if (/[!@#$%^&*]/.test(newP)) strength++;
+        const bar = document.getElementById('del_strength_bar');
+        const text = document.getElementById('del_strength_text');
+        if (bar) {
+            const colors = ['','bg-danger','bg-warning','bg-info','bg-success'];
+            const labels = ['','Weak','Fair','Good','Strong'];
+            bar.className = 'progress-bar ' + (colors[strength] || '');
+            bar.style.width = (strength * 25) + '%';
+            text.textContent = newP.length ? (labels[strength] || '') : 'Password strength';
+        }
+        const isMatch = newP === confP && confP.length > 0;
+        const matchEl = document.getElementById('del_match_text');
+        if (matchEl && confP.length) {
+            matchEl.classList.remove('d-none');
+            matchEl.textContent = isMatch ? 'Passwords match ✓' : 'Passwords do not match';
+            matchEl.style.color = isMatch ? 'green' : 'red';
+        } else if (matchEl) matchEl.classList.add('d-none');
+        if (document.getElementById('del_pass_btn'))
+            document.getElementById('del_pass_btn').disabled = !(strength >= 2 && isMatch);
+    }
+
+    function toggleDelPass(id, btn) {
+        const inp = document.getElementById(id);
+        const isText = inp.type === 'text';
+        inp.type = isText ? 'password' : 'text';
+        btn.innerHTML = isText ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+    }
+
+    ['del_name','del_contact'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', validateDelEditForm);
+    });
+    ['del_new_p','del_conf_p'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', validateDelSecurity);
+    });
+    validateDelEditForm();
+    validateDelSecurity();
 </script>
 </body>
 </html>

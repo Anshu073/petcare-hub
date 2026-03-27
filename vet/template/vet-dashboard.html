@@ -355,107 +355,119 @@
         
         <div class="row">
             <div class="col-md-6 mb-3">
-        <label class="small fw-bold mb-1">Display Name</label>
-        <input type="text" name="new_name" class="form-control rounded-pill" 
-               value="{{ vet.vet_name }}" required 
-               pattern="^[A-Za-z]+([\s\.][A-Za-z]+)*$" 
-               title="Name must start with a letter and can have single spaces between words.">
-        <div class="invalid-feedback ps-3" style="font-size: 10px;">Please enter a valid name (No leading/trailing spaces).</div>
-    </div>
+                <label class="small fw-bold mb-1">Display Name</label>
+                <input type="text" name="new_name" id="v_name"
+                    class="form-control rounded-pill" 
+                    value="{{ vet.vet_name }}" required>
+                <small id="v_name_err" class="text-danger d-none">Please enter a valid name (letters only, no repeated characters).</small>
+            </div>
 
             <div class="col-md-6 mb-3">
                 <label class="small fw-bold mb-1">Contact No.</label>
-                <input type="tel" name="new_contact" class="form-control rounded-pill" 
-                       value="{{ vet.contact }}" required 
-                       pattern="[6-9][0-9]{9}" 
-                       title="Please enter a valid 10-digit Indian mobile number."
-                       maxlength="10">
-                <div class="invalid-feedback ps-3" style="font-size: 10px;">Enter a valid 10-digit number starting with 6-9.</div>
+                <div class="input-group">
+                    <input type="tel" name="new_contact" id="v_contact"
+                        class="form-control rounded-pill" 
+                        value="{{ vet.contact }}" required maxlength="10">
+                    <span class="input-group-text border-0 bg-transparent d-none" id="v_contact_tick">
+                        <i class="fas fa-check-circle text-success"></i>
+                    </span>
+                </div>
+                <small id="v_contact_err" class="text-danger d-none">Must be 10 digits starting with 6-9.</small>
             </div>
         </div>
 
-       <div class="mb-3">
-    <label class="small fw-bold mb-1">Clinic Address</label>
-    <input type="text" name="new_address" class="form-control rounded-pill" 
-           value="{{ vet.address }}" required 
-           pattern="^[A-Za-z0-9]+([\s\-\,\/\.][A-Za-z0-9]+)*$" 
-           title="Address must start with a letter/number and can have single spaces between words.">
-    <div class="invalid-feedback ps-3" style="font-size: 10px;">Please enter a valid clinic address.</div>
-</div>
+        <div class="mb-3">
+            <label class="small fw-bold mb-1">Clinic Address</label>
+            <textarea name="new_address" id="v_address"
+                    class="form-control rounded-4" rows="2" required
+                    placeholder="Enter full clinic address (min 10 characters)">{{ vet.address }}</textarea>
+            <small id="v_address_err" class="text-danger d-none">Address must be at least 10 characters.</small>
+        </div>
 
         <div class="row">
             <div class="col-md-6 mb-3">
-                <label class="small fw-bold mb-1">Specialization</label>
-                <select name="new_specialization" class="form-select rounded-pill" required>
-                    <option value="" disabled>Choose...</option>
-                    <option value="Dog Specialist" {% if vet.specialization == "Dog Specialist" %}selected{% endif %}>Dog Specialist</option>
-                    <option value="Cat Specialist" {% if vet.specialization == "Cat Specialist" %}selected{% endif %}>Cat Specialist</option>
-                    <option value="General (Both)" {% if vet.specialization == "General (Both)" %}selected{% endif %}>General (Both)</option>
-                </select>
+                <label class="small fw-bold mb-1">Expertise</label>
+                <input type="text" value="{{ vet.specialization }}"
+                    class="form-control rounded-pill bg-light text-muted"
+                    readonly disabled>
+                <small class="text-muted ms-2">* Expertise cannot be changed.</small>
             </div>
 
             <div class="col-md-6 mb-3">
                 <label class="small fw-bold mb-1">Fees (₹)</label>
-                <input type="number" name="new_charges" class="form-control rounded-pill" 
-                       value="{{ vet.charges }}" required min="0" max="5000">
-                <div class="invalid-feedback ps-3" style="font-size: 10px;">Enter a valid amount (Max ₹5000).</div>
+                <input type="number" name="new_charges" id="v_charges"
+                    class="form-control rounded-pill" 
+                    value="{{ vet.charges }}" required min="99" max="5000">
+                <small id="v_charges_err" class="text-danger d-none">Fees must be between ₹99 and ₹5000.</small>
             </div>
         </div>
 
         <div class="mb-4">
-    <label class="small fw-bold mb-1" style="color: #894B8D;">New Profile Picture</label>
-    
-    <input type="file" name="new_profile" id="profilePicInput" 
-           class="form-control rounded-3" 
-           accept="image/jpeg, image/png, image/webp">
-    
-    <div id="fileError" class="text-danger ps-1 d-none" style="font-size: 10px;">
-        ⚠️ File too large (Max 2MB) or invalid format.
-    </div>
-</div>
+            <label class="small fw-bold mb-1" style="color: #894B8D;">New Profile Picture</label>
+            <input type="file" name="new_profile" id="v_photo"
+                class="form-control rounded-3" 
+                accept="image/jpeg,image/jpg,image/png">
 
-        <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold" style="background-color: #894B8D; border: none;">
+            <small id="v_photo_err" class="text-danger d-none">Only JPG/PNG allowed, max 2MB.</small>
+        </div>
+
+        <button type="submit" id="v_save_btn" 
+                class="btn btn-primary w-100 rounded-pill py-2 fw-bold" 
+                style="background-color: #894B8D; border: none; opacity: 0.5;" disabled>
             Update Records 🐾
         </button>
     </form>
 </div>
 
 <script>
-(function () {
-    'use strict'
+    function validateVetEditForm() {
+        const name    = document.getElementById('v_name').value.trim();
+        const contact = document.getElementById('v_contact').value.trim();
+        const address = document.getElementById('v_address').value.trim();
+        const charges = document.getElementById('v_charges').value.trim();
+        const photo   = document.getElementById('v_photo');
 
-    // 1. Bootstrap Form Validation (Tera Purana Script)
-    const forms = document.querySelectorAll('.needs-validation')
-    Array.prototype.slice.call(forms).forEach(function (form) {
-        form.addEventListener('submit', function (event) {
-            if (!form.checkValidity()) {
-                event.preventDefault()
-                event.stopPropagation()
-            }
-            form.classList.add('was-validated')
-        }, false)
-    })
+        const nameValid    = /^[a-zA-Z\s]+$/.test(name) && name.length > 1 && !/^(.)\1+$/i.test(name.replace(/\s/g,''));
+        const contactValid = /^[6-9]\d{9}$/.test(contact);
+        const addressValid = address.length >= 10;
+        const chargesVal   = parseInt(charges);
+        const chargesValid = !isNaN(chargesVal) && chargesVal >= 99 && chargesVal <= 5000;
 
-    // 2. Simple File Size Validation (No Preview)
-    const profileInput = document.getElementById('profilePicInput');
-    const fileError = document.getElementById('fileError');
+        let photoValid = true;
+        if (photo && photo.files.length > 0) {
+            const file = photo.files[0];
+            const allowed = ['image/jpeg', 'image/jpg', 'image/png'];
+            const maxSize = 2 * 1024 * 1024;
+            photoValid = allowed.includes(file.type) && file.size <= maxSize;
+            document.getElementById('v_photo_err').classList.toggle('d-none', photoValid);
+        }
 
-    if (profileInput) {
-        profileInput.addEventListener('change', function (event) {
-            const file = event.target.files[0];
+        document.getElementById('v_name_err').classList.toggle('d-none', nameValid);
+        document.getElementById('v_contact_err').classList.toggle('d-none', contactValid);
+        document.getElementById('v_address_err').classList.toggle('d-none', addressValid);
+        document.getElementById('v_charges_err').classList.toggle('d-none', chargesValid);
+        document.getElementById('v_contact_tick').classList.toggle('d-none', !contactValid);
 
-            if (file) {
-                // Check if file size > 2MB
-                if (file.size > 2 * 1024 * 1024) {
-                    fileError.classList.remove('d-none');
-                    this.value = ''; // Reset input so invalid file isn't sent
-                } else {
-                    fileError.classList.add('d-none');
-                }
-            }
-        });
+        document.getElementById('v_name').classList.toggle('is-valid', nameValid);
+        document.getElementById('v_name').classList.toggle('is-invalid', !nameValid && name.length > 0);
+        document.getElementById('v_contact').classList.toggle('is-valid', contactValid);
+        document.getElementById('v_contact').classList.toggle('is-invalid', !contactValid && contact.length > 0);
+        document.getElementById('v_address').classList.toggle('is-valid', addressValid);
+        document.getElementById('v_address').classList.toggle('is-invalid', !addressValid && address.length > 0);
+        document.getElementById('v_charges').classList.toggle('is-valid', chargesValid);
+        document.getElementById('v_charges').classList.toggle('is-invalid', !chargesValid && charges.length > 0);
+
+        const btn = document.getElementById('v_save_btn');
+        btn.disabled = !(nameValid && contactValid && addressValid && chargesValid && photoValid);
+        btn.style.opacity = btn.disabled ? '0.5' : '1';
     }
-})()
+
+    document.getElementById('v_name').addEventListener('input', validateVetEditForm);
+    document.getElementById('v_contact').addEventListener('input', validateVetEditForm);
+    document.getElementById('v_address').addEventListener('input', validateVetEditForm);
+    document.getElementById('v_charges').addEventListener('input', validateVetEditForm);
+    document.getElementById('v_photo').addEventListener('change', validateVetEditForm);
+    validateVetEditForm();
 </script>
 
                         <div class="tab-pane fade" id="pills-reviews" role="tabpanel">

@@ -139,15 +139,34 @@ def vendor_dashboard(request):
             except Exception as e:
                 messages.error(request, f"Upload failed: {e}")
 
-        # --- B. PROFILE UPDATE LOGIC (Tera purana code) ---
+        # --- B. PROFILE UPDATE LOGIC ---
         elif 'vendor_name' in request.POST:
+            import re
             v_name = request.POST.get('vendor_name', '').strip()
             v_contact = request.POST.get('contact', '').strip()
             v_address = request.POST.get('address', '').strip()
-            
+
+            # Name validation: only letters/spaces, no repeated single char (e.g. ddddd)
+            if not re.match(r'^[a-zA-Z\s]+$', v_name):
+                messages.error(request, "Name can only contain letters and spaces.", extra_tags='vendor_login')
+                return redirect('vendor_dashboard')
+            if re.match(r'^(.)\1+$', v_name.replace(' ', '')):
+                messages.error(request, "Please enter a valid name.", extra_tags='vendor_login')
+                return redirect('vendor_dashboard')
+
+            # Contact: 10 digits, starts with 6-9
+            if not re.match(r'^[6-9]\d{9}$', v_contact):
+                messages.error(request, "Contact must be 10 digits and start with 6-9.", extra_tags='vendor_login')
+                return redirect('vendor_dashboard')
+
+            # Contact duplicate check (exclude current vendor)
+            if Vendor.objects.filter(contact=v_contact).exclude(vendor_id=vendor.vendor_id).exists():
+                messages.error(request, "This contact number is already registered with another account.", extra_tags='vendor_login')
+                return redirect('vendor_dashboard')
+
             if 'vendor_profile' in request.FILES:
                 vendor.vendor_profile = request.FILES['vendor_profile']
-            
+
             vendor.vendor_name = v_name
             vendor.contact = v_contact
             vendor.address = v_address
@@ -367,6 +386,33 @@ def delete_product(request, prod_id):
         prod_name = product.prod_name
         product.delete()
         messages.success(request, f"'{prod_name}' has been permanently deleted. 🗑️", extra_tags='vendor_login')
+
+    return redirect('vendor_dashboard')
+
+
+def vendor_change_password(request):
+    if 'vendor_id' not in request.session:
+        return redirect('vendor_login')
+
+    from django.contrib.auth.hashers import check_password, make_password
+
+    vendor = get_object_or_404(Vendor, vendor_id=request.session['vendor_id'])
+
+    if request.method == 'POST':
+        old_pass = request.POST.get('old_password', '')
+        new_pass = request.POST.get('new_password', '')
+        confirm_pass = request.POST.get('confirm_password', '')
+
+        if not check_password(old_pass, vendor.password):
+            messages.error(request, "Current password is incorrect.", extra_tags='vendor_security')
+        elif new_pass != confirm_pass:
+            messages.error(request, "New passwords do not match.", extra_tags='vendor_security')
+        elif len(new_pass) < 6  or len(new_pass) > 12:
+            messages.error(request, "Password must be between 6 and 12 characters.")
+        else:
+            vendor.password = make_password(new_pass)
+            vendor.save()
+            messages.success(request, "Password updated successfully! 🔒", extra_tags='vendor_security')
 
     return redirect('vendor_dashboard')
 

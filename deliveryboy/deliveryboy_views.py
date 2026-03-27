@@ -94,6 +94,42 @@ def delivery_dashboard(request):
         messages.error(request, "Access Denied: Your account is no longer active. 🚫", extra_tags='danger')
         return redirect('delivery_login')
 
+    # --- POST: Edit Profile ---
+    if request.method == 'POST' and 'edit_profile' in request.POST:
+        import re
+        name = request.POST.get('deliveryboy_name', '').strip()
+        contact = request.POST.get('contact', '').strip()
+
+        if not name or not contact:
+            messages.error(request, "All fields are required!")
+        elif not re.match(r'^[a-zA-Z\s]+$', name):
+            messages.error(request, "Name can only contain letters and spaces.")
+        elif re.match(r'^(.)\1+$', name.replace(' ', '')):
+            messages.error(request, "Please enter a valid name.")
+        elif not re.match(r'^[6-9]\d{9}$', contact):
+            messages.error(request, "Contact must be 10 digits and start with 6-9.")
+        elif DeliveryBoy.objects.filter(contact=contact).exclude(deliveryboy_id=agent.deliveryboy_id).exists():
+            messages.error(request, "This contact number is already registered with another account.")
+        else:
+            agent.deliveryboy_name = name
+            agent.contact = contact
+
+            if 'profile_photo' in request.FILES:
+                from django.core.files.uploadedfile import InMemoryUploadedFile
+                photo = request.FILES['profile_photo']
+                allowed = ['image/jpeg', 'image/jpg', 'image/png']
+                if photo.content_type in allowed and photo.size <= 2 * 1024 * 1024:
+                    agent.deliveryboy_profile = photo
+                else:
+                    messages.error(request, "Only JPG/PNG allowed, max 2MB.")
+                    return redirect('delivery_dashboard')
+
+            agent.save()
+            request.session['delivery_name'] = agent.deliveryboy_name
+            messages.success(request, "Profile updated successfully! 🐾")
+
+        return redirect('delivery_dashboard')
+
     from test2.models import OrderDetail
 
     # Sirf is delivery boy ke assigned orders ke OrderDetails fetch karo
@@ -163,39 +199,7 @@ def delivery_dashboard(request):
     }
     return render(request, 'delivery_dashboard.html', context)
 
-# --- 4. FULL EDIT PROFILE (With Photo Remove Logic) ---
-def edit_profile(request):
-    if 'delivery_id' not in request.session:
-        return redirect('delivery_login')
-        
-    agent = DeliveryBoy.objects.get(pk=request.session['delivery_id'])
-    
-    if request.method == 'POST':
-        # Sirf wahi fields uthao jo form mein hain
-        name = request.POST.get('deliveryboy_name')
-        contact = request.POST.get('contact')
-        
-        if name and contact:
-            agent.deliveryboy_name = name
-            agent.contact = contact
-            
-            # Photo Logic: Change or Remove
-            if 'profile_photo' in request.FILES:
-                # Nayi photo upload ho rahi hai
-                agent.deliveryboy_profile = request.FILES['profile_photo']
-            elif request.POST.get('remove_photo'):
-                # Agar user ne 'Remove' checkbox tick kiya hai
-                agent.deliveryboy_profile = None
-                
-            agent.save()
-            request.session['delivery_name'] = agent.deliveryboy_name
-            messages.success(request, "Profile updated successfully! 🐾")
-        else:
-            messages.error(request, "All fields are required!")
-            
-    return redirect('delivery_dashboard')
-
-# --- 5. TOGGLE STATUS & ORDER UPDATES ---
+# --- 4. TOGGLE STATUS & ORDER UPDATES ---
 def toggle_status(request):
     if 'delivery_id' not in request.session:
         return redirect('delivery_login')
@@ -223,7 +227,7 @@ def toggle_status(request):
     messages.success(request, f"Status set to {'Online' if agent.is_available == 1 else 'Offline'}.")
     return redirect('delivery_dashboard')
 
-# --- 6. LOGOUT ---
+# --- 5. LOGOUT ---
 def delivery_logout(request):
     if 'delivery_id' in request.session:
         del request.session['delivery_id']
@@ -278,6 +282,31 @@ def update_delivery_status(request, order_id, new_status):
 
     order.save()
     messages.success(request, "Status Updated! 🐾")
+    return redirect('delivery_dashboard')
+
+def delivery_change_password(request):
+    if 'delivery_id' not in request.session:
+        return redirect('delivery_login')
+
+    from django.contrib.auth.hashers import check_password, make_password
+    agent = get_object_or_404(DeliveryBoy, pk=request.session['delivery_id'])
+
+    if request.method == 'POST':
+        old_pass = request.POST.get('old_password', '')
+        new_pass = request.POST.get('new_password', '')
+        confirm_pass = request.POST.get('confirm_password', '')
+
+        if not check_password(old_pass, agent.password):
+            messages.error(request, "Current password is incorrect.")
+        elif new_pass != confirm_pass:
+            messages.error(request, "New passwords do not match.")
+        elif len(new_pass) < 6 or len(new_pass) > 12:
+            messages.error(request, "Password must be between 6 and 12 characters.")
+        else:
+            agent.password = make_password(new_pass)
+            agent.save()
+            messages.success(request, "Password updated successfully! 🔒")
+
     return redirect('delivery_dashboard')
 
 def delivery_contact(request):

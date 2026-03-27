@@ -845,23 +845,46 @@ def edit_profile(request):
     customer = get_object_or_404(Customer, cust_id=cust_id)
     
     if request.method == "POST":
-        # Details update
-        customer.cust_name = request.POST.get('name')
-        customer.contact = request.POST.get('contact')
-        customer.address = request.POST.get('address')
-        
+        new_name    = request.POST.get('name', '').strip()
+        new_contact = request.POST.get('contact', '').strip()
+        new_address = request.POST.get('address', '').strip()
+
+        # 1. Name validation: only letters and spaces
+        if not re.match(r'^[a-zA-Z\s]+$', new_name):
+            messages.error(request, "Invalid Name: Please use alphabets only.")
+            return render(request, 'edit_profile.html', {'customer': customer})
+
+        # 2. Contact validation: exactly 10 digits, starts with 6-9
+        if not re.match(r'^[6-9]\d{9}$', new_contact):
+            messages.error(request, "Invalid Contact: Must be 10 digits and start with 6, 7, 8, or 9.")
+            return render(request, 'edit_profile.html', {'customer': customer})
+
+        # 3. Duplicate contact check: koi aur customer toh nahi use kar raha?
+        if Customer.objects.filter(contact=new_contact).exclude(cust_id=customer.cust_id).exists():
+            messages.error(request, "This mobile number is already registered with another account.")
+            return render(request, 'edit_profile.html', {'customer': customer})
+
+        # 4. Address validation: empty nahi hona chahiye
+        if not new_address:
+            messages.error(request, "Address cannot be empty.")
+            return render(request, 'edit_profile.html', {'customer': customer})
+
+        # All validations passed — update karo
+        customer.cust_name = new_name
+        customer.contact   = new_contact
+        customer.address   = new_address
+
         # Photo Remove Logic
         if request.POST.get('remove_photo_flag') == "1":
             customer.user_profile = None 
         
-        # Photo Upload (Isse file permanent folder mein save hogi)
+        # Photo Upload
         elif 'profile_pic' in request.FILES:
             customer.user_profile = request.FILES['profile_pic']
             
-        # DATABASE MEIN SAVE: Ye line file ko media root mein move kar degi
         customer.save() 
         
-        # Session Sync (Permanent URL uthane ke liye)
+        # Session Sync
         request.session['cust_name'] = customer.cust_name 
         if customer.user_profile:
             request.session['cust_profile'] = customer.user_profile.url
@@ -869,7 +892,7 @@ def edit_profile(request):
             request.session['cust_profile'] = f"{settings.STATIC_URL}assets/img/users/default.png"
             
         messages.success(request, "Profile updated successfully! 🐾")
-        return redirect('home')
+        return redirect('edit_profile')
 
     return render(request, 'edit_profile.html', {'customer': customer})
 
@@ -989,6 +1012,31 @@ def cancel_order(request, order_id):
         messages.success(request, "Your order has been cancelled successfully. 🐾")
 
     return redirect('my_orders')
+
+def client_change_password(request):
+    cust_id = request.session.get('cust_id')
+    if not cust_id:
+        return redirect('login1')
+
+    customer = get_object_or_404(Customer, cust_id=cust_id)
+
+    if request.method == 'POST':
+        old_pass     = request.POST.get('old_password', '')
+        new_pass     = request.POST.get('new_password', '')
+        confirm_pass = request.POST.get('confirm_password', '')
+
+        if not check_password(old_pass, customer.password):
+            messages.error(request, "Current password is incorrect.")
+        elif new_pass != confirm_pass:
+            messages.error(request, "New passwords do not match.")
+        elif len(new_pass) < 6  or len(new_pass) > 12:
+            messages.error(request, "Password must be between 6 and 12 characters.")
+        else:
+            customer.password = make_password(new_pass)
+            customer.save()
+            messages.success(request, "Password updated successfully! 🔒")
+
+    return redirect('edit_profile')
 
 def contact(request):
     return render(request, 'contact.html')

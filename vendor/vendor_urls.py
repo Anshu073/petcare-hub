@@ -12,4 +12,6 @@ urlpatterns = [
     path('vendor/update-qty/<int:prod_id>/', vendor_views.update_product_qty, name='update_product_qty'),
     path('vendor/delete-product/<int:prod_id>/', vendor_views.delete_product, name='delete_product'),
     path('contact/', vendor_views.vendor_contact, name='vendor_contact'),
+    path('vendor/change-password/', vendor_views.vendor_change_password, name='vendor_change_password'),
+
 ]

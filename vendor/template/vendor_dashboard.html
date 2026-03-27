@@ -197,7 +197,10 @@
                                 <button class="nav-link fw-bold px-4 py-2 rounded-pill shadow-sm" style="font-size: 13px;" id="pills-cancelled-tab" data-bs-toggle="pill" data-bs-target="#pills-cancelled" type="button">❌ Cancelled ({{ cancelled_count }})</button>
                             </li>
                             <li class="nav-item flex-shrink-0">
-                                <button class="nav-link fw-bold px-4 py-2 rounded-pill shadow-sm" style="font-size: 13px;" id="pills-edit-tab" data-bs-toggle="pill" data-bs-target="#pills-edit" type="button">⚙️ Edit Store</button>
+                                <button class="nav-link fw-bold px-4 py-2 rounded-pill shadow-sm" style="font-size: 13px;" id="pills-edit-tab" data-bs-toggle="pill" data-bs-target="#pills-edit" type="button">✏️ Edit Profile</button>
+                            </li>
+                            <li class="nav-item flex-shrink-0">
+                                <button class="nav-link fw-bold px-4 py-2 rounded-pill shadow-sm" style="font-size: 13px;" id="pills-security-tab" data-bs-toggle="pill" data-bs-target="#pills-security" type="button">🔒 Security</button>
                             </li>
                         </ul>
 
@@ -620,32 +623,161 @@
                             </div><!-- end cancelled tab -->
 
                             <div class="tab-pane fade" id="pills-edit">
-    <h5 class="fw-bold mb-4" class="fw-bold mb-4">Store Settings</h5>
-    <form action="{% url 'vendor_dashboard' %}" method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label class="small fw-bold mb-1">Store Name</label>
-                <input type="text" name="vendor_name" class="form-control rounded-pill" value="{{ vendor.vendor_name }}" required>
-            </div>
-            <div class="col-md-6 mb-3">
-                <label class="small fw-bold mb-1">Contact No.</label>
-                <input type="tel" name="contact" class="form-control rounded-pill" value="{{ vendor.contact }}" required pattern="[6-9][0-9]{9}">
-            </div>
-            <div class="col-md-12 mb-3">
-                <label class="small fw-bold mb-1">Shop Address</label>
-                <textarea name="address" class="form-control rounded-4" rows="2" required>{{ vendor.address }}</textarea>
-            </div>
-            <div class="col-md-12 mb-3">
-                <label class="small fw-bold mb-1">Change Profile Photo</label>
-                <input type="file" name="vendor_profile" class="form-control rounded-3" accept="image/*">
-            </div>
-        </div>
-        <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold" style="background-color: #894B8D; border: none;">
-            Save Changes 🐾
-        </button>
-    </form>
-</div>
+                                <h5 class="fw-bold mb-4">Edit Profile</h5>
+                                <form action="{% url 'vendor_dashboard' %}" method="POST" enctype="multipart/form-data" id="vendor-edit-form">
+                                    {% csrf_token %}
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="small fw-bold mb-1">Store Name</label>
+                                            <input type="text" name="vendor_name" id="v_name" class="form-control rounded-pill" value="{{ vendor.vendor_name }}" required>
+                                            <small id="v_name_err" class="text-danger d-none">Please enter a valid name (letters only, no repeated characters).</small>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="small fw-bold mb-1">Contact Number</label>
+                                            <div class="input-group">
+                                                <input type="tel" name="contact" id="v_contact" class="form-control rounded-pill" value="{{ vendor.contact }}" required maxlength="10">
+                                                <span class="input-group-text border-0 bg-transparent d-none" id="v_contact_tick"><i class="fas fa-check-circle text-success"></i></span>
+                                            </div>
+                                            <small id="v_contact_err" class="text-danger d-none">Must be 10 digits starting with 6-9.</small>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="small fw-bold mb-1">Shop Address</label>
+                                            <textarea name="address" id="v_address" class="form-control rounded-4" rows="2"
+                                                    minlength="10" required placeholder="Enter full shop address (min 10 characters)">{{ vendor.address }}</textarea>
+                                            <small id="v_address_err" class="text-danger d-none">Address must be at least 10 characters.</small>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="small fw-bold mb-1">Change Profile Photo</label>
+                                            <input type="file" name="vendor_profile" id="v_photo" class="form-control rounded-3"
+                                                accept="image/jpeg,image/png,image/jpg">
+                                            <small class="text-muted">Formats: JPG, PNG only. Max size: 2MB.</small>
+                                            <small id="v_photo_err" class="text-danger d-none">Only JPG/PNG allowed, max 2MB.</small>
+                                        </div>
+                                    </div>
+                                    <button type="submit" id="v_save_btn" class="btn btn-primary w-100 rounded-pill py-2 fw-bold mt-4" style="background-color: #894B8D; border: none;">
+                                        Save Changes 🐾
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div class="tab-pane fade" id="pills-security">
+                                <h5 class="fw-bold mb-4">Security — Update Password</h5>
+                                <form action="{% url 'vendor_change_password' %}" method="POST" id="vendor-sec-form">
+                                    {% csrf_token %}
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <label class="small fw-bold mb-1">Current Password</label>
+                                            <input type="password" name="old_password" class="form-control rounded-pill" required>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="small fw-bold mb-1">New Password</label>
+                                            <div class="input-group">
+                                                <input type="password" name="new_password" id="v_new_p" class="form-control rounded-pill" required>
+                                                <button class="btn btn-outline-secondary rounded-pill ms-2" type="button" onclick="togglePass('v_new_p', this)"><i class="fas fa-eye"></i></button>
+                                            </div>
+                                            <div class="progress mt-2" style="height: 5px;">
+                                                <div id="v_strength_bar" class="progress-bar" style="width:0%"></div>
+                                            </div>
+                                            <small id="v_strength_text" class="text-muted">Password strength</small>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="small fw-bold mb-1">Confirm New Password</label>
+                                            <div class="input-group">
+                                                <input type="password" name="confirm_password" id="v_conf_p" class="form-control rounded-pill" required>
+                                                <button class="btn btn-outline-secondary rounded-pill ms-2" type="button" onclick="togglePass('v_conf_p', this)"><i class="fas fa-eye"></i></button>
+                                            </div>
+                                            <small id="v_match_text" class="d-none mt-1"></small>
+                                        </div>
+                                    </div>
+                                    <button type="submit" id="v_pass_btn" class="btn btn-primary w-100 rounded-pill py-2 fw-bold mt-4" style="background-color: #894B8D; border: none;" disabled>
+                                        Update Password 🔒
+                                    </button>
+                                </form>
+                            </div>
+
+                            <script>
+                            // --- Vendor Edit Profile Validation ---
+                            function validateVendorEditForm() {
+                                const name = document.getElementById('v_name').value.trim();
+                                const contact = document.getElementById('v_contact').value.trim();
+                                const address = document.getElementById('v_address').value.trim();
+                                const photoInput = document.getElementById('v_photo');
+
+                                const nameValid = /^[a-zA-Z\s]+$/.test(name) && name.length > 1 && !/^(.)\1+$/i.test(name.replace(/\s/g,''));
+                                const contactValid = /^[6-9]\d{9}$/.test(contact);
+                                const addressValid = address.length >= 10;
+
+                                // Photo validation — only if file selected
+                                let photoValid = true;
+                                if (photoInput && photoInput.files.length > 0) {
+                                    const file = photoInput.files[0];
+                                    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+                                    const maxSize = 2 * 1024 * 1024; // 2MB
+                                    photoValid = allowedTypes.includes(file.type) && file.size <= maxSize;
+                                    document.getElementById('v_photo_err').classList.toggle('d-none', photoValid);
+                                }
+
+                                document.getElementById('v_name_err').classList.toggle('d-none', nameValid);
+                                document.getElementById('v_contact_err').classList.toggle('d-none', contactValid);
+                                document.getElementById('v_address_err').classList.toggle('d-none', addressValid);
+                                document.getElementById('v_contact_tick').classList.toggle('d-none', !contactValid);
+
+                                document.getElementById('v_name').classList.toggle('is-valid', nameValid);
+                                document.getElementById('v_name').classList.toggle('is-invalid', !nameValid && name.length > 0);
+                                document.getElementById('v_contact').classList.toggle('is-valid', contactValid);
+                                document.getElementById('v_contact').classList.toggle('is-invalid', !contactValid && contact.length > 0);
+                                document.getElementById('v_address').classList.toggle('is-valid', addressValid);
+                                document.getElementById('v_address').classList.toggle('is-invalid', !addressValid && address.length > 0);
+
+                                document.getElementById('v_save_btn').disabled = !(nameValid && contactValid && addressValid && photoValid);
+                            }
+
+                            // --- Vendor Security Validation ---
+                            function validateVendorSecurity() {
+                                const newP = document.getElementById('v_new_p').value;
+                                const confP = document.getElementById('v_conf_p').value;
+                                let strength = 0;
+                                if (newP.length >= 8) strength++;
+                                if (/[A-Z]/.test(newP)) strength++;
+                                if (/[0-9]/.test(newP)) strength++;
+                                if (/[!@#$%^&*]/.test(newP)) strength++;
+
+                                const bar = document.getElementById('v_strength_bar');
+                                const text = document.getElementById('v_strength_text');
+                                const colors = ['','bg-danger','bg-warning','bg-info','bg-success'];
+                                const labels = ['','Weak','Fair','Good','Strong'];
+                                bar.className = 'progress-bar ' + (colors[strength] || '');
+                                bar.style.width = (strength * 25) + '%';
+                                text.textContent = newP.length ? (labels[strength] || '') : 'Password strength';
+
+                                const isMatch = newP === confP && confP.length > 0;
+                                const matchEl = document.getElementById('v_match_text');
+                                if (confP.length) {
+                                    matchEl.classList.remove('d-none');
+                                    matchEl.textContent = isMatch ? 'Passwords match ✓' : 'Passwords do not match';
+                                    matchEl.style.color = isMatch ? 'green' : 'red';
+                                } else {
+                                    matchEl.classList.add('d-none');
+                                }
+                                document.getElementById('v_pass_btn').disabled = !(strength >= 2 && isMatch);
+                            }
+
+                            function togglePass(id, btn) {
+                                const inp = document.getElementById(id);
+                                const isText = inp.type === 'text';
+                                inp.type = isText ? 'password' : 'text';
+                                btn.innerHTML = isText ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+                            }
+
+                            document.getElementById('v_name').addEventListener('input', validateVendorEditForm);
+                            document.getElementById('v_contact').addEventListener('input', validateVendorEditForm);
+                            document.getElementById('v_address').addEventListener('input', validateVendorEditForm);
+                            document.getElementById('v_photo').addEventListener('change', validateVendorEditForm);
+                            document.getElementById('v_new_p').addEventListener('input', validateVendorSecurity);
+                            document.getElementById('v_conf_p').addEventListener('input', validateVendorSecurity);
+                            validateVendorEditForm();
+                            validateVendorSecurity();
+                            </script>
 
                             
 

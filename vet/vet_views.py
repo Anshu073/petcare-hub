@@ -183,6 +183,11 @@ def vet_dashboard(request):
                     messages.error(request, "Invalid 10-digit contact number starting with 6-9.")
                     return redirect('vet_dashboard')
 
+                # 2b. Duplicate contact check
+                if Vet.objects.filter(contact=new_contact).exclude(vet_id=vet.vet_id).exists():
+                    messages.error(request, "This mobile number is already registered with another account.")
+                    return redirect('vet_dashboard')
+
                 # 3. Address Validation (Letters, Numbers, Spaces, and symbols like - , / .)
                 if not re.match(r"^[A-Za-z0-9]+([\s\-\,\/\.][A-Za-z0-9]+)*$", new_address):
                     messages.error(request, "Address must be valid. Use letters, numbers, and basic symbols (-,/.). No leading/trailing spaces.")
@@ -191,8 +196,12 @@ def vet_dashboard(request):
                 # 4. Charges Validation
                 try:
                     charges_val = int(new_charges)
+                    if charges_val < 99 or charges_val > 5000:
+                        messages.error(request, "Fees must be between ₹99 and ₹5000.")
+                        return redirect('vet_dashboard')
                 except ValueError:
-                    charges_val = 0
+                    messages.error(request, "Invalid fees value.")
+                    return redirect('vet_dashboard')
 
                 # 5. Image Upload Logic
                 if 'new_profile' in request.FILES:
@@ -215,7 +224,6 @@ def vet_dashboard(request):
                 vet.vet_name = new_name
                 vet.contact = new_contact
                 vet.address = new_address
-                vet.specialization = new_specialization
                 vet.charges = charges_val
                 vet.save()
                 
