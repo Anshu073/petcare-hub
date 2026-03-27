@@ -32,7 +32,7 @@ class Customer(models.Model):
     address = models.CharField(max_length=200)
     user_profile = models.ImageField(upload_to='customer_profiles/', null=True, blank=True)    # Real-world ImageField
     is_admin = models.IntegerField(default=0) # Default: 0 (Normal User)
-    otp = models.CharField(max_length=10 , null=True)
+    otp = models.CharField(max_length=6 , null=True)
     otp_used = models.IntegerField(default=0)
     strike_count = models.IntegerField(default=0) # 0 to 3
     is_cash_blocked = models.BooleanField(default=False) # True if 3 strikes reached
@@ -87,7 +87,7 @@ class Vet(models.Model):
         status = models.IntegerField(default=0) # Default: 0 (Pending approval)
         charges = models.IntegerField()
         address = models.CharField(max_length=200)
-        otp = models.CharField(max_length=10, null=True)
+        otp = models.CharField(max_length=6, null=True)
         otp_used = models.IntegerField(default=0)
         open_time = models.TimeField(null=True, blank=True)
         close_time = models.TimeField(null=True, blank=True)
@@ -122,7 +122,8 @@ class Vendor(models.Model):
     email = models.EmailField(max_length=20, unique=True)
     contact = models.CharField(max_length=10)
     address = models.CharField(max_length=200)
-    
+    otp = models.CharField(max_length=6, null=True)
+    otp_used = models.IntegerField(default=0)
     vendor_profile = models.ImageField(upload_to='vendor_profiles/', null=True, blank=True)
     status = models.IntegerField(default=0)
 
@@ -140,6 +141,8 @@ class DeliveryBoy(models.Model):
     status = models.IntegerField(default=0) # 0:Pending, 1:Approved, 2:Rejected, 3:Restricted
     is_available = models.IntegerField(default=0) # Default: 0 (Offline)
     deliveryboy_profile = models.ImageField(upload_to='delivery_profiles/', null=True, blank=True)
+    otp = models.CharField(max_length=6 , null=True)
+    otp_used = models.IntegerField(default=0)
 
     class Meta:
         db_table = 'DELIVERY_BOY_TABLE'

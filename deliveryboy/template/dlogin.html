@@ -133,6 +133,18 @@
             position: absolute;
             filter: grayscale(100%) opacity(0.12);
         }
+        .pass-wrapper { position: relative; }
+.pass-wrapper input { padding-right: 52px !important; }
+.pass-toggle {
+    position: absolute; right: 18px; top: 50%; transform: translateY(-50%);
+    cursor: pointer; color: #aaa; border: none; background: none; transition: 0.2s; z-index: 5;
+}
+.pass-toggle:hover { color: var(--tg-brand-color); }
+
+.strength-bar-wrap { margin-top: 12px; display: none; }
+.strength-bar-bg { height: 6px; background: #f0f0f0; border-radius: 10px; overflow: hidden; }
+.strength-bar-fill { height: 100%; width: 0%; border-radius: 10px; transition: 0.4s ease; }
+.strength-label { font-size: 12px; margin-top: 6px; font-weight: 600; text-align: left; }
     </style>
 </head>
 
@@ -197,17 +209,22 @@
                                     <input type="email" name="email" placeholder=" Eg. xyz@gmail.com" required>
                                 </div>
 
-                                <div class="form-grp">
-                                    <label class="fw-bold" style="color: #555; display: block; margin-bottom: 5px;">Password</label>
-                                    <input type="password" name="password" placeholder="Enter Your Password" required>
-                                </div>
+<div class="form-grp">
+    <label class="fw-bold" style="color: #555; display: block; margin-bottom: 5px;">Password</label>
+    <div class="pass-wrapper">
+        <input type="password" name="password" id="loginPass" placeholder="Enter Your Password" required>
+        <button type="button" class="pass-toggle" onclick="togglePass('loginPass', this)">
+            <i class="fas fa-eye"></i>
+        </button>
+    </div>
+</div>
 
                                 <div class="d-flex align-items-center justify-content-between mb-25">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" id="remCheck">
                                         <label class="form-check-label small" for="remCheck" style="color: #666;">Remember Me</label>
                                     </div>
-                                    <a href="#" style="color: var(--tg-brand-color); font-size: 14px; font-weight: 700; text-decoration: none;">Forgot Password?</a>
+                                    <a href="{% url 'delivery_forgot_password_url' %}" style="color: var(--tg-brand-color); font-size: 14px; font-weight: 700; text-decoration: none;">Forgot Password?</a>
                                 </div>
 
                                 <button type="submit" class="btn-brand">Sign In 🐾</button>
@@ -238,6 +255,17 @@
             });
         }, 5000);
     });
+    function togglePass(fieldId, btn) {
+    const input = document.getElementById(fieldId);
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
+    }
+}
 </script>
 </body>
 </html>

@@ -11,5 +11,7 @@ urlpatterns = [
     path('update-status/<int:order_id>/<int:new_status>/', deliveryboy_views.update_delivery_status, name='update_status'),
     path('delivery_support/',deliveryboy_views.delivery_contact,name='delivery_support'),
     path('change-password/', deliveryboy_views.delivery_change_password, name='delivery_change_password'),
+    path('forgot-password/', deliveryboy_views.delivery_forgot_password, name='delivery_forgot_password_url'),
+    path('reset-password/', deliveryboy_views.delivery_reset_password, name='delivery_reset_password_url'),
 
 ]

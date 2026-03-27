@@ -117,6 +117,14 @@
             0%, 100% { transform: rotate(15deg); }
             50% { transform: rotate(25deg); }
         }
+        /* - Eye Toggle Styling for Login */
+.pass-wrapper input {
+    padding-right: 52px !important; /* Space for eye icon */
+}
+
+.pass-toggle:hover {
+    color: var(--tg-brand-color) !important; /* Purple hover */
+}
     </style>
 </head>
 
@@ -166,15 +174,22 @@
                                     <input type="email" name="email" placeholder="Enter Your Email" required>
                                 </div>
                                 <div class="form-grp">
-                                    <label class="fw-bold" style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Password</label>
-                                    <input type="password" name="password" placeholder="Enter Your Password" required>
-                                </div>
+    <label class="fw-bold" style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Password</label>
+    <div class="pass-wrapper" style="position: relative;">
+        <input type="password" name="password" id="vendorLoginPass" placeholder="Enter Your Password" required>
+        
+        <button type="button" class="pass-toggle" onclick="togglePass('vendorLoginPass', this)"
+                style="position: absolute; right: 18px; top: 50%; transform: translateY(-50%); border: none; background: none; color: #aaa; cursor: pointer; z-index: 5;">
+            <i class="fas fa-eye"></i>
+        </button>
+    </div>
+</div>
                                 <div class="form-check-group d-flex align-items-center justify-content-between mb-25">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="remember_me" id="remCheck">
                                         <label class="form-check-label" for="remCheck" style="font-size: 14px;">Remember Me</label>
                                     </div>
-                                    <a href="#" style="color: var(--tg-brand-color); font-size: 14px; font-weight: 700;">Forgot Password?</a>
+                                    <a href="{% url 'vendor_forgot_password_url' %}" style="color: var(--tg-brand-color); font-size: 14px; font-weight: 700;">Forgot Password?</a>
                                 </div>
                                 <button type="submit" class="btn-brand">Sign In 🐾</button>
                             </form>
@@ -201,6 +216,18 @@
                 });
             }, 5000);
         });
+        // - Simple Eye Toggle Function
+function togglePass(fieldId, btn) {
+    const input = document.getElementById(fieldId);
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
+    }
+}
     </script>
 </body>
 </html>
