@@ -497,6 +497,30 @@ def vet_reset_password(request):
             messages.error(request, "Invalid or already used OTP.")
     return render(request, 'vet_reset_password.html')
 
+def vet_change_password(request):
+    if 'vet_id' not in request.session:
+        return redirect('vet_login')
+
+    vet = get_object_or_404(Vet, vet_id=request.session['vet_id'])
+
+    if request.method == 'POST':
+        old_pass = request.POST.get('old_password', '')
+        new_pass = request.POST.get('new_password', '')
+        confirm_pass = request.POST.get('confirm_password', '')
+
+        if not check_password(old_pass, vet.password):
+            messages.error(request, "Current password is incorrect.", extra_tags='vet_security')
+        elif new_pass != confirm_pass:
+            messages.error(request, "New passwords do not match.", extra_tags='vet_security')
+        elif len(new_pass) < 6 or len(new_pass) > 12:
+            messages.error(request, "Password must be between 6 and 12 characters.", extra_tags='vet_security')
+        else:
+            vet.password = make_password(new_pass)
+            vet.save()
+            messages.success(request, "Password updated successfully! 🔒", extra_tags='vet_security')
+
+    return redirect('vet_dashboard')
+
 def vet_contact(request):
     if 'vet_id' not in request.session:
         return redirect('vet_login')
