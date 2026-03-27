@@ -11,5 +11,6 @@ urlpatterns = [
     path('forgot-password/', vet_views.vet_forgot_password, name='vet_forgot_password_url'),
     path('reset-password/', vet_views.vet_reset_password, name='vet_reset_password_url'),
     path('update-schedule/', vet_views.update_vet_schedule, name='update_vet_schedule'),
+    path('vet/change-password/', vet_views.vet_change_password, name='vet_change_password'),
     path('vet_contact/',vet_views.vet_contact,name='vet_contact'),
 ]
