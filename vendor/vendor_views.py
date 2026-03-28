@@ -265,6 +265,23 @@ def vendor_dashboard(request):
         )
     )
 
+    # Reviews: is vendor ke har product ke liye feedback fetch karo
+    from test2.models import Feedback
+    vendor_products = Product.objects.filter(vendor_id=vendor)
+    
+    # Har product ke liye uski reviews group karke bhejo
+    product_reviews = []
+    for prod in vendor_products:
+        reviews = Feedback.objects.filter(
+            prod_id=prod,
+            prod_id__isnull=False
+        ).select_related('cust_id').order_by('-feedback_date')
+        product_reviews.append({
+            'product': prod,
+            'reviews': reviews,
+            'review_count': reviews.count(),
+        })
+
     return render(request, 'vendor_dashboard.html', {
         'vendor': vendor,
         'categories': categories,
@@ -273,11 +290,12 @@ def vendor_dashboard(request):
         'order_groups': order_groups,
         'delivered_groups': delivered_groups,
         'delivered_count': delivered_count,
-        'cancelled_groups': cancelled_groups,   # NEW
-        'cancelled_count': cancelled_count,     # NEW
+        'cancelled_groups': cancelled_groups,
+        'cancelled_count': cancelled_count,
         'approved_boys': approved_boys,
         'total_sales': total_sales,
         'orders_fulfilled': orders_fulfilled,
+        'product_reviews': product_reviews,   # NEW
     })
 
 def update_db_status(request, db_id, new_status):

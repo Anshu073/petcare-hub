@@ -197,6 +197,9 @@
                                 <button class="nav-link fw-bold px-4 py-2 rounded-pill shadow-sm" style="font-size: 13px;" id="pills-cancelled-tab" data-bs-toggle="pill" data-bs-target="#pills-cancelled" type="button">❌ Cancelled ({{ cancelled_count }})</button>
                             </li>
                             <li class="nav-item flex-shrink-0">
+                                <button class="nav-link fw-bold px-4 py-2 rounded-pill shadow-sm" style="font-size: 13px;" id="pills-reviews-tab" data-bs-toggle="pill" data-bs-target="#pills-reviews" type="button">⭐ Reviews</button>
+                            </li>
+                            <li class="nav-item flex-shrink-0">
                                 <button class="nav-link fw-bold px-4 py-2 rounded-pill shadow-sm" style="font-size: 13px;" id="pills-edit-tab" data-bs-toggle="pill" data-bs-target="#pills-edit" type="button">✏️ Edit Profile</button>
                             </li>
                             <li class="nav-item flex-shrink-0">
@@ -622,8 +625,72 @@
                                 </div>
                             </div><!-- end cancelled tab -->
 
-                            <div class="tab-pane fade" id="pills-edit">
-                                <h5 class="fw-bold mb-4">Edit Profile</h5>
+                            <!-- REVIEWS TAB -->
+                            <div class="tab-pane fade" id="pills-reviews" role="tabpanel">
+                                <h5 class="fw-bold mb-3" style="color: #894B8D;">Product Reviews</h5>
+
+                                {% if product_reviews %}
+                                <!-- Product Dropdown -->
+                                <div class="mb-4">
+                                    <select class="form-select rounded-pill shadow-sm" id="productReviewDropdown" onchange="showProductReviews(this.value)" style="max-width: 350px;">
+                                        <option value="">-- Select a Product --</option>
+                                        {% for pr in product_reviews %}
+                                        <option value="prod_{{ pr.product.prod_id }}">
+                                            {{ pr.product.prod_name }} ({{ pr.review_count }} review{{ pr.review_count|pluralize }})
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <!-- Har product ka review section — default hidden -->
+                                {% for pr in product_reviews %}
+                                <div id="prod_{{ pr.product.prod_id }}" class="product-review-section" style="display: none;">
+                                    <div class="review-list" style="max-height: 450px; overflow-y: auto;">
+                                        {% for r in pr.reviews %}
+                                        <div class="p-3 mb-3 border rounded-4 bg-white shadow-sm d-flex gap-3">
+                                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 45px; height: 45px;">
+                                                <i class="fas fa-user text-muted"></i>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <div class="d-flex justify-content-between">
+                                                    <h6 class="fw-bold m-0">{{ r.cust_id.cust_name }}</h6>
+                                                    <small class="text-muted">{{ r.feedback_date|date:"d M, Y" }}</small>
+                                                </div>
+                                                <div class="text-warning small mb-1">
+                                                    {% for i in "12345"|make_list %}
+                                                        {% if forloop.counter <= r.rating %}★{% else %}☆{% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                                <p class="small text-muted mb-0">"{{ r.comments }}"</p>
+                                            </div>
+                                        </div>
+                                        {% empty %}
+                                        <div class="text-center py-5">
+                                            <i class="fas fa-star fa-2x text-muted opacity-25 mb-2 d-block"></i>
+                                            <p class="text-muted">No reviews yet for this product. 🐾</p>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+
+                                <!-- Default state: koi product select nahi -->
+                                <div id="no-product-selected" class="text-center py-5">
+                                    <i class="fas fa-star fa-2x text-muted opacity-25 mb-2 d-block"></i>
+                                    <p class="text-muted small">Select a product from the dropdown to view its reviews.</p>
+                                </div>
+
+                                {% else %}
+                                <div class="text-center py-5">
+                                    <i class="fas fa-box-open fa-2x text-muted opacity-25 mb-2 d-block"></i>
+                                    <p class="text-muted">No products found. Add products to see reviews. 🐾</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <!-- END REVIEWS TAB -->
+
+                            <div class="tab-pane fade" id="pills-edit" role="tabpanel">
+                                <h5 class="fw-bold mb-4" style="color: #894B8D;">Edit Profile</h5>
                                 <form action="{% url 'vendor_dashboard' %}" method="POST" enctype="multipart/form-data" id="vendor-edit-form">
                                     {% csrf_token %}
                                     <div class="row g-3">
@@ -694,6 +761,30 @@
                                     </button>
                                 </form>
                             </div>
+
+                            <script>
+                                // Product Reviews Dropdown Handler
+                                function showProductReviews(prodId) {
+                                    // Pehle sab hide karo
+                                    document.querySelectorAll('.product-review-section').forEach(function(el) {
+                                        el.style.display = 'none';
+                                    });
+
+                                    const noSelect = document.getElementById('no-product-selected');
+
+                                    if (prodId) {
+                                        // Selected product ka section dikhao
+                                        const target = document.getElementById(prodId);
+                                        if (target) {
+                                            target.style.display = 'block';
+                                        }
+                                        if (noSelect) noSelect.style.display = 'none';
+                                    } else {
+                                        // Koi select nahi — default message dikhao
+                                        if (noSelect) noSelect.style.display = 'block';
+                                    }
+                                }
+                            </script>
 
                             <script>
                             // --- Vendor Edit Profile Validation ---
