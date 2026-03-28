@@ -43,9 +43,18 @@ def update_vendor_status(request, v_id, action):
         vendor.status = 2  # 2 ka matlab Rejected
     elif action == 'restrict':
         vendor.status = 3  # 3 ka matlab Restricted/Blocked
-    
+    elif action == 'removal_request':
+        vendor.status = 4  # Admin ko dikhega — Removal Requested
+
     vendor.save() 
     # Status update hone ke baad wapas vendor_table refresh ho jayegi
+    return redirect('vendor_table')
+
+def delete_vendor(request, v_id):
+    vendor = get_object_or_404(Vendor, vendor_id=v_id)
+    # Physical deletion sirf tab allowed hai jab status 4 ho
+    if vendor.status == 4:
+        vendor.delete()
     return redirect('vendor_table')
 
 def deliveryboy_table(request):

@@ -111,7 +111,7 @@ def vet_login(request):
                 elif vet.status == 3:
                     messages.error(request, "You are restricted.")
                 elif vet.status == 4:
-                    messages.warning(request, "Your account removal is under process by Admin.")
+                    messages.error(request, "Your account removal is under process by Admin.")
                 else:
                     messages.warning(request, "Your account is waiting for approval.")
                 return redirect('vet_login')

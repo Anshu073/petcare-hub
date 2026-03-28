@@ -75,6 +75,11 @@
                 <div class="badge badge-dark mb-2">Restricted</div>
                 <br>
                 <a href="{% url 'update_vendor_status' item.vendor_id 'approve' %}" class="btn btn-primary btn-sm">Activate Again</a>
+            {% elif item.status == 4 %}
+                <div class="badge badge-dark mb-2">Removal Requested (4)</div>
+                <br>
+                <a href="{% url 'delete_vendor' item.vendor_id %}" class="btn btn-sm btn-dark"
+                    onclick="return confirm('Permanently delete this vendor?')">Confirm Delete</a>
             {% else %}
                 <div class="badge badge-danger">Rejected</div>
             {% endif %}

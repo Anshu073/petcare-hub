@@ -179,6 +179,14 @@
                             <li class="mb-2"><strong>Shop Address:</strong> {{ vendor.address }}</li>
                         </ul>
                     </div>
+                    <div class="dashboard-card p-4 bg-white shadow-sm rounded-4 mb-4">
+                        <div class="mt-1 text-center">
+                            <p class="small text-muted mb-2">No longer wish to sell on PetCareHub?</p>
+                            <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-4 fw-bold" onclick="confirmVendorRemoval()">
+                                <i class="fas fa-user-times me-2"></i>Request Permanent Removal
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="col-lg-8">
@@ -1272,5 +1280,32 @@
 
     <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+    function confirmVendorRemoval() {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Account deactivation request will be sent to Admin.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'Yes, Request Removal!',
+            html: `<p>Enter password to confirm:</p><input type="password" id="swal-input-password" class="swal2-input">`,
+            preConfirm: () => {
+                const password = Swal.getPopup().querySelector('#swal-input-password').value;
+                if (!password) { Swal.showValidationMessage('Password required!'); }
+                return password;
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const form = document.createElement('form');
+                form.method = 'POST'; form.action = "{% url 'vendor_request_removal' %}";
+                const csrf = document.createElement('input'); csrf.type='hidden'; csrf.name='csrfmiddlewaretoken'; csrf.value='{{ csrf_token }}';
+                const pass = document.createElement('input'); pass.type='hidden'; pass.name='confirm_password'; pass.value=result.value;
+                form.appendChild(csrf); form.appendChild(pass); document.body.appendChild(form); form.submit();
+            }
+        });
+    }
+    </script>
 </body>
 </html>

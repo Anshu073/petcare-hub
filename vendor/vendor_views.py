@@ -512,3 +512,18 @@ def vendor_reset_password(request):
             
     return render(request, 'vendor_reset_password.html')
 
+def vendor_request_removal(request):
+    if 'vendor_id' in request.session:
+        vendor = get_object_or_404(Vendor, vendor_id=request.session['vendor_id'])
+        if request.method == "POST":
+            v_pass = request.POST.get('confirm_password')
+            if check_password(v_pass, vendor.password):
+                vendor.status = 4  # 4 = Removal Requested
+                vendor.save()
+                del request.session['vendor_id']
+                del request.session['vendor_name']
+                messages.success(request, "Account removal request sent to Admin.")
+                return redirect('vendor_login')
+            else:
+                messages.error(request, "Invalid password! Removal request failed.", extra_tags='vendor_removal_req')
+    return redirect('vendor_dashboard')

@@ -15,5 +15,6 @@ urlpatterns = [
     path('vendor/change-password/', vendor_views.vendor_change_password, name='vendor_change_password'),
     path('vendor/forgot-password/', vendor_views.vendor_forgot_password, name='vendor_forgot_password_url'),
     path('vendor/reset-password/', vendor_views.vendor_reset_password, name='vendor_reset_password_url'),
+    path('vendor/request-removal/', vendor_views.vendor_request_removal, name='vendor_request_removal'),
 
 ]

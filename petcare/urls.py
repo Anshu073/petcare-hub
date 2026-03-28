@@ -36,6 +36,7 @@ urlpatterns = [
     path('update-status/<int:v_id>/<str:action>/', views.update_vet_status, name='update_vet_status'),
     path('vendor_table/',views.vendor_table,name='vendor_table'),
     path('update_vendor_status/<int:v_id>/<str:action>/', views.update_vendor_status, name='update_vendor_status'),
+    path('delete-vendor/<int:v_id>/', views.delete_vendor, name='delete_vendor'),
     path('deliveryboy_table/',views.deliveryboy_table,name='deliveryboy_table'),
     path('appointment_table/',views.appointment_table,name='appointment_table'),
     path('productcategory_table/',views.productcategory_table,name='productcategory_table'),
