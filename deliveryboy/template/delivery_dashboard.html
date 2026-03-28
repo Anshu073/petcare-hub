@@ -231,92 +231,77 @@
                 <div class="dashboard-card text-center p-4 bg-white rounded-4" 
      style="box-shadow: 0 15px 40px rgba(0,0,0,0.08);">
                     <img src="{% if agent.deliveryboy_profile %}{{ agent.deliveryboy_profile.url }}{% else %}{% static 'assets/img/users/default.png' %}{% endif %}" class="agent-profile-img mb-3" >
-                    <h3 class="vet-name-sidebar mb-1 fw-bold">{{ agent.deliveryboy_name }}</h3>
-                    <p class="text-muted mb-4"><i class="fas fa-phone-alt me-2"></i>{{ agent.contact }}</p>
+                    <h4 class="vet-name-sidebar mb-1 fw-bold">{{ agent.deliveryboy_name }}</h4>
+                    <p class="text-muted small" id="display-address">
+                        <i class="fas fa-map-marker-alt me-2 text-danger"></i><strong>{{ agent.vendor_id.area_id.area_name }}</strong>
+                    </p>
                     <div class="text-center mb-2">
 
-    {% if agent.is_available == 1 %}
-        <span style="
-            display:inline-block;
-            background:#198754;
-            color:white;
-            padding:3px 12px;
-            border-radius:50px;
-            font-size:12px;
-            font-weight:500;
-        ">
-            Online
-        </span>
-    {% else %}
-        <span style="
-            display:inline-block;
-            background:#393F61;
-            color:white;
-            padding:3px 12px;
-            border-radius:50px;
-            font-size:12px;
-            font-weight:500;
-        ">
-            Offline
-        </span>
-    {% endif %}
-
-</div>
-                    
-                    <div class="text-start">
-                        <label class="small fw-bold mb-2">Set Availability Status:</label>
-                        <form action="{% url 'toggle_status' %}" method="POST" id="toggleForm">
-                            {% csrf_token %}
-                            <select name="availability_status" class="form-select rounded-pill shadow-sm py-2 px-3 border-info" id="statusSelect" onchange="handleStatusChange(this)">
-                                <option value="1" {% if agent.is_available == 1 %}selected{% endif %}>Online (Available)</option>
-                                <option value="0" {% if agent.is_available == 0 %}selected{% endif %}>Offline (Not Available)</option>
-                            </select>
-                        </form>
-
-                        <script>
-                        function handleStatusChange(select) {
-                            if (select.value === '0') {
-                                {% if order_groups %}
-                                // Pending orders hain — block karo, modal dikhao
-                                select.value = '1';
-                                const modal = new bootstrap.Modal(document.getElementById('pendingBlockModal'));
-                                modal.show();
-                                return;
-                                {% endif %}
-                            }
-                            document.getElementById('toggleForm').submit();
-                        }
-                        </script>
-                        <!-- Pending OFD warning — sirf tab dikhao -->
                         {% if agent.is_available == 1 %}
-                        {% with pending_count=order_groups|length %}
-                        {% if pending_count > 0 %}
-                        <div class="mt-2 p-2 rounded-3 text-center" style="background: #fff3cd; border: 1px solid #ffc107;">
-                            <small class="text-warning fw-bold">
-                                ⚠️ {{ pending_count }} active order{{ pending_count|pluralize }} pending — please complete before going offline!
-                            </small>
-                        </div>
-                        {% endif %}
-                        {% endwith %}
+                        <span class="badge bg-success rounded-pill px-3">Online</span>
+                        {% else %}
+                        <span class="badge bg-secondary rounded-pill px-3" style="background-color: #393f61 !important;">Offline</span>
                         {% endif %}
                     </div>
                 </div>
+
+                <!-- Delivery Boy Details Card — vet jaisa -->
+                <div class="dashboard-card p-4 bg-white shadow-sm rounded-4 mb-4">
+                    <h5 class="fw-bold mb-3">Delivery Boy Details</h5>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2"><strong>Email:</strong> {{ agent.email }}</li>
+                        <li class="mb-2"><strong>Contact:</strong> {{ agent.contact }}</li>
+                    </ul>
+                </div>
+
                 <!-- Vendor Details Card -->
-                <div class="dashboard-card text-center p-4 bg-white rounded-4 mt-3"
+                <div class="dashboard-card p-4 bg-white shadow-sm rounded-4 mb-4">
+                    <h5 class="fw-bold mb-3">🏪 My Vendor</h5>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2"><strong>Name:</strong> {{ agent.vendor_id.vendor_name }}</li>
+                        <li class="mb-2"><strong>Email:</strong> {{ agent.vendor_id.email }}</li>
+                        <li class="mb-2"><strong>Contact:</strong> {{ agent.vendor_id.contact }}</li>
+                        <li class="mb-2"><strong>Shop Address:</strong> {{ agent.vendor_id.address }}</li>
+                        <li class="mb-2"><strong>Area:</strong> {{ agent.vendor_id.area_id.area_name }}</li>
+                    </ul>
+                </div>
+                <!-- Availability Status Card — vet dashboard jaisa -->
+                <div class="dashboard-card p-4 bg-white rounded-4 mt-3"
                     style="box-shadow: 0 15px 40px rgba(0,0,0,0.08);">
-                    <h6 class="fw-bold mb-3" style="color: #894B8D;">🏪 My Vendor</h6>
-                    {% if agent.vendor_id.vendor_profile %}
-                        <img src="{{ agent.vendor_id.vendor_profile.url }}"
-                            style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 3px solid #894B8D;" class="mb-2">
-                    {% else %}
-                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto mb-2"
-                            style="width: 70px; height: 70px; border: 2px solid #894B8D;">
-                            <i class="fas fa-store" style="color: #894B8D; font-size: 24px;"></i>
-                        </div>
+                    <label class="small fw-bold mb-1">Set Availability Status:</label>
+                    <form action="{% url 'toggle_status' %}" method="POST" id="toggleForm">
+                        {% csrf_token %}
+                        <select name="availability_status" class="form-select form-select-sm rounded-pill shadow-sm" id="statusSelect" onchange="handleStatusChange(this)">
+                            <option value="1" {% if agent.is_available == 1 %}selected{% endif %}>Online (Available)</option>
+                            <option value="0" {% if agent.is_available == 0 %}selected{% endif %}>Offline (Not Available)</option>
+                        </select>
+                    </form>
+
+                    <script>
+                    function handleStatusChange(select) {
+                        if (select.value === '0') {
+                            {% if order_groups %}
+                            select.value = '1';
+                            const modal = new bootstrap.Modal(document.getElementById('pendingBlockModal'));
+                            modal.show();
+                            return;
+                            {% endif %}
+                        }
+                        document.getElementById('toggleForm').submit();
+                    }
+                    </script>
+
+                    {% if agent.is_available == 1 %}
+                    {% with pending_count=order_groups|length %}
+                    {% if pending_count > 0 %}
+                    <div class="mt-2 p-2 rounded-3 text-center" style="background: #fff3cd; border: 1px solid #ffc107;">
+                        <small class="text-warning fw-bold">
+                            ⚠️ {{ pending_count }} active order{{ pending_count|pluralize }} pending — please complete before going offline!
+                        </small>
+                    </div>
                     {% endif %}
-                    <h6 class="fw-bold mb-1">{{ agent.vendor_id.vendor_name }}</h6>
-                    <p class="small text-muted mb-1"><i class="fas fa-phone-alt me-1"></i>{{ agent.vendor_id.contact }}</p>
-                    <p class="small text-muted mb-0"><i class="fas fa-map-marker-alt me-1 text-danger"></i>{{ agent.vendor_id.area_id.area_name }}</p>
+                    {% endwith %}
+                    {% endif %}
                 </div>
             </div>
 

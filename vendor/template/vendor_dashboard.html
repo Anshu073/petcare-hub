@@ -162,9 +162,9 @@
                     <div class="dashboard-card text-center p-4 bg-white shadow-sm rounded-4 mb-4">
                         <img src="/media/{{ vendor.vendor_profile }}" class="profile-img-main mb-3"
                             style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #894B8D;">
-                        <h4 class="fw-bold mb-1">{{ vendor.vendor_name }}</h4>
+                        <h4 class="vet-name-sidebar mb-1 fw-bold text-dark" id="display-name">{{ vendor.vendor_name }}</h4>
                         <p class="text-muted small">
-                            <i class="fas fa-map-marker-alt me-2 text-danger"></i>{{ vendor.area_id.area_name }}
+                            <i class="fas fa-map-marker-alt me-2 text-danger"></i><strong>{{ vendor.area_id.area_name }}</strong>
                         </p>
                         <div class="availability-badge mb-3">
                             <span class="badge bg-success rounded-pill px-3">Active Store</span>
@@ -172,11 +172,11 @@
                     </div>
 
                     <div class="dashboard-card p-4 bg-white shadow-sm rounded-4 mb-4">
-                        <h5 class="fw-bold mb-3" style="color: #894B8D;">Store Details</h5>
+                        <h5 class="fw-bold mb-3">Store Details</h5>
                         <ul class="list-unstyled small">
                             <li class="mb-2"><strong>Email:</strong> {{ vendor.email }}</li>
                             <li class="mb-2"><strong>Contact:</strong> {{ vendor.contact }}</li>
-                            <li class="mb-2"><strong>Address:</strong> {{ vendor.address }}</li>
+                            <li class="mb-2"><strong>Shop Address:</strong> {{ vendor.address }}</li>
                         </ul>
                     </div>
                 </div>
