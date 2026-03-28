@@ -36,6 +36,43 @@
 .admin-table-img:hover {
     transform: scale(1.1);
 }
+/* - Jab Sidebar Mini mode active ho */
+
+/* - Perfect alignment with menu icons */
+
+body.sidebar-mini .sidebar-brand {
+    /* - Padding-left se logo ko icons ki vertical line mein laya */
+    padding: 15px 0 10px 15px !important; 
+    display: flex !important;
+    justify-content: flex-start !important;
+    text-align: left !important;
+}
+
+body.sidebar-mini .sidebar-brand a div {
+    /* - Logo ko niche wale icons se exactly match karne ke liye margin */
+    margin-left: 2px !important; 
+    width: 40px !important; 
+    height: 40px !important;
+    border-radius: 50% !important;
+    background: #ffffff;
+    border: 3px solid #a05da7 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 2. Andar ki image ko circle mein fit karna */
+body.sidebar-mini .sidebar-brand a img {
+    height: 100% !important; /* Zoom hatakar 100% kiya taaki sirf icon dikhe */
+    width: 100% !important;
+    padding: 5px !important; /* Side spacing for icon clarity */
+    object-fit: contain !important;
+}
+
+/* Smooth transition ke liye toggle effect */
+.sidebar-brand a div, .sidebar-brand a img {
+    transition: all 0.3s ease-in-out !important;
+}
   </style>
 
   <!-- <link rel='shortcut icon' type='image/x-icon' href="{% static 'assets/img/favicon.i}" /> -->
