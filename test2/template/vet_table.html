@@ -119,9 +119,12 @@
                                                 {% elif item.status == 1 %}
                                                 <a href="{% url 'update_vet_status' item.vet_id 'restrict' %}"
                                                     class="btn btn-sm btn-warning">Restrict</a>
+                                                {% elif item.status == 3 %}
+                                                <a href="{% url 'update_vet_status' item.vet_id 'approve' %}"
+                                                    class="btn btn-sm btn-primary">Reactivate</a>
                                                 {% elif item.status == 4 %}
-                                                <a href="{% url 'delete_vet' item.vet_id %}" class="btn btn-sm btn-dark"
-                                                    onclick="return confirm('Permanently delete?')">Confirm</a>
+                                                <a href="{% url 'delete_vet' item.vet_id %}"
+                                                    class="btn btn-sm btn-dark">Confirm</a>
                                                 {% endif %}
                                             </td>
                                         </tr>

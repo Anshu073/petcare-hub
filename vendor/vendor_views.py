@@ -37,7 +37,7 @@ def vendor_register(request):
                 vendor_profile=v_profile,
                 status=0  
             )
-            messages.success(request, "Registration successful! Login after Admin approval.", extra_tags='vendor_reg')
+            messages.success(request, "Registration successful! Please wait for the Admin to verify your account..", extra_tags='vendor_login')
             # YAHAN SE REDIRECT KARNA ZAROORI HAI TAAKI NICHE WALA CODE RUN NA HO
             return redirect('vendor_login') 
 
@@ -77,6 +77,8 @@ def vendor_login(request):
                     messages.error(request, "Your registration request was rejected.", extra_tags='vendor_login')
                 elif vendor.status == 3:
                     messages.error(request, "Your account has been restricted by Admin.", extra_tags='vendor_login')
+                elif vendor.status == 4:
+                    messages.error(request, "Your account removal is under process by Admin.", extra_tags='vendor_login')
                 
             else:
                 messages.error(request, "Invalid Password!", extra_tags='vendor_login')
@@ -522,7 +524,7 @@ def vendor_request_removal(request):
                 vendor.save()
                 del request.session['vendor_id']
                 del request.session['vendor_name']
-                messages.success(request, "Account removal request sent to Admin.")
+                messages.success(request, "Account removal request sent to Admin.",extra_tags='vendor_login')
                 return redirect('vendor_login')
             else:
                 messages.error(request, "Invalid password! Removal request failed.", extra_tags='vendor_removal_req')
