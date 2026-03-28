@@ -35,9 +35,21 @@
             {% endfor %}
             {% endif %}
 
-            <div class="row mt-sm-4 background-image-body">
-                <div class="col-md-12 col-lg-12 box-center">
-                    <div class="row author-box position-relative">
+    <div class="row mt-sm-4" 
+            style="background-image: url('{% static 'assets/img/admin_background.png' %}'); 
+            /* - '100% 100%' use karne se poori image box ke andar khich kar fit ho jayegi */
+            background-size: 100% 100%; 
+            background-position: center; 
+            background-repeat: no-repeat; 
+            border-radius: 20px; 
+            min-height: 250px; 
+            display: flex;
+            align-items: center; 
+            padding: 30px;
+            margin: 0 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+            <div class="col-md-12 col-lg-12">
+            <div class="row author-box position-relative" style="background: transparent !important; border: none !important;">
                         <img id="image_preview" alt="image"
                             src="{% if user.user_profile %}{{ user.user_profile.url }}{% else %}{% static 'assets/img/users/default.png' %}{% endif %}"
                             class="rounded-circle author-box-picture box-center mt-4"
