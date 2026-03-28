@@ -98,6 +98,32 @@ class Vet(models.Model):
         
         class Meta:
             db_table = 'VET_TABLE'
+            
+@receiver(pre_save, sender=Vet)
+def auto_delete_vet_profile_on_change(sender, instance, **kwargs):
+    if not instance.pk:
+        return False
+    try:
+        old_file = sender.objects.get(pk=instance.pk).vet_profile
+    except sender.DoesNotExist:
+        return False
+    new_file = instance.vet_profile
+    if old_file and old_file != new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
+ 
+@receiver(pre_save, sender=Vet)
+def auto_delete_vet_doc_on_change(sender, instance, **kwargs):
+    if not instance.pk:
+        return False
+    try:
+        old_file = sender.objects.get(pk=instance.pk).documents
+    except sender.DoesNotExist:
+        return False
+    new_file = instance.documents
+    if old_file and old_file != new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
         
 class VetSchedule(models.Model):
     DAYS = [
@@ -129,6 +155,20 @@ class Vendor(models.Model):
 
     class Meta:
         db_table = 'VENDOR_TABLE'
+
+@receiver(pre_save, sender=Vendor)
+def auto_delete_vendor_file_on_change(sender, instance, **kwargs):
+    if not instance.pk:
+        return False
+    try:
+        old_file = sender.objects.get(pk=instance.pk).vendor_profile
+    except sender.DoesNotExist:
+        return False
+    new_file = instance.vendor_profile
+    if old_file and old_file != new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
+            
 #5
 class DeliveryBoy(models.Model):
     deliveryboy_id = models.AutoField(primary_key=True)
@@ -146,6 +186,20 @@ class DeliveryBoy(models.Model):
 
     class Meta:
         db_table = 'DELIVERY_BOY_TABLE'
+
+@receiver(pre_save, sender=DeliveryBoy)
+def auto_delete_deliveryboy_file_on_change(sender, instance, **kwargs):
+    if not instance.pk:
+        return False
+    try:
+        old_file = sender.objects.get(pk=instance.pk).deliveryboy_profile
+    except sender.DoesNotExist:
+        return False
+    new_file = instance.deliveryboy_profile
+    if old_file and old_file != new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
+            
 #6
 class Appointment(models.Model):
     appointment_id = models.AutoField(primary_key=True)
@@ -164,6 +218,20 @@ class Appointment(models.Model):
 
     class Meta:
         db_table = 'APPOINTMENT_TABLE'
+
+@receiver(pre_save, sender=Appointment)
+def auto_delete_appointment_report_on_change(sender, instance, **kwargs):
+    if not instance.pk:
+        return False
+    try:
+        old_file = sender.objects.get(pk=instance.pk).medical_report
+    except sender.DoesNotExist:
+        return False
+    new_file = instance.medical_report
+    if old_file and old_file != new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
+            
 #7
 class ProductCategory(models.Model):
     category_id = models.AutoField(primary_key=True)
@@ -185,6 +253,20 @@ class Product(models.Model):
 
     class Meta:
         db_table = 'PRODUCT_TABLE'
+
+@receiver(pre_save, sender=Product)
+def auto_delete_product_cover_on_change(sender, instance, **kwargs):
+    if not instance.pk:
+        return False
+    try:
+        old_file = sender.objects.get(pk=instance.pk).cover_img_path
+    except sender.DoesNotExist:
+        return False
+    new_file = instance.cover_img_path
+    if old_file and old_file != new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
+
 #9
 class Order(models.Model):
     order_id = models.AutoField(primary_key=True)
@@ -261,6 +343,19 @@ class Gallery(models.Model):
 
     class Meta:
         db_table = 'GALLERY_TABLE'
+
+@receiver(pre_save, sender=Gallery)
+def auto_delete_gallery_file_on_change(sender, instance, **kwargs):
+    if not instance.pk:
+        return False
+    try:
+        old_file = sender.objects.get(pk=instance.pk).image_path
+    except sender.DoesNotExist:
+        return False
+    new_file = instance.image_path
+    if old_file and old_file != new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
 
 # 15. WHISLIST_TABLE
 class Wishlist(models.Model):

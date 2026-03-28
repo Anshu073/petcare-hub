@@ -328,7 +328,7 @@ def forgotpass(request):
         admin_user = Customer.objects.filter(email=e, is_admin=1).first()
 
         if admin_user:
-            otp1 = random.randint(10000, 99999)
+            otp1 = random.randint(100000, 999999)
             request.session['temail'] = e 
             
             

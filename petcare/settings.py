@@ -137,8 +137,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'vraj537github@gmail.com'
-EMAIL_HOST_PASSWORD = 'nsnq gcde bqpv icwq'
+EMAIL_HOST_USER = 'petcarehub07@gmail.com'
+EMAIL_HOST_PASSWORD = 'xrrv zkbq pzsh oive'
 
 
 # settings.py ke ekdum niche add karein
