@@ -401,6 +401,7 @@ def vet_dashboard(request):
         'current_schedule': VetSchedule.objects.filter(vet_id=vet).order_by('day_of_week'),
         'reviews': Feedback.objects.filter(vet_id=vet, prod_id__isnull=True).order_by('-feedback_date'),
         'today': django_timezone.now().date(),
+        'now': django_timezone.now(),
         'is_locked': is_locked,  # Ye naya add kiya
         'completed_count': completed_count,
         'total_earnings': total_earnings, 

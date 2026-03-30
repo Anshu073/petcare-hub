@@ -292,7 +292,11 @@
                                                             {% csrf_token %}
                                                             <input type="hidden" name="app_id" value="{{ app.appointment_id }}">
                                                             <input type="hidden" name="manage_appointment" value="1">
-                                                            <button type="submit" name="action" value="5" class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold w-100">
+                                                            <button type="submit" name="action" value="5"
+                                                                class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold w-100 absent-btn"
+                                                                data-appt-time="{{ app.appointment_date.isoformat }}"
+                                                                style="opacity: 0.35; cursor: not-allowed;"
+                                                                disabled>
                                                                 Mark Absent
                                                             </button>
                                                         </form>
@@ -874,6 +878,22 @@
             const firstLoginModal = new bootstrap.Modal(document.getElementById('firstLoginModal'));
             firstLoginModal.show();
         {% endif %}
+
+        // Mark Absent — appointment + 1 hour ke baad enable karo
+        function checkAbsentButtons() {
+            const now = new Date();
+            document.querySelectorAll('.absent-btn').forEach(function(btn) {
+                const apptTime = new Date(btn.getAttribute('data-appt-time'));
+                const allowedAfter = new Date(apptTime.getTime() + 60 * 60 * 1000); // +1 hour
+                if (now >= allowedAfter) {
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    btn.style.cursor = 'pointer';
+                }
+            });
+        }
+        checkAbsentButtons();
+        setInterval(checkAbsentButtons, 60000); // har 1 minute check karo
     });
     
 </script>
