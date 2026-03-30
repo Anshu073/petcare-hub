@@ -112,6 +112,10 @@ def login(request):
             customer = Customer.objects.get(email=email_val)
             
             if check_password(password_val, customer.password):
+                
+                if customer.is_admin == 2:
+                    messages.error(request,'Your account has been restricted. Please contact support')
+                    return redirect('login1')
                 # Basic session data
                 request.session['cust_id'] = customer.cust_id
                 request.session['cust_name'] = customer.cust_name
