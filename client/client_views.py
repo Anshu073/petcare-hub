@@ -899,6 +899,48 @@ def edit_profile(request):
 def order_success(request):
     return render(request, 'order_success.html')
 
+# ✅ NEW VIEW
+from test2.models import AppointmentPayment  # import at top preferred
+
+def appointment_payment(request):
+    if request.method != "POST":
+        return redirect('my_appointments')
+
+    cust_id = request.session.get('cust_id')
+    if not cust_id:
+        return redirect('login1')
+
+    app_id             = request.POST.get('app_id')
+    razorpay_payment_id = request.POST.get('razorpay_payment_id')
+
+    customer    = get_object_or_404(Customer, cust_id=cust_id)
+    appointment = get_object_or_404(Appointment, appointment_id=app_id, cust_id=customer)
+
+    # Timer expiry server-side recheck
+    expiry_limit = timezone.now() - timedelta(minutes=30)
+    if appointment.payment_timer_start and appointment.payment_timer_start < expiry_limit:
+        appointment.appointment_status = 2  # Cancelled
+        appointment.save()
+        messages.error(request, "Payment window expired. Appointment cancelled.")
+        return redirect('my_appointments')
+
+    # Appointment update: Online confirmed
+    appointment.payment_mode       = 1  # Online
+    appointment.appointment_status = 3  # Confirmed
+    appointment.save()
+
+    # AppointmentPayment table mein proper record save karo
+    AppointmentPayment.objects.create(
+        appointment_id=appointment,
+        payment_mode='Online',
+        amount=appointment.charges,
+        payment_status=1,           # Paid
+        payment_token=razorpay_payment_id
+    )
+
+    messages.success(request, "Appointment confirmed! See you at the clinic. 🐾")
+    return redirect('order_success')
+
 def my_orders(request):
     # --- LOGIN CHECK ---
     cust_id = request.session.get('cust_id')

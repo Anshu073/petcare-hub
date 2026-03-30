@@ -311,12 +311,29 @@ def vet_dashboard(request):
                     if 'medical_report' in request.FILES:
                         appointment.medical_report = request.FILES['medical_report']
                         appointment.appointment_status = 4
+
+                        # Cash payment entry — sirf tab jab mode cash ho aur entry pehle se na ho
+                        if appointment.payment_mode == 2:
+                            from test2.models import AppointmentPayment
+                            already_exists = AppointmentPayment.objects.filter(
+                                appointment_id=appointment
+                            ).exists()
+                            if not already_exists:
+                                AppointmentPayment.objects.create(
+                                    appointment_id=appointment,
+                                    payment_mode='Cash',
+                                    amount=appointment.charges,
+                                    payment_status=1,  # Paid
+                                    payment_token='CASH'
+                                )
+
                         messages.success(request, "Report uploaded.")
                 
                 elif action == 5: # Absent
                     appointment.appointment_status = 5
                     client = appointment.cust_id
-                    if client:
+                    # Strike sirf cash payment wale ko — online ne pay kar diya tha
+                    if client and appointment.payment_mode != 1:
                         client.strike_count = (client.strike_count or 0) + 1
                         if client.strike_count >= 3:
                             client.is_cash_blocked = True

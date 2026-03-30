@@ -84,43 +84,20 @@
         <span class="payment-timer ms-1" data-start="{{ app.payment_timer_start.isoformat }}">--:--</span>
     </div>
 
-    <form action="{% url 'order_success' %}" method="POST" class="mb-2 rzp-custom-wrapper">
+    <form id="rzp-form-{{ app.appointment_id }}" 
+            method="POST" 
+            action="{% url 'appointment_payment' %}">
         {% csrf_token %}
         <input type="hidden" name="app_id" value="{{ app.appointment_id }}">
-        <input type="hidden" name="payment_mode" value="1">
-        
-        <script src="https://checkout.razorpay.com/v1/checkout.js"
-            data-key="rzp_test_SNQx37pa2es1Wb" 
-            data-amount="{{ app.amount_in_paise }}" 
-            data-currency="INR" 
-            data-order_id="{{ app.razorpay_order_id }}" 
-            data-buttontext="Pay Online (Razorpay)"
-            data-name="PetCare Hub" 
-            data-description="Doctor Consultation Fees"
-            data-image="{% static 'assets/img/logo/logo.png' %}"
-            data-prefill.name="{{ request.session.cust_name }}" 
-            data-theme.color="#0d6efd">
-        </script>
+        <input type="hidden" name="razorpay_payment_id" 
+            id="rzp-pid-{{ app.appointment_id }}">
 
-        <style>
-            /* Razorpay button ko "Pay at Clinic" jaisa symmetric banana */
-            .rzp-custom-wrapper .razorpay-payment-button {
-                background-color: #0d6efd !important; /* Professional Blue */
-                color: white !important;
-                border: none !important;
-                border-radius: 50px !important;
-                padding: 10px 20px !important; /* Sahi spacing ke liye */
-                font-weight: 700 !important;
-                font-size: 15px !important; /* Aapki demand: 15px */
-                width: 100% !important;
-                transition: 0.3s ease;
-                box-shadow: 0 4px 6px rgba(13, 110, 253, 0.2);
-            }
-            .rzp-custom-wrapper .razorpay-payment-button:hover {
-                background-color: #0b5ed7 !important;
-                transform: translateY(-1px);
-            }
-        </style>
+        <button type="button"
+                class="btn w-100 rounded-pill fw-bold text-white mb-2"
+                style="background-color:#0d6efd; font-size:15px; padding:10px 20px; border:none; transition:0.3s ease;"
+                onclick="openRazorpay('{{ app.appointment_id }}', {{ app.charges }})">
+            <i class="fas fa-credit-card me-1"></i> Pay Online (Razorpay)
+        </button>
     </form>
 
     <form method="POST">
@@ -240,21 +217,18 @@
     </div>
 </div>
 
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
+    // Timer (unchanged)
     function updateTimers() {
         const timers = document.querySelectorAll('.payment-timer');
         timers.forEach(timer => {
             const dateStr = timer.getAttribute('data-start');
-            if (!dateStr || dateStr === "None") {
-                timer.innerHTML = "00m 00s";
-                return;
-            }
-
+            if (!dateStr || dateStr === "None") { timer.innerHTML = "00m 00s"; return; }
             const startTime = new Date(dateStr).getTime();
-            const expiryTime = startTime + (30 * 60 * 1000); 
+            const expiryTime = startTime + (30 * 60 * 1000);
             const now = new Date().getTime();
             const distance = expiryTime - now;
-
             if (distance < 0) {
                 timer.innerHTML = "EXPIRED";
                 timer.parentElement.classList.remove('text-danger');
@@ -262,16 +236,40 @@
             } else {
                 const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-                
-                const mDisplay = minutes < 10 ? "0" + minutes : minutes;
-                const sDisplay = seconds < 10 ? "0" + seconds : seconds;
-                
-                timer.innerHTML = mDisplay + "m " + sDisplay + "s";
+                timer.innerHTML = (minutes < 10 ? "0"+minutes : minutes) + "m " + (seconds < 10 ? "0"+seconds : seconds) + "s";
             }
         });
     }
     setInterval(updateTimers, 1000);
     updateTimers();
+
+    // ✅ NEW: Razorpay custom handler (product order jaisa)
+    function openRazorpay(appId, charges) {
+        var options = {
+            "key": "rzp_test_SNQx37pa2es1Wb",
+            "amount": charges * 100,  // paise mein
+            "currency": "INR",
+            "name": "PetCareHub",
+            "description": "Doctor Consultation Fees",
+            "image": "{% static 'assets/img/logo/logo.png' %}",
+            "theme": { "color": "#0d6efd" },
+            "prefill": {
+                "name": "{{ request.session.cust_name }}"
+            },
+            "handler": function(response) {
+                // Payment success: ID hidden field mein daalo, form POST karo
+                document.getElementById('rzp-pid-' + appId).value = response.razorpay_payment_id;
+                document.getElementById('rzp-form-' + appId).submit();
+            },
+            "modal": {
+                "ondismiss": function() {
+                    alert('Payment cancelled. Appointment not confirmed.');
+                }
+            }
+        };
+        var rzp = new Razorpay(options);
+        rzp.open();
+    }
 </script>
 
 {% endblock %}
