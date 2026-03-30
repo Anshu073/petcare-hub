@@ -107,11 +107,11 @@ def vet_login(request):
                     messages.success(request, f"Welcome back, Dr. {vet.vet_name}!", extra_tags='login_home')
                     return redirect('vet_dashboard')
                 elif vet.status == 0:
-                    messages.error(request,"Your account is waiting for approval.")
+                    messages.error(request,"Your account is pending for Admin approval.")
                 elif vet.status == 2:
-                    messages.error(request, "Your approval is rejected.")
+                    messages.error(request, "Your approval request was rejected.")
                 elif vet.status == 3:
-                    messages.error(request, "You are restricted.")
+                    messages.error(request, "Your account has been restricted by Admin.")
                 elif vet.status == 4:
                     messages.error(request, "Your account removal is under process by Admin.")
                     

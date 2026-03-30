@@ -34,8 +34,8 @@
                                             <th>CONTACT</th>
                                             <th>OTP</th>
                                             <th>OTP_USED</th>
-                                            <th>STATUS & ACTION</th>
-
+                                            <th>STATUS</th>
+                                            <th>ACTION</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -60,30 +60,36 @@
                                             <td>{{ item.contact }}</td>
                                             <td>******</td>
                                             <td>******</td>
+                                            <!-- Status Column -->
                                             <td>
-            {% if item.status == 0 %}
-                <div class="badge badge-info mb-2">Pending Request</div>
-                <div class="d-flex">
-                    <a href="{% url 'update_vendor_status' item.vendor_id 'approve' %}" class="btn btn-success btn-sm mr-1">Accept</a>
-                    <a href="{% url 'update_vendor_status' item.vendor_id 'reject' %}" class="btn btn-danger btn-sm">Reject</a>
-                </div>
-            {% elif item.status == 1 %}
-                <div class="badge badge-success mb-2">Approved / Active</div>
-                <br>
-                <a href="{% url 'update_vendor_status' item.vendor_id 'restrict' %}" class="btn btn-warning btn-sm">Restrict Access</a>
-            {% elif item.status == 3 %}
-                <div class="badge badge-dark mb-2">Restricted</div>
-                <br>
-                <a href="{% url 'update_vendor_status' item.vendor_id 'approve' %}" class="btn btn-primary btn-sm">Activate Again</a>
-            {% elif item.status == 4 %}
-                <div class="badge badge-dark mb-2">Removal Requested (4)</div>
-                <br>
-                <a href="{% url 'delete_vendor' item.vendor_id %}" class="btn btn-sm btn-dark"
-                    onclick="return confirm('Permanently delete this vendor?')">Confirm Delete</a>
-            {% else %}
-                <div class="badge badge-danger">Rejected</div>
-            {% endif %}
-        </td>
+                                                {% if item.status == 0 %}
+                                                    <span class="badge badge-info">Pending Request</span>
+                                                {% elif item.status == 1 %}
+                                                    <span class="badge badge-success">Approved (1)</span>
+                                                {% elif item.status == 2 %}
+                                                    <span class="badge badge-danger">Rejected (2)</span>
+                                                {% elif item.status == 3 %}
+                                                    <span class="badge badge-warning">Restricted (3)</span>
+                                                {% elif item.status == 4 %}
+                                                    <span class="badge badge-dark">Removal Requested (4)</span>
+                                                {% endif %}
+                                            </td>
+
+                                            <!-- Action Column -->
+                                            <td class="align-middle text-center">
+                                                {% if item.status == 0 %}
+                                                    <a href="{% url 'update_vendor_status' item.vendor_id 'approve' %}" class="btn btn-sm btn-success">Accept</a>
+                                                    <br><br>
+                                                    <a href="{% url 'update_vendor_status' item.vendor_id 'reject' %}" class="btn btn-sm btn-danger">Reject</a>
+                                                {% elif item.status == 1 %}
+                                                    <a href="{% url 'update_vendor_status' item.vendor_id 'restrict' %}" class="btn btn-sm btn-warning">Restrict</a>
+                                                {% elif item.status == 3 %}
+                                                    <a href="{% url 'update_vendor_status' item.vendor_id 'approve' %}" class="btn btn-sm btn-primary">Reactivate</a>
+                                                {% elif item.status == 4 %}
+                                                    <a href="{% url 'delete_vendor' item.vendor_id %}" class="btn btn-sm btn-dark"
+                                                        onclick="return confirm('Permanently delete this vendor?')">Confirm Delete</a>
+                                                {% endif %}
+                                            </td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>

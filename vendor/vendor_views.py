@@ -74,7 +74,7 @@ def vendor_login(request):
                 elif vendor.status == 0:
                     messages.error(request, "Your account is pending for Admin approval.", extra_tags='vendor_login')
                 elif vendor.status == 2:
-                    messages.error(request, "Your registration request was rejected.", extra_tags='vendor_login')
+                    messages.error(request, "Your approval request was rejected.", extra_tags='vendor_login')
                 elif vendor.status == 3:
                     messages.error(request, "Your account has been restricted by Admin.", extra_tags='vendor_login')
                 elif vendor.status == 4:
