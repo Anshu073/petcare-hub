@@ -525,3 +525,17 @@ def delete_vet(request, v_id):
 def vet_schedule_table(request):
     items = VetSchedule.objects.all()
     return render(request, 'vet_schedule.html', {'items': items})
+
+def update_customer_status(request, c_id, action):
+    customer = get_object_or_404(Customer, cust_id=c_id)
+    
+    if customer.is_admin == 1:
+        return redirect('customer_table')
+
+    if action == 'restrict':
+        customer.is_admin = 2   # Restricted customer
+    elif action == 'reactivate':
+        customer.is_admin = 0   # Wapas normal customer
+
+    customer.save()
+    return redirect('customer_table')

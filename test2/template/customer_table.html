@@ -38,6 +38,7 @@
                                             <th>STRIKE_COUNT</th>
                                             <th>IS_CASH_BLOCKED</th>
                                             <th>PAYMENT_CREDIT</th>
+                                            <th>ACTION</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -67,6 +68,24 @@
                                             <td>{{ item.strike_count }}</td>
                                             <td>{{ item.is_cash_blocked }}</td>
                                             <td>{{ item.payment_credit }}</td>
+                                            <td>
+    {% if item.is_admin == 1 %}
+        <!-- Admin hai — sirf label dikhao, koi button nahi -->
+        <span class="badge badge-primary">Admin</span>
+    {% elif item.is_admin == 0 %}
+        <!-- Normal customer — restrict button dikhao -->
+        <a href="{% url 'update_customer_status' item.cust_id 'restrict' %}"
+           class="btn btn-sm btn-danger">
+           Restrict
+        </a>
+    {% elif item.is_admin == 2 %}
+        <!-- Already restricted — reactivate button dikhao -->
+        <a href="{% url 'update_customer_status' item.cust_id 'reactivate' %}"
+           class="btn btn-sm btn-success">
+           Reactivate
+        </a>
+    {% endif %}
+</td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>

@@ -67,6 +67,7 @@ urlpatterns = [
     path('logout/', views.logout, name='logout'),
     path('update_vet_status/<int:v_id>/<str:action>/', views.update_vet_status, name='update_vet_status'),
     path('delete_vet/<int:v_id>/', views.delete_vet, name='delete_vet'),
+    path('update-customer/<int:c_id>/<str:action>/', views.update_customer_status, name='update_customer_status'),
     path('client/',include('client.client_urls')),
     path('change_password/', views.change_password, name="change_password"),
     path('vet/', include('vet.vet_urls')),
