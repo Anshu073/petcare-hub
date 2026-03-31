@@ -56,7 +56,7 @@
                             style="width: 150px; height: 150px; object-fit: cover;">
 
                         <div class="photo-edit-btn" style="position: absolute; bottom: 10px; left: 55%;">
-                            <form method="POST" enctype="multipart/form-data" id="profile_pic_form">
+                            <form method="POST" enctype="multipart/form-data" id="profile_pic_form" action="{% url 'profile' %}">
                                 {% csrf_token %}
                                 <input type="file" name="user_profile" id="profile_image_input" class="d-none"
                                     accept="image/*">
