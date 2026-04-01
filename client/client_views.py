@@ -1268,3 +1268,6 @@ def submit_order_review(request, prod_id):
         return redirect('my_orders')
 
     return redirect('my_orders')
+
+def adoption(request):
+    return render(request,'adoption.html')
