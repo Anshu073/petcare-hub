@@ -219,8 +219,10 @@
         <li><a href="{% url 'register' %}" style="display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:10px; color:#444; font-size:14px; font-weight:600; text-decoration:none; transition:0.15s;"
             onmouseover="this.style.background='#f4eef5'; this.style.color='#894B8D';"
             onmouseout="this.style.background='transparent'; this.style.color='#444';">
-            🐾 Client
+            🐾 Customer
         </a></li>
+
+        {% if not request.session.cust_id %}
         <li><a href="{% url 'vet_register' %}" style="display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:10px; color:#444; font-size:14px; font-weight:600; text-decoration:none; transition:0.15s;"
             onmouseover="this.style.background='#f4eef5'; this.style.color='#894B8D';"
             onmouseout="this.style.background='transparent'; this.style.color='#444';">
@@ -236,6 +238,7 @@
             onmouseout="this.style.background='transparent'; this.style.color='#444';">
             🚴 Delivery Boy
         </a></li>
+        {% endif %}
     </ul>
 </li>
                                         <li class="header-btn Login-btn" style="position: relative;">
@@ -250,8 +253,9 @@
         <li><a href="{% url 'login1' %}" style="display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:10px; color:#444; font-size:14px; font-weight:600; text-decoration:none; transition:0.15s;"
             onmouseover="this.style.background='#f4eef5'; this.style.color='#894B8D';"
             onmouseout="this.style.background='transparent'; this.style.color='#444';">
-            🐾 Client
-        </a></li>
+            🐾 Customer </a></li>
+
+        {% if not request.session.cust_id %}
         <li><a href="{% url 'vet_login' %}" style="display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:10px; color:#444; font-size:14px; font-weight:600; text-decoration:none; transition:0.15s;"
             onmouseover="this.style.background='#f4eef5'; this.style.color='#894B8D';"
             onmouseout="this.style.background='transparent'; this.style.color='#444';">
@@ -267,6 +271,7 @@
             onmouseout="this.style.background='transparent'; this.style.color='#444';">
             🚴 Delivery Boy
         </a></li>
+        {% endif %}
     </ul>
 </li>
 <style>
