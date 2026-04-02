@@ -303,9 +303,16 @@
     document.getElementById('dateSelect').addEventListener('change', updateDynamicSlots);
 </script>
 
-    {% elif vet.availability_status == 2 %}
-        {% else %}
-        {% endif %}
+    {% else %}
+        <!-- Offline -->
+        <div class="text-center py-3">
+            <div class="p-4 rounded-4" style="background: #f8f9fa; border: 1px dashed #adb5bd;">
+                <i class="fas fa-moon fa-2x mb-2" style="color: #6c757d;"></i>
+                <h6 class="fw-bold mb-1" style="color: #6c757d;">Currently Offline</h6>
+                <p class="text-muted small mb-0">Dr. {{ vet.vet_name }} is currently offline and not accepting appointments. Please check back later. 🐾</p>
+            </div>
+        </div>
+    {% endif %}
 </div>
                             </div>
                         </div>

@@ -17,9 +17,9 @@ from django.db.models import Avg, Count # Ye do cheezein import karna mat bhooln
 def show(request):
     # Annotate se har doctor ke liye average rating aur total reviews calculate honge
     vets = Vet.objects.filter(status=1).annotate(
-        avg_rating=Avg('feedback__rating'), # Feedback table se rating ka average
-        review_count=Count('feedback')      # Total kitne feedbacks hain
-    )[:4]
+        avg_rating=Avg('feedback__rating'),
+        review_count=Count('feedback')
+    ).order_by('-avg_rating')[:4]  # Top rated 4 vets
     
     total_vets = Vet.objects.filter(status=1).count()
     total_products = Product.objects.count()
@@ -308,12 +308,16 @@ def cart_view(request):
     if not cust_id:
         return redirect('login1')
     
-    cart_items = Cart.objects.filter(cust_id=cust_id, status=1)
+    cart_items = Cart.objects.filter(cust_id=cust_id, status=1).select_related('prod_id')
     grand_total = sum(item.total_price for item in cart_items)
-    
+
+    # Koi bhi item out of stock hai?
+    has_out_of_stock = any(item.prod_id.qty == 0 for item in cart_items)
+
     return render(request, 'cart.html', {
         'cart_items': cart_items,
-        'grand_total': grand_total
+        'grand_total': grand_total,
+        'has_out_of_stock': has_out_of_stock,
     })
     
 def update_cart(request, cart_id, action):
@@ -335,6 +339,25 @@ def update_cart(request, cart_id, action):
 def remove_cart(request, cart_id):
     item = get_object_or_404(Cart, cart_id=cart_id)
     item.delete()
+    return redirect('cart')
+
+def move_to_wishlist(request, cart_id):
+    cust_id = request.session.get('cust_id')
+    if not cust_id:
+        return redirect('login1')
+
+    cart_item = get_object_or_404(Cart, cart_id=cart_id)
+    product = cart_item.prod_id
+    customer = get_object_or_404(Customer, cust_id=cust_id)
+
+    # Wishlist mein already nahi hai toh add karo
+    if not Wishlist.objects.filter(cust_id=customer, prod_id=product).exists():
+        Wishlist.objects.create(cust_id=customer, prod_id=product)
+
+    # Cart se hata do
+    cart_item.delete()
+
+    messages.success(request, f"'{product.prod_name}' moved to Wishlist! ❤️")
     return redirect('cart')
 
 def cart_count(request):
@@ -380,19 +403,26 @@ def checkout(request, prod_id=None):
 
     # --- PATH A: CART CHECKOUT (Multiple Products) ---
     else:
-        items = Cart.objects.filter(cust_id=customer, status=1)
+        items = Cart.objects.filter(cust_id=customer, status=1).select_related('prod_id')
         
         # Agar cart khali hai toh product page pe bhejo
         if not items:
             messages.info(request, "Your cart is empty!")
             return redirect('product')
-        
+
+        # Out of stock check — checkout se pehle
+        out_of_stock_items = [item for item in items if item.prod_id.qty == 0]
+        if out_of_stock_items:
+            names = ", ".join([i.prod_id.prod_name for i in out_of_stock_items])
+            messages.error(request, f"'{names}' is currently out of stock. Please remove it from cart before checkout.")
+            return redirect('cart')
+
         for item in items:
             checkout_items.append({
-                'product': item.prod_id,          # Product object (ForeignKey)
+                'product': item.prod_id,
                 'quantity': item.quantity,
                 'total_price': item.total_price,
-                'vendor': item.prod_id.vendor_id  # Product ka vendor
+                'vendor': item.prod_id.vendor_id
             })
         grand_total = sum(i['total_price'] for i in checkout_items)
 

@@ -20,11 +20,16 @@
                             </thead>
                             <tbody id="cart-page-body">
                                 {% for item in cart_items %}
-                                <tr>
+                                <tr {% if item.prod_id.qty == 0 %}style="background: #fff5f5;"{% endif %}>
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <img src="{{ item.prod_id.cover_img_path.url }}" width="60" class="me-3" style="border-radius: 5px; object-fit: cover; height: 60px;">
-                                            <span>{{ item.prod_id.prod_name }}</span>
+                                            <div>
+                                                <span>{{ item.prod_id.prod_name }}</span>
+                                                {% if item.prod_id.qty == 0 %}
+                                                <br><small class="text-danger fw-bold">⚠️ Out of Stock — please remove</small>
+                                                {% endif %}
+                                            </div>
                                         </div>
                                     </td>
                                     <td>₹{{ item.price }}</td>
@@ -37,9 +42,46 @@
                                     </td>
                                     <td class="fw-bold">₹{{ item.total_price }}</td>
                                     <td>
-                                        <a href="{% url 'remove_cart' item.cart_id %}" class="btn btn-danger btn-sm">
+                                        <button type="button"
+                                            class="btn btn-danger btn-sm"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#removeModal{{ item.cart_id }}">
                                             <i class="fas fa-trash"></i>
-                                        </a>
+                                        </button>
+
+                                        <!-- Remove/Wishlist Modal -->
+                                        <div class="modal fade" id="removeModal{{ item.cart_id }}" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered" style="max-width: 380px;">
+                                                <div class="modal-content rounded-4 border-0 shadow-lg p-2">
+                                                    <div class="modal-body text-center py-4 px-3">
+
+                                                        <!-- Product name -->
+                                                        <h6 class="fw-bold mb-1">{{ item.prod_id.prod_name }}</h6>
+                                                        <p class="text-muted small mb-4">What would you like to do?</p>
+
+                                                        <!-- Move to Wishlist -->
+                                                        <a href="{% url 'move_to_wishlist' item.cart_id %}"
+                                                            class="btn w-100 rounded-pill fw-bold mb-2"
+                                                            style="background-color: #894B8D; color: white; border: none;">
+                                                            <i class="fas fa-heart me-2"></i> Move to Wishlist
+                                                        </a>
+
+                                                        <!-- Remove -->
+                                                        <a href="{% url 'remove_cart' item.cart_id %}"
+                                                            class="btn btn-outline-danger w-100 rounded-pill fw-bold">
+                                                            <i class="fas fa-trash me-2"></i> Remove from Cart
+                                                        </a>
+
+                                                        <!-- Cancel -->
+                                                        <button type="button"
+                                                            class="btn btn-light w-100 rounded-pill fw-bold mt-2"
+                                                            data-bs-dismiss="modal">
+                                                            Cancel
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                                 {% empty %}
@@ -70,7 +112,14 @@
                         </div>
                         
                         {% if cart_items %}
-                        <a href="{% url 'checkout' %}" class="btn">Proceed to Checkout</a>
+                            {% if has_out_of_stock %}
+                            <button class="btn w-100" disabled
+                                style="background: #ccc; color: #666; cursor: not-allowed; border-radius: 50px;">
+                                ⚠️ Remove Out of Stock Items
+                            </button>
+                            {% else %}
+                            <a href="{% url 'checkout' %}" class="btn">Proceed to Checkout</a>
+                            {% endif %}
                         {% else %}
                         <a href="{% url 'product' %}" class="btn">Go Shopping</a>
                         {% endif %}
