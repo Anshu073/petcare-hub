@@ -49,4 +49,5 @@ urlpatterns = [
     path('forgot-password/', client_views.forgot_password, name='forgot_password'),
     path('reset-password/',  client_views.reset_password,  name='reset_password'),
     path('submit-order-review/<int:prod_id>/', client_views.submit_order_review, name='submit_order_review'),
+    path('adoption', client_views.adoption, name='adoption'),
 ]
