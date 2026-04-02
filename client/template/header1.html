@@ -207,10 +207,92 @@
                                     <ul class="list-wrap">
                                         <li class="header-btn"><a href="{% url 'my_appointments' %}" class="btn"><i
                                                     class="flaticon-calendar-1"></i>My Appointments</a></li>
-                                        <li class="header-btn Registration-btn"><a href="{% url 'register' %}"
-                                                class="btn">Registration</a></li>
-                                        <li class="header-btn Login-btn"><a href="{% url 'login1' %}"
-                                                class="btn">Login</a></li>
+                                        <li class="header-btn Registration-btn" style="position: relative;">
+    <a href="#" class="btn" onclick="toggleDrop('regDrop'); return false;">
+        Registration <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 4px;"></i>
+    </a>
+    <ul id="regDrop" style="
+        display: none; position: absolute; top: calc(100% + 8px); right: 0;
+        background: #fff; border: 2px solid #894B8D; border-radius: 14px;
+        padding: 6px; min-width: 200px; box-shadow: 0 10px 30px rgba(137,75,141,0.15);
+        z-index: 9999; list-style: none; margin: 0; animation: fadeDown 0.2s ease;">
+        <li><a href="{% url 'register' %}" style="display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:10px; color:#444; font-size:14px; font-weight:600; text-decoration:none; transition:0.15s;"
+            onmouseover="this.style.background='#f4eef5'; this.style.color='#894B8D';"
+            onmouseout="this.style.background='transparent'; this.style.color='#444';">
+            🐾 Client
+        </a></li>
+        <li><a href="{% url 'vet_register' %}" style="display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:10px; color:#444; font-size:14px; font-weight:600; text-decoration:none; transition:0.15s;"
+            onmouseover="this.style.background='#f4eef5'; this.style.color='#894B8D';"
+            onmouseout="this.style.background='transparent'; this.style.color='#444';">
+            🩺 Veterinarian
+        </a></li>
+        <li><a href="{% url 'vendor_register' %}" style="display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:10px; color:#444; font-size:14px; font-weight:600; text-decoration:none; transition:0.15s;"
+            onmouseover="this.style.background='#f4eef5'; this.style.color='#894B8D';"
+            onmouseout="this.style.background='transparent'; this.style.color='#444';">
+            🛒 Vendor
+        </a></li>
+        <li><a href="{% url 'delivery_register' %}" style="display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:10px; color:#444; font-size:14px; font-weight:600; text-decoration:none; transition:0.15s;"
+            onmouseover="this.style.background='#f4eef5'; this.style.color='#894B8D';"
+            onmouseout="this.style.background='transparent'; this.style.color='#444';">
+            🚴 Delivery Boy
+        </a></li>
+    </ul>
+</li>
+                                        <li class="header-btn Login-btn" style="position: relative;">
+    <a href="#" class="btn" onclick="toggleDrop('loginDrop'); return false;">
+        Login <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 4px;"></i>
+    </a>
+    <ul id="loginDrop" style="
+        display: none; position: absolute; top: calc(100% + 8px); right: 0;
+        background: #fff; border: 2px solid #894B8D; border-radius: 14px;
+        padding: 6px; min-width: 200px; box-shadow: 0 10px 30px rgba(137,75,141,0.15);
+        z-index: 9999; list-style: none; margin: 0; animation: fadeDown 0.2s ease;">
+        <li><a href="{% url 'login1' %}" style="display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:10px; color:#444; font-size:14px; font-weight:600; text-decoration:none; transition:0.15s;"
+            onmouseover="this.style.background='#f4eef5'; this.style.color='#894B8D';"
+            onmouseout="this.style.background='transparent'; this.style.color='#444';">
+            🐾 Client
+        </a></li>
+        <li><a href="{% url 'vet_login' %}" style="display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:10px; color:#444; font-size:14px; font-weight:600; text-decoration:none; transition:0.15s;"
+            onmouseover="this.style.background='#f4eef5'; this.style.color='#894B8D';"
+            onmouseout="this.style.background='transparent'; this.style.color='#444';">
+            🩺 Veterinarian
+        </a></li>
+        <li><a href="{% url 'vendor_login' %}" style="display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:10px; color:#444; font-size:14px; font-weight:600; text-decoration:none; transition:0.15s;"
+            onmouseover="this.style.background='#f4eef5'; this.style.color='#894B8D';"
+            onmouseout="this.style.background='transparent'; this.style.color='#444';">
+            🛒 Vendor
+        </a></li>
+        <li><a href="{% url 'delivery_login' %}" style="display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:10px; color:#444; font-size:14px; font-weight:600; text-decoration:none; transition:0.15s;"
+            onmouseover="this.style.background='#f4eef5'; this.style.color='#894B8D';"
+            onmouseout="this.style.background='transparent'; this.style.color='#444';">
+            🚴 Delivery Boy
+        </a></li>
+    </ul>
+</li>
+<style>
+    @keyframes fadeDown {
+        from { opacity: 0; transform: translateY(-8px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+</style>
+<script>
+    function toggleDrop(id) {
+        // Dono dropdown band karo pehle
+        ['regDrop','loginDrop'].forEach(function(d) {
+            if (d !== id) document.getElementById(d).style.display = 'none';
+        });
+        // Target toggle karo
+        var el = document.getElementById(id);
+        el.style.display = el.style.display === 'block' ? 'none' : 'block';
+    }
+    // Bahar click karne pe band ho jaye
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.Registration-btn') && !e.target.closest('.Login-btn')) {
+            document.getElementById('regDrop').style.display = 'none';
+            document.getElementById('loginDrop').style.display = 'none';
+        }
+    });
+</script>
      <li class="nav-item" style="list-style: none; margin-left: 20px; position: relative;">
     {% if request.session.cust_id %}
         
