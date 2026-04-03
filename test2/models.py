@@ -135,6 +135,7 @@ class VetSchedule(models.Model):
     day_of_week = models.IntegerField(choices=DAYS)
     open_time = models.TimeField()
     close_time = models.TimeField()
+    locked_until = models.DateTimeField(null=True, blank=True)  # Save hone ke 12 hrs baad unlock
 
     class Meta:
         db_table = 'VET_SCHEDULE_TABLE'

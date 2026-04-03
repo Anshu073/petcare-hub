@@ -132,6 +132,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from test2.models import Feedback, Vet, Appointment, VetSchedule
 from django.db.models import Sum
+from datetime import datetime, timedelta
+
 
 def vet_dashboard(request):
     # 1. Session check
@@ -144,6 +146,34 @@ def vet_dashboard(request):
 
     # Saari appointments ek baar mein uthao optimize karne ke liye
     base_query = Appointment.objects.filter(vet_id=vet)
+
+    # ✅ AUTO-REJECT: 30 min pehle tak vet ne respond nahi kiya to auto-reject
+    auto_reject_cutoff = django_timezone.now() + timedelta(minutes=30)
+    Appointment.objects.filter(
+        vet_id=vet,
+        appointment_status=0,
+        appointment_date__lte=auto_reject_cutoff
+    ).update(
+        appointment_status=2,
+        cancel_reason="Auto-rejected: Vet did not respond in time."
+    )
+
+    # ✅ OFFLINE AUTO-CANCEL: Vet offline hai aur appointment 3 hrs mein hai
+    if vet.availability_status == 0:
+        offline_cutoff = django_timezone.now() + timedelta(hours=3)
+        offline_conflicts = Appointment.objects.filter(
+            vet_id=vet,
+            appointment_status__in=[0, 1, 3, 6],
+            appointment_date__lte=offline_cutoff
+        )
+        offline_count = offline_conflicts.count()
+        if offline_count > 0:
+            offline_conflicts.update(
+                appointment_status=7,
+                cancel_reason="Vet is currently offline. Sorry for the inconvenience."
+            )
+            vet.cancel_count = (vet.cancel_count or 0) + offline_count
+            vet.save()
     
     # 4: Done, 2: Rejected by Vet, 7: Cancelled (Offline/Bulk), 5: Absent
     total_received = base_query.count()
@@ -346,12 +376,19 @@ def vet_dashboard(request):
             
             return redirect('vet_dashboard')
 
-    # 12 hours locking logic for UI alert
-    is_locked = False
-    if not vet.is_first_login and vet.last_timing_update:
-        diff = django_timezone.now() - vet.last_timing_update
-        if diff.total_seconds() < 43200: # 12 hours
-            is_locked = True
+    # Per-day lock status calculate karo (12 hrs per day)
+    now = django_timezone.now()
+    current_schedule_objs = VetSchedule.objects.filter(vet_id=vet)
+
+    per_day_locks = {}
+    for s in current_schedule_objs:
+        if s.locked_until and now < s.locked_until:
+            per_day_locks[s.day_of_week] = True
+        else:
+            per_day_locks[s.day_of_week] = False
+
+    # is_locked sirf tab True jab SAARE scheduled days locked hain
+    is_locked = bool(per_day_locks) and all(per_day_locks.values())
     
     time_slots = []
     # Subah 6:00 (6) se lekar Raat 12:00 AM (24) tak
@@ -384,11 +421,13 @@ def vet_dashboard(request):
     prefilled_days = []
     for i, day_name in days_list:
         existing = schedules_lookup.get(i)
+        is_day_locked = per_day_locks.get(i, False)
         prefilled_days.append({
             'index': i,
             'name': day_name,
             'open_val': existing.open_time.strftime('%H:%M:%S') if existing and existing.open_time else "",
-            'close_val': existing.close_time.strftime('%H:%M:%S') if existing and existing.close_time else ""
+            'close_val': existing.close_time.strftime('%H:%M:%S') if existing and existing.close_time else "",
+            'is_locked': is_day_locked
         })
     
     # --- GET DATA FETCHING ---
@@ -402,7 +441,8 @@ def vet_dashboard(request):
         'reviews': Feedback.objects.filter(vet_id=vet, prod_id__isnull=True).order_by('-feedback_date'),
         'today': django_timezone.now().date(),
         'now': django_timezone.now(),
-        'is_locked': is_locked,  # Ye naya add kiya
+        'is_locked': is_locked,
+        'per_day_locks': per_day_locks,
         'completed_count': completed_count,
         'total_earnings': total_earnings, 
         'total_received': total_received,
@@ -415,35 +455,59 @@ def vet_dashboard(request):
 def update_vet_schedule(request):
     if 'vet_id' not in request.session: return redirect('vet_login')
     vet = get_object_or_404(Vet, vet_id=request.session['vet_id'])
-    
+
     if request.method == "POST":
-        # 48 hours locking logic
-        if not vet.is_first_login and vet.last_timing_update:
-            diff = django_timezone.now() - vet.last_timing_update
-            if diff.total_seconds() < 43200:
-                messages.error(request, "Schedule is locked! You can update it again after 12 hours.")
-                return redirect('vet_dashboard')
-        
-        VetSchedule.objects.filter(vet_id=vet).delete()
+        from datetime import timedelta
+        now = django_timezone.now()
+        updated_any = False
+
         for i in range(7):
             open_t = request.POST.get(f'open_{i}')
             close_t = request.POST.get(f'close_{i}')
+            existing = VetSchedule.objects.filter(vet_id=vet, day_of_week=i).first()
+
             if open_t and close_t:
-                VetSchedule.objects.create(vet_id=vet, day_of_week=i, open_time=open_t, close_time=close_t)
-        
-        vet.is_first_login = False 
-        vet.last_timing_update = django_timezone.now()
-        
+                # Per-day lock check: 12 hrs
+                if existing and existing.locked_until and now < existing.locked_until:
+                    continue  # Yeh din locked hai — skip
+
+                locked_until = now + timedelta(hours=12)  # Ab se 12 hrs lock
+
+                if existing:
+                    existing.open_time = open_t
+                    existing.close_time = close_t
+                    existing.locked_until = locked_until
+                    existing.save()
+                else:
+                    VetSchedule.objects.create(
+                        vet_id=vet,
+                        day_of_week=i,
+                        open_time=open_t,
+                        close_time=close_t,
+                        locked_until=locked_until
+                    )
+                updated_any = True
+
+            else:
+                # Blank — agar unlocked hai toh delete karo
+                if existing:
+                    if existing.locked_until and now < existing.locked_until:
+                        continue  # Locked hai — skip
+                    existing.delete()
+
+        vet.is_first_login = False
+        vet.save()
+
         force_online = request.POST.get('force_online')
-        
         if force_online == "1":
             vet.availability_status = 1
+            vet.save()
             messages.success(request, "Schedule Updated & You are now Online! 🐾")
+        elif updated_any:
+            messages.success(request, "Schedule Updated! Each day is locked for 12 hours. 🔒")
         else:
-            messages.success(request, "Weekly Schedule Updated successfully!")
-        
-        vet.save()
-        
+            messages.warning(request, "No changes — selected days are locked for 12 hours.")
+
     return redirect('vet_dashboard')
 
 def request_removal(request):
