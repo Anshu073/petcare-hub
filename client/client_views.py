@@ -1341,3 +1341,6 @@ def submit_order_review(request, prod_id):
 
 def adoption(request):
     return render(request,'adoption.html')
+
+def developers(request):
+    return render(request,'developers.html')
