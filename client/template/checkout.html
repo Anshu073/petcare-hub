@@ -112,20 +112,24 @@
                     </div>
                 </div>
 
-                <div id="address-section" class="cart-pro-card">
-                    <h4 class="section-h">2. Delivery Address 📍</h4>
-                    <div class="row">
-                        <div class="col-md-6"><input type="text" id="ship-name" class="pay-field"
-                                placeholder="Full Name*" value="{{customer.cust_name }}"></div>
-                        <div class="col-md-6"><input type="tel" id="ship-phone" class="pay-field"
-                                placeholder="Phone Number*" value="{{ customer.contact }}"></div>
-                        <div class="col-12"><input type="text" id="ship-street" class="pay-field"
-                                placeholder="Street Address*" value="{{ customer.address }}"></div>
-                        <div class="col-md-5"><input type="text" class="pay-field" placeholder="City*"></div>
-                        <div class="col-md-4"><input type="text" class="pay-field" placeholder="State*"></div>
-                        <div class="col-md-3"><input type="text" class="pay-field" placeholder="Pincode*"></div>
-                    </div>
-                </div>
+                   <div class="cart-pro-card">
+    <h4 class="section-h">2. Delivery Address 📍</h4>
+
+    <div class="p-3" style="border:1px solid #eee; border-radius:10px;">
+        <h6>{{ customer.cust_name }}</h6>
+        <p class="mb-1">{{ customer.address }}</p>
+        <p class="mb-0">
+            {{ customer.area_id.area_name }} - {{ customer.area_id.pincode }}
+        </p>
+        <p>{{ customer.contact }}</p>
+    </div>
+
+    <div class="mt-3">
+        <a href="{% url 'edit_profile' %}" class="btn btn-outline-primary btn-sm">
+            Change Address
+        </a>
+    </div>
+</div>
 
                 <!-- =============================================
                     SECTION 3: SECURE PAYMENT
