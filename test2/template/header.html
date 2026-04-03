@@ -18,6 +18,24 @@
     href="{% static 'assets/bundles/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css' %}">
   <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
   <link rel="stylesheet" href="{% static 'assets/css/components.css' %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaina+2:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Ye add karo — sab elements pe override hoga */
+        th{
+            font-family: 'Baloo Bhaina 2', cursive !important;
+            font-size: medium;
+            font-weight: bold;
+        }
+        td{
+            font-family: 'Baloo Bhaina 2', cursive !important;
+            font-size: 15px;
+            font-weight: bold;
+            color: black;
+        }
+    </style>
   <!-- Custom style CSS -->
   <style>
     /* Jab sidebar chota (mini) ho, tab profile buttons ko hide kar do */
