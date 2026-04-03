@@ -18,6 +18,24 @@
     href="{% static 'assets/bundles/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css' %}">
   <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
   <link rel="stylesheet" href="{% static 'assets/css/components.css' %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaina+2:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Ye add karo — sab elements pe override hoga */
+        th{
+            font-family: 'Baloo Bhaina 2', cursive !important;
+            font-size: medium;
+            font-weight: bold;
+        }
+        td{
+            font-family: 'Baloo Bhaina 2', cursive !important;
+            font-size: 15px;
+            font-weight: bold;
+            color: black;
+        }
+    </style>
   <!-- Custom style CSS -->
   <style>
     /* Jab sidebar chota (mini) ho, tab profile buttons ko hide kar do */
@@ -73,6 +91,7 @@ body.sidebar-mini .sidebar-brand a img {
 .sidebar-brand a div, .sidebar-brand a img {
     transition: all 0.3s ease-in-out !important;
 }
+
   </style>
 
   <!-- <link rel='shortcut icon' type='image/x-icon' href="{% static 'assets/img/favicon.i}" /> -->
@@ -368,7 +387,7 @@ body.sidebar-mini .sidebar-brand a img {
     </div>
     <footer class="main-footer">
       <div class="footer-left">
-        Copyright &copy; 2026 <div class="bullet"></div> Design By <a href="#">PETCAREHUB_TEAM</a>
+        Copyright &copy; 2026 <div class="bullet"></div> Design By <a href="{% url 'developers' %}">PETCAREHUB_TEAM</a>
       </div>
       <div class="footer-right">
       </div>
@@ -412,6 +431,7 @@ body.sidebar-mini .sidebar-brand a img {
           }
 
           var table = $('#tableExport').DataTable({
+            scrollX: true,
             dom: 'Bfrtip',
             buttons: [
               { extend: 'copy', className: 'btn btn-primary btn-sm' },
