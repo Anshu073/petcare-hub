@@ -42,6 +42,7 @@ urlpatterns = [
     path('edit-profile/', client_views.edit_profile, name='edit_profile'),
     path('my-orders/', client_views.my_orders, name='my_orders'),
     path('order-success/', client_views.order_success, name='order_success'),
+    path('appointment-success/', client_views.appointment_success, name='appointment_success'),  # ✅ NEW
     path('appointment-payment/', client_views.appointment_payment, name='appointment_payment'),  # ✅ NEW
     path('my-orders/', client_views.my_orders, name='my_orders'),
     path('cancel-order/<int:order_id>/', client_views.cancel_order, name='cancel_order'),  # NEW

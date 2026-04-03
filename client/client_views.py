@@ -211,6 +211,9 @@ def product_details(request, pk):
         except Customer.DoesNotExist:
             current_user = None
 
+    from datetime import date, timedelta
+    expected_delivery = date.today() + timedelta(days=3)
+
     context = {
         'product': product,
         'gallery': gallery,
@@ -221,7 +224,8 @@ def product_details(request, pk):
         'full_stars': full_stars,
         'empty_stars': empty_stars,
         'current_user': current_user,
-        'user_wishlist_ids': user_wishlist_ids
+        'user_wishlist_ids': user_wishlist_ids,
+        'expected_delivery': expected_delivery,
     }
     
     return render(request, 'product-details.html', context)
@@ -973,6 +977,9 @@ def edit_profile(request):
 def order_success(request):
     return render(request, 'order_success.html')
 
+def appointment_success(request):
+    return render(request, 'appointment_success.html')
+
 # ✅ NEW VIEW
 from test2.models import AppointmentPayment  # import at top preferred
 
@@ -1013,7 +1020,7 @@ def appointment_payment(request):
     )
 
     messages.success(request, "Appointment confirmed! See you at the clinic. 🐾")
-    return redirect('order_success')
+    return redirect('appointment_success')
 
 def my_orders(request):
     # --- LOGIN CHECK ---
