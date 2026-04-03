@@ -921,11 +921,13 @@ def edit_profile(request):
         return redirect('login1')
         
     customer = get_object_or_404(Customer, cust_id=cust_id)
+    areas = Area.objects.all()  # Dropdown ke liye
     
     if request.method == "POST":
         new_name    = request.POST.get('name', '').strip()
         new_contact = request.POST.get('contact', '').strip()
         new_address = request.POST.get('address', '').strip()
+        new_area_id = request.POST.get('area_id')
 
         # 1. Name validation: only letters and spaces
         if not re.match(r'^[a-zA-Z\s]+$', new_name):
@@ -946,11 +948,17 @@ def edit_profile(request):
         if not new_address:
             messages.error(request, "Address cannot be empty.")
             return render(request, 'edit_profile.html', {'customer': customer})
+        
+        # 5. Area validation
+        if not new_area_id:
+            messages.error(request, "Please select a valid area.")
+            return render(request, 'edit_profile.html', {'customer': customer, 'areas': areas})
 
         # All validations passed — update karo
         customer.cust_name = new_name
         customer.contact   = new_contact
         customer.address   = new_address
+        customer.area_id   = get_object_or_404(Area, area_id=new_area_id)
 
         # Photo Remove Logic
         if request.POST.get('remove_photo_flag') == "1":
@@ -972,7 +980,7 @@ def edit_profile(request):
         messages.success(request, "Profile updated successfully! 🐾")
         return redirect('edit_profile')
 
-    return render(request, 'edit_profile.html', {'customer': customer})
+    return render(request, 'edit_profile.html', {'customer': customer, 'areas': areas})
 
 def order_success(request):
     return render(request, 'order_success.html')

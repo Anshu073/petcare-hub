@@ -103,7 +103,7 @@
                         <small class="text-muted ms-2">* Email cannot be changed.</small>
                     </div>
 
-                    <!-- Contact -->
+                    <!-- Contact + Area — side by side -->
                     <div class="col-md-6">
                         <label class="form-label fw-bold mb-1">
                             <i class="fas fa-phone me-1" style="color:#894B8D;"></i> Contact Number
@@ -119,8 +119,25 @@
                         <small id="ep_contact_err" class="text-danger d-none">Must be 10 digits starting with 6-9.</small>
                     </div>
 
-                    <!-- Address -->
+                    <!-- Area Dropdown -->
                     <div class="col-md-6">
+                        <label class="form-label fw-bold mb-1">
+                            <i class="fas fa-location-dot me-1" style="color:#894B8D;"></i> Area / Pincode
+                        </label>
+                        <select name="area_id" id="ep_area" class="form-select rounded-pill px-4 py-2" required>
+                            <option value="">-- Select Area --</option>
+                            {% for area in areas %}
+                            <option value="{{ area.area_id }}"
+                                {% if area.area_id == customer.area_id.area_id %}selected{% endif %}>
+                                {{ area.area_name }} - {{ area.pincode }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <small id="ep_area_err" class="text-danger d-none">Please select your area.</small>
+                    </div>
+
+                    <!-- Address — full width neeche -->
+                    <div class="col-12">
                         <label class="form-label fw-bold mb-1">
                             <i class="fas fa-map-marker-alt me-1" style="color:#894B8D;"></i> Residential Address
                         </label>
@@ -232,11 +249,13 @@
             const name    = document.getElementById('ep_name').value.trim();
             const contact = document.getElementById('ep_contact').value.trim();
             const address = document.getElementById('ep_address').value.trim();
+            const area    = document.getElementById('ep_area').value;
             const photo   = document.getElementById('profile-file-input');
 
             const nameValid    = /^[a-zA-Z\s]+$/.test(name) && name.length > 1 && !/^(.)\1+$/i.test(name.replace(/\s/g, ''));
             const contactValid = /^[6-9]\d{9}$/.test(contact);
             const addressValid = address.length >= 10;
+            const areaValid    = area !== '';
 
             let photoValid = true;
             if (photo && photo.files.length > 0) {
@@ -250,6 +269,7 @@
             document.getElementById('ep_name_err').classList.toggle('d-none', nameValid);
             document.getElementById('ep_contact_err').classList.toggle('d-none', contactValid);
             document.getElementById('ep_address_err').classList.toggle('d-none', addressValid);
+            document.getElementById('ep_area_err').classList.toggle('d-none', areaValid);
 
             // Green tick
             document.getElementById('ep_contact_tick').classList.toggle('d-none', !contactValid);
@@ -261,10 +281,11 @@
             document.getElementById('ep_contact').classList.toggle('is-invalid', !contactValid && contact.length > 0);
             document.getElementById('ep_address').classList.toggle('is-valid', addressValid);
             document.getElementById('ep_address').classList.toggle('is-invalid', !addressValid && address.length > 0);
+            document.getElementById('ep_area').classList.toggle('is-valid', areaValid);
 
             // Save button
             const btn = document.getElementById('ep_save_btn');
-            btn.disabled = !(nameValid && contactValid && addressValid && photoValid);
+            btn.disabled = !(nameValid && contactValid && addressValid && areaValid && photoValid);
             btn.style.opacity = btn.disabled ? '0.5' : '1';
         }
 
@@ -272,6 +293,7 @@
         document.getElementById('ep_name').addEventListener('input', validateForm);
         document.getElementById('ep_contact').addEventListener('input', validateForm);
         document.getElementById('ep_address').addEventListener('input', validateForm);
+        document.getElementById('ep_area').addEventListener('change', validateForm);
 
         // Run on load
         validateForm();
