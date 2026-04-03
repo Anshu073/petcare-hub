@@ -52,4 +52,5 @@ urlpatterns = [
     path('submit-order-review/<int:prod_id>/', client_views.submit_order_review, name='submit_order_review'),
     path('adoption/', client_views.adoption, name='adoption'),
     path('developers/', client_views.developers,name='developers'),
+    path('future/', client_views.future,name='future'),
 ]

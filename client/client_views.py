@@ -1344,3 +1344,6 @@ def adoption(request):
 
 def developers(request):
     return render(request,'developers.html')
+
+def future(request):
+    return render(request,'future.html')
