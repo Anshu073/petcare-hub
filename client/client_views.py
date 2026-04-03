@@ -782,6 +782,20 @@ def my_appointments(request):
         cancel_reason="Auto-rejected: Vet did not respond in time."
     )
 
+    # ✅ OFFLINE AUTO-CANCEL: Vet offline hai aur appointment 3 hrs mein hai
+    offline_cutoff = timezone.now() + timedelta(hours=3)
+    offline_apps = Appointment.objects.filter(
+        cust_id=customer,
+        appointment_status__in=[0, 1, 3, 6],
+        appointment_date__lte=offline_cutoff,
+        vet_id__availability_status=0  # Vet offline hai
+    )
+    if offline_apps.exists():
+        offline_apps.update(
+            appointment_status=7,
+            cancel_reason="Vet is currently offline."
+        )
+
     # --- 2. POST Logic (Handling Actions) ---
     if request.method == "POST":
         

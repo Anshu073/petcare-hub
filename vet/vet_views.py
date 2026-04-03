@@ -157,6 +157,23 @@ def vet_dashboard(request):
         appointment_status=2,
         cancel_reason="Auto-rejected: Vet did not respond in time."
     )
+
+    # ✅ OFFLINE AUTO-CANCEL: Vet offline hai aur appointment 3 hrs mein hai
+    if vet.availability_status == 0:
+        offline_cutoff = django_timezone.now() + timedelta(hours=3)
+        offline_conflicts = Appointment.objects.filter(
+            vet_id=vet,
+            appointment_status__in=[0, 1, 3, 6],
+            appointment_date__lte=offline_cutoff
+        )
+        offline_count = offline_conflicts.count()
+        if offline_count > 0:
+            offline_conflicts.update(
+                appointment_status=7,
+                cancel_reason="Vet is currently offline. Sorry for the inconvenience."
+            )
+            vet.cancel_count = (vet.cancel_count or 0) + offline_count
+            vet.save()
     
     # 4: Done, 2: Rejected by Vet, 7: Cancelled (Offline/Bulk), 5: Absent
     total_received = base_query.count()

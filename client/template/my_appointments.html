@@ -73,7 +73,12 @@
                         </span>
                         {% elif app.appointment_status == 7 %}
                         <span class="badge bg-secondary text-white px-3 py-2 rounded-pill">
-                            <i class="fas fa-times-circle me-1"></i> Cancelled by Vet
+                            <i class="fas fa-times-circle me-1"></i>
+                            {% if app.cancel_reason == "Vet is currently offline." %}
+                                Cancelled — Vet Offline
+                            {% else %}
+                                Cancelled by Vet
+                            {% endif %}
                         </span>
                         {% endif %}
                     </td>
@@ -196,9 +201,22 @@
                         {% elif app.appointment_status == 7 %}
                         <div class="text-center">
                             <small class="text-muted d-block">Appointment Closed</small>
-                            {% if app.cancel_reason %}
+                            {% if app.cancel_reason == "Vet is currently offline." %}
+                            <div class="bg-light p-2 mt-1 rounded-3 border" style="font-size: 10px;">
+                                <i class="fas fa-moon text-secondary me-1"></i> Vet went offline — appointment auto-cancelled.
+                            </div>
+                            {% elif app.cancel_reason %}
                             <div class="bg-light p-2 mt-1 rounded-3 border" style="font-size: 10px;">
                                 <i class="fas fa-info-circle text-secondary"></i> "{{ app.cancel_reason }}"
+                            </div>
+                            {% endif %}
+
+                            <!-- Refund msg: sirf online payment wale cancelled appointments ke liye -->
+                            {% if app.payment_mode == 1 %}
+                            <div class="mt-2 p-2 rounded-3 text-start" style="background: #f0fff4; border: 1px solid #b7ebc8; font-size: 11px;">
+                                <i class="fas fa-undo-alt text-success me-1"></i>
+                                <strong class="text-success">Refund Initiated:</strong>
+                                Your payment of <strong>₹{{ app.charges }}</strong> will be credited back to your original payment method within <strong>2–3 working days</strong>.
                             </div>
                             {% endif %}
                         </div>
@@ -219,7 +237,16 @@
                             {% endif %}
                         </div>
                         {% elif app.appointment_status == 5 %}
-                        <small class="text-muted">Appointment Closed (Absent)</small>
+                        <div class="text-center">
+                            <small class="text-muted d-block">Appointment Closed (Absent)</small>
+                            {% if app.payment_mode == 1 %}
+                            <div class="mt-2 p-2 rounded-3 text-start" style="background: #fff8f0; border: 1px solid #f5c6a0; font-size: 11px;">
+                                <i class="fas fa-exclamation-triangle text-warning me-1"></i>
+                                <strong class="text-warning">No Refund Applicable:</strong>
+                                You missed your appointment. As per our policy, payments are <strong>non-refundable</strong> in case of no-show.
+                            </div>
+                            {% endif %}
+                        </div>
                         {% endif %}
                     </td>
                 </tr>
