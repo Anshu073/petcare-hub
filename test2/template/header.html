@@ -91,6 +91,7 @@ body.sidebar-mini .sidebar-brand a img {
 .sidebar-brand a div, .sidebar-brand a img {
     transition: all 0.3s ease-in-out !important;
 }
+
   </style>
 
   <!-- <link rel='shortcut icon' type='image/x-icon' href="{% static 'assets/img/favicon.i}" /> -->
@@ -430,6 +431,7 @@ body.sidebar-mini .sidebar-brand a img {
           }
 
           var table = $('#tableExport').DataTable({
+            scrollX: true,
             dom: 'Bfrtip',
             buttons: [
               { extend: 'copy', className: 'btn btn-primary btn-sm' },
