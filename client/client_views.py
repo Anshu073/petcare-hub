@@ -598,18 +598,33 @@ def vet_details(request, pk):
             d_start = timezone.make_aware(datetime.combine(target_date, datetime.min.time()))
             d_end = timezone.make_aware(datetime.combine(target_date, datetime.max.time()))
 
+            # Is vet ke booked slots
             booked_appointments = Appointment.objects.filter(
                 vet_id=vet,
                 appointment_date__range=(d_start, d_end),
                 appointment_status__in=[0, 1, 3, 6] 
             ).values_list('appointment_date', flat=True)
             
-            booked_times = [timezone.localtime(dt).strftime("%I:%M %p") for dt in booked_appointments]
+            booked_times = set([timezone.localtime(dt).strftime("%I:%M %p") for dt in booked_appointments])
+
+            # Customer ke kisi bhi aur vet ke saath same din ke booked slots
+            if current_customer:
+                customer_other_appointments = Appointment.objects.filter(
+                    cust_id=current_customer,
+                    appointment_date__range=(d_start, d_end),
+                    appointment_status__in=[0, 1, 3, 6]
+                ).exclude(vet_id=vet).values_list('appointment_date', flat=True)
+                
+                customer_booked_times = set([timezone.localtime(dt).strftime("%I:%M %p") for dt in customer_other_appointments])
+                booked_times = booked_times.union(customer_booked_times)
 
             current_slot = timezone.make_aware(datetime.combine(target_date, schedule.open_time))
             end_time = timezone.make_aware(datetime.combine(target_date, schedule.close_time))
             
-            check_limit = now_aware + timedelta(minutes=15) if target_date == today_obj else current_slot
+            if target_date == today_obj:
+                check_limit = now_aware + timedelta(minutes=45)
+            else:
+                check_limit = current_slot
             
             while current_slot < end_time:
                 slot_str = current_slot.strftime("%I:%M %p")
@@ -697,7 +712,7 @@ def vet_details(request, pk):
     booking_range = []
     all_slots_dict = {}
     
-    for i in range(15):
+    for i in range(3):
         temp_date = today_obj + timedelta(days=i)
         if temp_date.weekday() in available_days:
             date_str = temp_date.strftime('%Y-%m-%d')
@@ -755,6 +770,17 @@ def my_appointments(request):
         payment_timer_start__isnull=False, 
         payment_timer_start__lt=expiry_limit
     ).update(appointment_status=2)
+
+     # ✅ AUTO-REJECT: Vet ne 30 min pehle tak pending request ka jawab nahi diya
+    auto_reject_cutoff = timezone.now() + timedelta(minutes=30)
+    Appointment.objects.filter(
+        cust_id=customer,
+        appointment_status=0,
+        appointment_date__lte=auto_reject_cutoff
+    ).update(
+        appointment_status=2,
+        cancel_reason="Auto-rejected: Vet did not respond in time."
+    )
 
     # --- 2. POST Logic (Handling Actions) ---
     if request.method == "POST":

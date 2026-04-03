@@ -313,7 +313,13 @@
                                                     {% elif app.appointment_status == 4 %}
                                                         <span class="badge bg-success rounded-pill px-3 py-2 text-white">Completed ✅</span>
                                                     {% elif app.appointment_status == 2 %}
-                                                        <span class="badge bg-danger rounded-pill px-3 py-2 text-white">Rejected by You ❌</span>
+                                                        {% if app.cancel_reason == "Auto-rejected: Vet did not respond in time." %}
+                                                            <span class="badge bg-secondary rounded-pill px-3 py-2 text-white">
+                                                                ⏰ Auto-Rejected
+                                                            </span>
+                                                        {% else %}
+                                                            <span class="badge bg-danger rounded-pill px-3 py-2 text-white">Rejected by You ❌</span>
+                                                        {% endif %}
                                                     {% elif app.appointment_status == 5 %}
                                                         <span class="badge bg-secondary rounded-pill px-3 py-2 text-white">Absent 🚫</span>
                                                     {% elif app.appointment_status == 7 %}
@@ -644,21 +650,15 @@
                 {% csrf_token %}
                 <div class="modal-body p-4">
             
-                    <div class="alert alert-danger border-0 rounded-4 mb-4" style="background-color: #fff5f5;">
+                    <div class="alert alert-warning border-0 rounded-4 mb-4" style="background-color: #fffbf0;">
                         <div class="d-flex align-items-center gap-3">
-                            <i class="fas fa-exclamation-circle text-danger fa-lg"></i>
+                            <i class="fas fa-lock text-warning fa-lg"></i>
                             <div>
-                                {% if is_locked %}
-                                    <strong class="text-danger d-block small">Lock Period Active!</strong>
-                                    <p class="text-danger mb-0" style="font-size: 11px;">
-                                        Your schedule is currently locked. You can view it, but any changes will be rejected by the system until the 12-hour window passes.
-                                    </p>
-                                {% else %}
-                                    <strong class="text-danger d-block small">Schedule Policy Note</strong>
-                                    <p class="text-danger mb-0" style="font-size: 11px;">
-                                        Note: Once you save these timings, your schedule will be <b>locked for the next 12 hours</b>. Please ensure all slots are correct.
-                                    </p>
-                                {% endif %}
+                                <strong class="text-warning d-block small">Per-Day Schedule Lock Policy 🔒</strong>
+                                <p class="text-muted mb-0" style="font-size: 11px;">
+                                    Each day is <b>locked for 12 hours</b> after saving. 
+                                    🔒 Locked days are disabled — other days can be freely edited.
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -666,49 +666,56 @@
 
                     <table class="table table-borderless align-middle">
                         <tbody>
-    {% for day in prefilled_days %}
-<tr>
-    <td class="fw-bold">{{ day.name }}</td>
-    <td>
-        <select name="open_{{ day.index }}" class="form-select rounded-pill open-time-select" data-day="{{ day.index }}">
-            <option value="">Select Opening</option>
-            {% for slot in time_slots %}
-                {% if not slot.is_midnight %}
-                <option value="{{ slot.value }}" data-index="{{ slot.index }}" {% if day.open_val == slot.value %}selected{% endif %}>
-                    {{ slot.display }}
-                </option>
-                {% endif %}
-            {% endfor %}
-        </select>
-    </td>
-    <td>
-        <select name="close_{{ day.index }}" class="form-select rounded-pill close-time-select" data-day="{{ day.index }}">
-            <option value="">Select Closing</option>
-            {% for slot in time_slots %}
-                <option value="{{ slot.value }}" data-index="{{ slot.index }}" {% if day.close_val == slot.value %}selected{% endif %}>
-                    {{ slot.display }}
-                </option>
-            {% endfor %}
-        </select>
-    </td>
-</tr>
-{% endfor %}
-</tbody>
+                            {% for day in prefilled_days %}
+                            <tr {% if day.is_locked %}style="opacity: 0.55; background: #f9f9f9;"{% endif %}>
+                                <td class="fw-bold">
+                                    {{ day.name }}
+                                    {% if day.is_locked %}
+                                        <span class="badge bg-warning text-dark ms-1" style="font-size: 9px;">🔒 Locked</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <select name="open_{{ day.index }}"
+                                            class="form-select rounded-pill open-time-select"
+                                            data-day="{{ day.index }}"
+                                            {% if day.is_locked %}disabled{% endif %}>
+                                        <option value="">Select Opening</option>
+                                        {% for slot in time_slots %}
+                                            {% if not slot.is_midnight %}
+                                            <option value="{{ slot.value }}" data-index="{{ slot.index }}"
+                                                {% if day.open_val == slot.value %}selected{% endif %}>
+                                                {{ slot.display }}
+                                            </option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <td>
+                                    <select name="close_{{ day.index }}"
+                                            class="form-select rounded-pill close-time-select"
+                                            data-day="{{ day.index }}"
+                                            {% if day.is_locked %}disabled{% endif %}>
+                                        <option value="">Select Closing</option>
+                                        {% for slot in time_slots %}
+                                            <option value="{{ slot.value }}" data-index="{{ slot.index }}"
+                                                {% if day.close_val == slot.value %}selected{% endif %}>
+                                                {{ slot.display }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
                     </table>
                 </div>
                 <div class="modal-footer border-0 p-4">
-                    {% if is_locked %}
-                        <button type="button" class="btn btn-secondary w-100 rounded-pill fw-bold py-2 shadow" 
-                                style="cursor: not-allowed; opacity: 0.6; pointer-events: none;" disabled>
-                            <i class="fas fa-lock me-2"></i> Schedule Locked (12h)
-                        </button>
-                    {% else %}
-                        <input type="hidden" name="force_online" id="forceOnlineInput" value="0">
-                        <button type="submit" id="saveScheduleBtn" class="btn btn-primary w-100 rounded-pill fw-bold py-2 shadow" 
-                                style="background-color: #894B8D; border: none; opacity: 0.5;" disabled>
-                            Save Schedule
-                        </button>
-                    {% endif %}
+                    <input type="hidden" name="force_online" id="forceOnlineInput" value="0">
+                    <button type="submit" id="saveScheduleBtn"
+                            class="btn btn-primary w-100 rounded-pill fw-bold py-2 shadow"
+                            style="background-color: #894B8D; border: none; opacity: 0.5;" disabled>
+                        Save Schedule
+                    </button>
                 </div>
             </form>
         </div>
@@ -978,4 +985,46 @@
             }
         });
     }
+</script>
+
+<script>
+// Absent button: appointment time + 1 hour ke baad enable hoga (IST)
+function checkAbsentButtons() {
+    const buttons = document.querySelectorAll('.absent-btn');
+    
+    // India ka current time
+    const nowIST = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+
+    buttons.forEach(btn => {
+        const apptTimeStr = btn.getAttribute('data-appt-time');
+        if (!apptTimeStr) return;
+
+        // Appointment time IST mein convert karo
+        const apptTime = new Date(new Date(apptTimeStr).toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+        
+        // Enable time = appointment time + 1 hour
+        const enableTime = new Date(apptTime.getTime() + 60 * 60 * 1000);
+
+        if (nowIST >= enableTime) {
+            // Enable karo
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            btn.style.cursor = 'pointer';
+        } else {
+            // Abhi bhi disabled — remaining time dikhao tooltip mein
+            const diff = enableTime - nowIST;
+            const mins = Math.floor(diff / 60000);
+            const hrs = Math.floor(mins / 60);
+            const remMins = mins % 60;
+            const timeLeft = hrs > 0 ? `${hrs}h ${remMins}m` : `${remMins}m`;
+            btn.title = `Available after appointment ends (in ${timeLeft})`;
+        }
+    });
+}
+
+// Page load pe check karo
+checkAbsentButtons();
+
+// Har minute check karo — real-time enable hoga
+setInterval(checkAbsentButtons, 60000);
 </script>

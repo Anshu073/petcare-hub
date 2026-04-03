@@ -52,7 +52,12 @@
                         </span>
                         {% elif app.appointment_status == 2 %}
                         <span class="badge bg-danger px-3 py-2 rounded-pill">
-                            <i class="fas fa-times-circle me-1"></i> Rejected by Vet
+                            <i class="fas fa-times-circle me-1"></i>
+                            {% if app.cancel_reason == "Auto-rejected: Vet did not respond in time." %}
+                                Not Responded in Time
+                            {% else %}
+                                Rejected by Vet
+                            {% endif %}
                         </span>
                         {% elif app.appointment_status == 3 %}
                         <span class="badge bg-primary px-3 py-2 rounded-pill">
@@ -199,7 +204,20 @@
                         </div>
 
                         {% elif app.appointment_status == 2 %}
-                        <small class="text-danger fw-bold">Cancelled/Expired</small>
+                        <div class="text-center">
+                            <small class="text-danger fw-bold">
+                                {% if app.cancel_reason == "Auto-rejected: Vet did not respond in time." %}
+                                    ⏰ Vet did not respond in time
+                                {% else %}
+                                    ❌ Cancelled/Rejected
+                                {% endif %}
+                            </small>
+                            {% if app.cancel_reason and app.cancel_reason != "Auto-rejected: Vet did not respond in time." %}
+                            <div class="bg-light p-2 mt-1 rounded-3 border" style="font-size: 10px;">
+                                <i class="fas fa-info-circle text-secondary"></i> "{{ app.cancel_reason }}"
+                            </div>
+                            {% endif %}
+                        </div>
                         {% elif app.appointment_status == 5 %}
                         <small class="text-muted">Appointment Closed (Absent)</small>
                         {% endif %}
