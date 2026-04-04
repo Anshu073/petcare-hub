@@ -1307,5 +1307,16 @@
         });
     }
     </script>
+    <script>
+    setInterval(function () {
+        fetch("{% url 'check_vendor_status' %}")
+            .then(res => res.json())
+            .then(data => {
+                if (data.status !== 1) {
+                    window.location.href = "{% url 'vendor_login' %}";
+                }
+            });
+    }, 5000);
+</script>
 </body>
 </html>

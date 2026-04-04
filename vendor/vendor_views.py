@@ -529,3 +529,14 @@ def vendor_request_removal(request):
             else:
                 messages.error(request, "Invalid password! Removal request failed.", extra_tags='vendor_removal_req')
     return redirect('vendor_dashboard')
+
+from django.http import JsonResponse
+
+def check_vendor_status(request):
+    if 'vendor_id' in request.session:
+        try:
+            vendor = Vendor.objects.get(vendor_id=request.session['vendor_id'])
+            return JsonResponse({'status': vendor.status})
+        except Vendor.DoesNotExist:
+            return JsonResponse({'status': 'not_found'})
+    return JsonResponse({'status': 'no_session'})
