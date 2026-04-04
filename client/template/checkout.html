@@ -262,10 +262,10 @@
 <script>
     document.getElementById('rzp-pay-btn').onclick = function(e) {
 
-        // Address field se value uthao
-        var address = document.getElementById('ship-street').value.trim();
+        // Address ab static hai — customer profile se directly le lo
+        var address = "{{ customer.address|escapejs }}";
         if (!address) {
-            alert('Please enter your delivery address!');
+            alert('Please update your address in profile before checkout!');
             return;
         }
         // Hidden field mein daalo taaki POST mein jaye

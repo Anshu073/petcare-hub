@@ -21,27 +21,31 @@
     </div>
 
     <div class="table-responsive bg-white shadow-sm rounded-4 p-4 border">
-        <table class="table align-middle border-0">
+        <table class="table align-middle border-0" style="min-width: 900px;">
             <thead>
-                <tr class="text-muted small text-uppercase">
-                    <th>Doctor Details</th>
-                    <th>Schedule</th>
-                    <th>Current Status</th>
-                    <th class="text-center">Action</th>
+                <tr class="text-muted small text-uppercase border-bottom">
+                    <th style="width: 22%; vertical-align: middle;">Doctor Details</th>
+                    <th style="width: 20%; vertical-align: middle;">Schedule</th>
+                    <th style="width: 20%; vertical-align: middle;">Current Status</th>
+                    <th class="text-center" style="width: 38%; vertical-align: middle;">Action</th>
                 </tr>
             </thead>
             <tbody>
                 {% for app in appointments %}
-                <tr>
-                    <td>
+                <tr style="vertical-align: top; border-bottom: 1px solid #f0f0f0;">
+                    <td class="py-3">
+                        <span class="badge rounded-pill mb-1 d-inline-block"
+                            style="background-color: #f4eef5; color: #894B8D; font-size: 10px; font-weight: 700; letter-spacing: 0.5px;">
+                            #{{ app.appointment_id }}
+                        </span>
                         <div class="fw-bold text-dark">Dr. {{ app.vet_id.vet_name }}</div>
                         <div class="small text-muted">{{ app.vet_id.specialization }}</div>
                     </td>
-                    <td>
+                    <td class="py-3">
                         <div class="fw-bold">{{ app.appointment_date|date:"D, d M Y" }}</div>
                         <div class="small text-muted">{{ app.appointment_date|time:"h:i A" }}</div>
                     </td>
-                    <td>
+                    <td class="py-3">
                         {% if app.appointment_status == 0 %}
                         <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">
                             <i class="fas fa-hourglass-half me-1"></i> Waiting for Approval
@@ -83,7 +87,7 @@
                         {% endif %}
                     </td>
 
-                    <td class="text-center">
+                    <td class="text-center py-3" style="vertical-align: top;">
                         {% if app.appointment_status == 0 %}
                         <small class="text-muted italic">Awaiting Vet's Response</small>
 
