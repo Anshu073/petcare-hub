@@ -539,7 +539,7 @@
                                 <img src="{% static 'assets/img/icon/pet_icon02.svg' %}" alt="" class="injectable">
                             </strong>
                         </span>
-                        <h2 class="title">Meet Our Expertise <br> Pet Doctors</h2>
+                        <h2 class="title">Meet Our Expertise <br> Vets</h2>
                     </div>
                 </div>
             </div>
@@ -552,7 +552,7 @@
                             <div class="mask-img-wrap">
                                 {% if item.vet_profile %}
                                 <img src="{{ item.vet_profile.url }}" alt="{{ item.vet_name }}"
-                                    style="width: 100%; height: 320px; object-fit: cover;">
+                                    style="width: 100%; height: 100%; object-fit: contain; object-position: center;">
                                 {% else %}
                                 <img src="{% static 'assets/img/team/team_img01.jpg' %}" alt="Default Image">
                                 {% endif %}
