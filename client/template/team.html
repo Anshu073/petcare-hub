@@ -92,6 +92,10 @@
     margin-top: 8px;
     text-shadow: 0 1px 3px rgba(0,0,0,0.5);
 }
+.mask-img-wrap {
+    width: 200px;
+    height: 200px;
+}
 </style>
 <main class="fix">
 
@@ -135,7 +139,7 @@
                         <div class="mask-img-wrap">
                             {% if item.vet_profile %}
                             <img src="{{ item.vet_profile.url }}" alt="{{ item.vet_name }}"
-                                style="width: 100%; height: 320px; object-fit: cover;">
+                                style="width: 100%; height: 100%; object-fit: contain; object-position: center;">
                             {% else %}
                             <img src="{% static 'assets/img/team/team_img01.jpg' %}" alt="Default Image">
                             {% endif %}
