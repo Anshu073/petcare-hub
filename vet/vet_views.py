@@ -30,15 +30,15 @@ def vet_register(request):
 
         # --- VALIDATIONS ---
         if not re.match(r'^[a-zA-Z\s]+$', v_name):
-            messages.error(request, "Invalid Name: Please use alphabets only.", extra_tags='vet_danger')
+            messages.error(request, "Invalid Name: Please use alphabets and spaces only.", extra_tags='vet_danger')
             return render(request, 'register_vet.html', {'areas': areas})
 
         if not re.match(r'^[a-zA-Z][a-zA-Z0-9._%+-]*@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', v_email):
             messages.error(request, "Invalid Email: Must start with a letter.", extra_tags='vet_danger')
             return render(request, 'register_vet.html', {'areas': areas})
 
-        if not re.match(r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,16}$', v_pass):
-            messages.error(request, "Password must be 8-16 characters with Uppercase, Lowercase, and Number.", extra_tags='vet_danger')
+        if not re.match(r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*_])[A-Za-z\d!@#$%^&*_]{8,16}$', v_pass):
+            messages.error(request, "Password must be 8-16 characters with uppercase, lowercase, number, and a special character (!@#$%^&*_).", extra_tags='vet_danger')
             return render(request, 'register_vet.html', {'areas': areas})
 
         if not re.match(r'^[6-9]\d{9}$', v_contact):
@@ -58,13 +58,7 @@ def vet_register(request):
             return render(request, 'register_vet.html', {'areas': areas})
 
         if Vet.objects.filter(email=v_email).exists():
-            existing_vet = Vet.objects.get(email=v_email)
-            if existing_vet.status == 0:
-                messages.error(request, "Your registration request is already pending. Please wait for Admin approval.", extra_tags='vet_danger')
-            elif existing_vet.status == 2:
-                messages.error(request, "Your registration has been rejected. Please contact support or use a different email.", extra_tags='vet_danger')
-            else:
-                messages.error(request, "This email is already registered. Please try logging in.", extra_tags='vet_danger')
+            messages.error(request, "This email is already registered.", extra_tags='vet_danger')
             return render(request, 'register_vet.html', {'areas': areas})
 
         if Vet.objects.filter(contact=v_contact).exists():
@@ -90,7 +84,7 @@ def vet_register(request):
             messages.success(request, "Registration successful! Please wait for the Admin to verify your account.", extra_tags='vet_success')
             return redirect('vet_login')
         except Exception as e:
-            messages.error(request, f"An unexpected error occurred: {e}", extra_tags='vet_danger')
+            messages.error(request, f"Registration failed: {str(e)}", extra_tags='vet_danger')
             return render(request, 'register_vet.html', {'areas': areas})
             
     return render(request, 'register_vet.html', {'areas': areas})
@@ -580,34 +574,55 @@ def vet_reset_password(request):
         messages.error(request, 'Session expired. Please start again.')
         return redirect('vet_forgot_password_url')
 
-    if request.method == "POST":
-        otp_entered = request.POST.get('otp', '').strip()
-        # FIXED: Names matched with HTML
-        new_pass = request.POST.get('new_password', '').strip()
+    if request.method == 'POST':
+        otp_entered  = request.POST.get('otp', '').strip()
+        new_pass     = request.POST.get('new_password', '').strip()
         confirm_pass = request.POST.get('confirm_password', '').strip()
 
-        # 1. Match Check
-        if new_pass != confirm_pass:
-            messages.error(request, "Passwords do not match!")
-            return render(request, 'vet_reset_password.html')
-        
-        # 2. Regex Validation (8-16 chars, Uppercase, Lowercase, Number)
-        password_pattern = r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,16}$'
-        if not re.match(password_pattern, new_pass):
-            messages.error(request, "Password must be 8-16 characters with Uppercase, Lowercase, and a Number.")
+        # 1. OTP format check
+        if not otp_entered.isdigit() or len(otp_entered) != 6:
+            messages.error(request, 'OTP must be exactly 6 digits.')
             return render(request, 'vet_reset_password.html')
 
-        user = Vet.objects.filter(email=reset_email, otp=otp_entered, otp_used=0).first()
-        if user:
-            user.password = make_password(new_pass)
-            user.otp_used = 1  
-            user.save()
-            if 'reset_vet_email' in request.session: del request.session['reset_vet_email']
-            messages.success(request, "Password updated! Please login.")
-            return redirect('vet_login')
-        else:
-            messages.error(request, "Invalid or already used OTP.")
-            
+        # 2. Password validation
+        password_pattern = r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*_])[A-Za-z\d!@#$%^&*_]{8,16}$'
+        if not re.match(password_pattern, new_pass):
+            messages.error(request, 'Password must be 8-16 characters with uppercase, lowercase, number, and a special character (!@#$%^&*_).')
+            return render(request, 'vet_reset_password.html')
+
+        # 3. Passwords match
+        if new_pass != confirm_pass:
+            messages.error(request, 'Passwords do not match. Please try again.')
+            return render(request, 'vet_reset_password.html')
+
+        # Database Checks
+        try:
+            user = Vet.objects.get(email=reset_email)
+        except Vet.DoesNotExist:
+            messages.error(request, 'Invalid session. Please start again.')
+            return redirect('vet_forgot_password_url')
+
+        # 4. OTP already used check
+        if user.otp_used == 1:
+            messages.error(request, 'This OTP has already been used. Please request a new one.')
+            return redirect('vet_forgot_password_url')
+
+        # 5. OTP match check
+        if user.otp != otp_entered:
+            messages.error(request, 'Invalid OTP. Please enter the correct OTP.')
+            return render(request, 'vet_reset_password.html')
+
+        # All Good: Password Reset
+        user.password = make_password(new_pass)
+        user.otp_used = 1
+        user.otp = None
+        user.save()
+
+        del request.session['reset_vet_email']
+
+        messages.success(request, 'Password reset successful! Please login with your new password.')
+        return redirect('vet_login')
+
     return render(request, 'vet_reset_password.html')
 
 def vet_change_password(request):

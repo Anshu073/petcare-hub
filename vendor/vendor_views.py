@@ -3,51 +3,90 @@ from django.contrib import messages
 from django.contrib.auth.hashers import make_password
 from test2.models import Vendor, Area  #
 
-# - Is logic ko update karein
 def vendor_register(request):
-    # Registration form ke dropdown ke liye saare areas fetch karein
-    areas = Area.objects.all() 
-    
+    areas = Area.objects.all()
+
     if request.method == "POST":
-        v_name = request.POST.get('vendor_name')
-        v_email = request.POST.get('email')
-        v_pass = request.POST.get('password')
-        v_contact = request.POST.get('contact')
-        v_address = request.POST.get('address')
-        v_area = request.POST.get('area_id')
+        v_name    = request.POST.get('vendor_name', '').strip()
+        v_email   = request.POST.get('email', '').strip()
+        v_pass    = request.POST.get('password', '')
+        v_contact = request.POST.get('contact', '').strip()
+        v_address = request.POST.get('address', '').strip()
+        v_area    = request.POST.get('area_id')
         v_profile = request.FILES.get('vendor_profile')
 
-        # 1. Email check (Duplicate email nahi honi chahiye)
-        if Vendor.objects.filter(email=v_email).exists():
-            messages.error(request, "This email is already registered!", extra_tags='vendor_reg')
+        # --- SERVER-SIDE VALIDATION START ---
+
+        # 1. Name Validation
+        if not (re.match(r'^[A-Za-z\s]+$', v_name) and len(v_name) > 1):
+            messages.error(request, "Invalid Name: Please use alphabets and spaces only.", extra_tags='vendor_reg')
             return render(request, 'vendor_register.html', {'areas': areas})
 
+        # 2. Email Format Validation
+        if not re.match(r'^[a-zA-Z][a-zA-Z0-9._%+-]*@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', v_email):
+            messages.error(request, "Invalid Email: Must start with a letter and follow standard format(e.g., petcarehub@gmail.com).", extra_tags='vendor_reg')
+            return render(request, 'vendor_register.html', {'areas': areas})
+
+        # 3. Duplicate Email Check
+        if Vendor.objects.filter(email=v_email).exists():
+            messages.error(request, "This email is already registered. Please login.", extra_tags='vendor_reg')
+            return render(request, 'vendor_register.html', {'areas': areas})
+
+        # 4. Contact Validation
+        if not re.match(r'^[6-9]\d{9}$', v_contact):
+            messages.error(request, "Invalid Contact: Must be 10 digits starting with 6, 7, 8, or 9.", extra_tags='vendor_reg')
+            return render(request, 'vendor_register.html', {'areas': areas})
+
+        # 5. Duplicate Contact Check
+        if Vendor.objects.filter(contact=v_contact).exists():
+            messages.error(request, "This mobile number is already registered. Please use a different one.", extra_tags='vendor_reg')
+            return render(request, 'vendor_register.html', {'areas': areas})
+
+        # 6. Password Validation
+        if not re.match(r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*_])[A-Za-z\d!@#$%^&*_]{8,16}$', v_pass):
+            messages.error(request, "Password must be 8-16 characters with uppercase, lowercase, number, and a special character (!@#$%^&*_).", extra_tags='vendor_reg')
+            return render(request, 'vendor_register.html', {'areas': areas})
+
+        # 7. Address Validation
+        if len(v_address) < 10:
+            messages.error(request, "Address must be at least 10 characters.", extra_tags='vendor_reg')
+            return render(request, 'vendor_register.html', {'areas': areas})
+
+        # 8. Area Validation
+        if not v_area:
+            messages.error(request, "Please select your area.", extra_tags='vendor_reg')
+            return render(request, 'vendor_register.html', {'areas': areas})
+
+        # 9. Profile Photo Validation
+        if v_profile:
+            allowed_ext = ['jpg', 'jpeg', 'png']
+            ext = v_profile.name.split('.')[-1].lower()
+            if ext not in allowed_ext:
+                messages.error(request, "Profile photo must be JPG or PNG.", extra_tags='vendor_reg')
+                return render(request, 'vendor_register.html', {'areas': areas})
+            if v_profile.size > 2 * 1024 * 1024:
+                messages.error(request, "Profile photo must be under 2MB.", extra_tags='vendor_reg')
+                return render(request, 'vendor_register.html', {'areas': areas})
+
         try:
-            # 2. Area object fetch karein
             area_obj = Area.objects.get(area_id=v_area)
-            
-            # 3. Vendor Entry with Status 0 (Pending)
             Vendor.objects.create(
                 vendor_name=v_name,
                 email=v_email,
-                password=make_password(v_pass), 
+                password=make_password(v_pass),
                 contact=v_contact,
                 address=v_address,
                 area_id=area_obj,
                 vendor_profile=v_profile,
-                status=0  
+                status=0
             )
-            messages.success(request, "Registration successful! Please wait for the Admin to verify your account..", extra_tags='vendor_login')
-            # YAHAN SE REDIRECT KARNA ZAROORI HAI TAAKI NICHE WALA CODE RUN NA HO
-            return redirect('vendor_login') 
+            messages.success(request, "Registration successful! Please wait for Admin approval.", extra_tags='vendor_login')
+            return redirect('vendor_login')
 
-        except Exception as e:
-            print("Error during vendor registration:", e)
-            messages.error(request, f"Registration failed! {e}", extra_tags='vendor_reg')
-            # Error ke case mein wapas isi page par redirect/render
+        except Exception as e:            
+            messages.error(request, f"Registration failed: {str(e)}", extra_tags='vendor_reg')
             return render(request, 'vendor_register.html', {'areas': areas})
 
-    # GET request ke liye
     return render(request, 'vendor_register.html', {'areas': areas})
 
 from django.contrib.auth.hashers import check_password
@@ -476,42 +515,71 @@ def vendor_forgot_password(request):
             )
             messages.success(request, 'OTP sent to your email!', extra_tags='vendor_login')
             return redirect('vendor_reset_password_url')
-        messages.error(request, 'No vendor account found with this email.', extra_tags='vendor_login')
+        messages.error(request, 'No vendor account found with this email.')
     return render(request, 'vendor_forgot_password.html')
 
 def vendor_reset_password(request):
+
+    # Agar session mein email nahi hai toh forgot page pe bhej do
     ve = request.session.get('reset_vendor_email')
     if not ve:
+        messages.error(request, 'Session expired. Please start again.')
         return redirect('vendor_forgot_password_url')
 
     if request.method == 'POST':
-        otp_entered = request.POST.get('otp', '').strip()
-        new_pass = request.POST.get('new_password')
-        confirm_pass = request.POST.get('confirm_password')
+        otp_entered   = request.POST.get('otp', '').strip()
+        new_pass      = request.POST.get('new_password', '').strip()
+        confirm_pass  = request.POST.get('confirm_password', '').strip()
 
-        if new_pass != confirm_pass:
-            messages.error(request, 'Passwords do not match!')
+        # ── Server-side Validations ──────────────────────────────
+
+        # 1. OTP format check
+        if not otp_entered.isdigit() or len(otp_entered) != 6:
+            messages.error(request, 'OTP must be exactly 6 digits.')
             return render(request, 'vendor_reset_password.html')
 
-        # Regex Validation
-        password_pattern = r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,16}$'
+        # 2. Password validation
+        password_pattern = r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*_])[A-Za-z\d!@#$%^&*_]{8,16}$'
         if not re.match(password_pattern, new_pass):
-            messages.error(request, 'Password must be 8-16 chars with Uppercase, Lowercase & Number.')
+            messages.error(request, 'Password must be 8-16 characters with uppercase, lowercase, number, and a special character (!@#$%^&*_).')
             return render(request, 'vendor_reset_password.html')
 
-        vendor = Vendor.objects.filter(email=ve, otp=otp_entered, otp_used=0).first()
-        if vendor:
-            vendor.password = make_password(new_pass)
-            vendor.otp_used = 1
-            vendor.otp = None
-            vendor.save()
-            if 'reset_vendor_email' in request.session:
-                del request.session['reset_vendor_email']
-            messages.success(request, 'Password updated! Please login.', extra_tags='vendor_login')
-            return redirect('vendor_login')
-        else:
-            messages.error(request, 'Invalid or used OTP!')
-            
+        # 3. Passwords match
+        if new_pass != confirm_pass:
+            messages.error(request, 'Passwords do not match. Please try again.')
+            return render(request, 'vendor_reset_password.html')
+
+        # ── Database Checks ──────────────────────────────────────
+
+        try:
+            vendor = Vendor.objects.get(email=ve)
+        except Vendor.DoesNotExist:
+            messages.error(request, 'Invalid session. Please start again.')
+            return redirect('vendor_forgot_password_url')
+
+        # 4. OTP already used check
+        if vendor.otp_used == 1:
+            messages.error(request, 'This OTP has already been used. Please request a new one.')
+            return redirect('vendor_forgot_password_url')
+
+        # 5. OTP match check
+        if vendor.otp != otp_entered:
+            messages.error(request, 'Invalid OTP. Please enter the correct OTP.')
+            return render(request, 'vendor_reset_password.html')
+
+        # ── All Good: Password Reset ─────────────────────────────
+
+        vendor.password = make_password(new_pass)  # Hashed password save karo
+        vendor.otp_used = 1                         # OTP use ho gaya, block karo
+        vendor.otp = None                           # OTP clear karo
+        vendor.save()
+
+        # Session reset email clear karo
+        del request.session['reset_vendor_email']
+
+        messages.success(request, 'Password reset successful! Please login with your new password.', extra_tags='vendor_login')
+        return redirect('vendor_login')
+
     return render(request, 'vendor_reset_password.html')
 
 def vendor_request_removal(request):

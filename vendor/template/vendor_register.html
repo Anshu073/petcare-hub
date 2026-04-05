@@ -133,22 +133,30 @@
             background-position: right 20px center;
             padding-right: 40px !important;
         }
-        /* - Eye Toggle & Strength Styling */
-.pass-wrapper input {
-    padding-right: 52px !important; /* Icon ke liye jagah */
-}
-
-.pass-toggle:hover {
-    color: var(--tg-brand-color) !important;
-}
-
-.strength-bar-wrap {
-    text-align: left;
-}
-
-.strength-label {
-    display: block;
-}
+        /* Eye Toggle */
+        .pass-wrapper {
+            position: relative;
+        }
+        .pass-wrapper input {
+            padding-right: 52px !important;
+        }
+        .pass-toggle {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #aaa;
+            font-size: 16px;
+            transition: color 0.2s;
+            background: none;
+            border: none;
+            padding: 0;
+            line-height: 1;
+        }
+        .pass-toggle:hover {
+            color: var(--tg-brand-color);
+        }
     </style>
 </head>
 
@@ -175,67 +183,56 @@
                             </div>
 
                             {% if messages %}
-    {% for message in messages %}
-        {% if 'vendor_reg' in message.tags %} <div class="alert alert-dismissible fade show shadow-lg" role="alert" 
-             style="border-radius: 10px; background: #fff; border: none; 
-             border-left: 8px solid {% if 'success' in message.tags %}#28a745{% else %}#dc3545{% endif %}; 
-             margin-bottom: 20px; padding: 15px;">
-            <div style="display: flex; flex-direction: column;">
-                <strong style="color: {% if 'success' in message.tags %}#28a745{% else %}#dc3545{% endif %}; font-size: 16px;">
-                    {% if 'success' in message.tags %}SUCCESS!{% else %}WAIT!{% endif %}
-                </strong>
-                <span style="color: #555; font-size: 14px;">{{ message }}</span>
-            </div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" style="margin-top: 5px;"></button>
-        </div>
-        {% endif %}
-    {% endfor %}
-{% endif %}
+                                {% for message in messages %}
+                                    {% if 'vendor_reg' in message.tags %} <div class="alert alert-dismissible fade show shadow-lg" role="alert" 
+                                        style="border-radius: 10px; background: #fff; border: none; 
+                                        border-left: 8px solid {% if 'success' in message.tags %}#28a745{% else %}#dc3545{% endif %}; 
+                                        margin-bottom: 20px; padding: 15px;">
+                                        <div style="display: flex; flex-direction: column;">
+                                            <strong style="color: {% if 'success' in message.tags %}#28a745{% else %}#dc3545{% endif %}; font-size: 16px;">
+                                                {% if 'success' in message.tags %}SUCCESS!{% else %}WAIT!{% endif %}
+                                            </strong>
+                                            <span style="color: #555; font-size: 14px;">{{ message }}</span>
+                                        </div>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" style="margin-top: 5px;"></button>
+                                    </div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
 
                             <form action="{% url 'vendor_register' %}" method="POST" enctype="multipart/form-data">
                                 {% csrf_token %}
 
                                 <div class="form-grp">
-                                    <label>Vendor Name</label>
-                                    <input type="text" name="vendor_name" placeholder="Enter Full Name" required pattern="[A-Za-z\s]+" title="Name should only contain letters and spaces">
+                                    <label class="fw-bold" style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Vendor Name</label>
+                                    <input type="text" name="vendor_name" placeholder="Enter Full Name" required>
                                 </div>
 
                                 <div class="form-grp">
-                                    <label>Email Address</label>
-                                    <input type="email" name="email" placeholder="Enter Email Address" required pattern="^[a-zA-Z][a-zA-Z0-9._%+-]*@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$">
-                                </div>
-
-<div class="form-grp">
-    <label>Create Password</label>
-    <div class="pass-wrapper" style="position: relative;">
-        <input type="password" name="password" id="vendorPass" 
-               placeholder="Create Password" required 
-               minlength="8" maxlength="16"
-               pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,16}"
-               title="8-16 characters, 1 uppercase, 1 lowercase, 1 number.">
-        
-        <button type="button" class="pass-toggle" onclick="togglePass('vendorPass', this)"
-                style="position: absolute; right: 18px; top: 50%; transform: translateY(-50%); border: none; background: none; color: #aaa; cursor: pointer;">
-            <i class="fas fa-eye"></i>
-        </button>
-    </div>
-
-    <div class="strength-bar-wrap" id="strengthWrap" style="margin-top: 10px; display: none;">
-        <div class="strength-bar-bg" style="height: 6px; background: #f0f0f0; border-radius: 10px; overflow: hidden;">
-            <div class="strength-bar-fill" id="strengthFill" style="height: 100%; width: 0%; border-radius: 10px; transition: 0.4s ease;"></div>
-        </div>
-        <div class="strength-label" id="strengthLabel" style="font-size: 12px; margin-top: 5px; font-weight: 600; text-align: left;"></div>
-    </div>
-</div>
-                                <div class="form-grp">
-                                    <label>Contact Number</label>
-                                    <input type="text" name="contact" placeholder="Enter Contact Number" maxlength="10" minlength="10" pattern="[6-9][0-9]{9}" required>
+                                    <label class="fw-bold" style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Email Address</label>
+                                    <input type="email" name="email" placeholder="Enter Email Address" required>
                                 </div>
 
                                 <div class="form-grp">
-                                    <label>Select Area</label>
+                                    <label class="fw-bold" style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Create Password</label>
+                                    <div class="pass-wrapper">
+                                        <input type="password" name="password" id="vendorPass" placeholder="Create Password" required>
+                                        <button type="button" class="pass-toggle" onclick="togglePass('vendorPass', this)">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="form-grp">
+                                    <label class="fw-bold" style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Contact Number</label>
+                                    <input type="text" name="contact" placeholder="Enter Contact Number" maxlength="10" required
+                                        onkeypress="return event.charCode >= 48 && event.charCode <= 57">
+                                </div>
+
+                                <div class="form-grp">
+                                    <label class="fw-bold" style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Select Area</label>
                                     <select name="area_id" required>
-                                        <option value="" disabled selected>Select Area</option>
+                                        <option value="" disabled selected>Choose Your Area</option>
                                         {% for area in areas %}
                                         <option value="{{ area.area_id }}">{{ area.area_name }}</option>
                                         {% endfor %}
@@ -243,12 +240,13 @@
                                 </div>
 
                                 <div class="form-grp">
-                                    <label>Shop Address</label>
-                                    <textarea name="address" placeholder="Enter Shop Address" rows="2" minlength="10" required></textarea>
+                                    <label class="fw-bold" style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Shop Address</label>
+                                    <textarea name="address" placeholder="Enter Shop Address" rows="2" required
+                                        style="width: 100%; padding: 16px 20px; border-radius: 15px; border: 2px solid #f0f0f0; background: #fafafa; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; outline: none; transition: 0.3s;"></textarea>
                                 </div>
 
                                 <div class="form-grp">
-                                    <label>Vendor Profile Photo (JPG/PNG) *</label>
+                                    <label class="fw-bold" style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Vendor Profile Photo (JPG/PNG) *</label>
                                     <input type="file" name="vendor_profile" id="vendor_profile" accept="image/jpeg,image/png" required>
                                     <small style="color: #888;">Max size: 2MB (Formats: JPG, PNG)</small>
                                 </div>
@@ -279,58 +277,96 @@
 
         document.addEventListener('change', function (e) {
             if (e.target.name === 'vendor_profile') {
-                const fileSize = e.target.files[0].size / 1024 / 1024;
+                const fileSize = e.target.files[0].size / 1024 / 1024; // MB mein convert
                 if (fileSize > 2) {
                     alert('Profile Photo size exceeds 2MB! Please upload a smaller image.');
-                    e.target.value = '';
+                    e.target.value = ''; // Input clear kar do
                 }
             }
         });
-        // - Toggle Visibility
-function togglePass(fieldId, btn) {
-    const input = document.getElementById(fieldId);
-    const icon = btn.querySelector('i');
-    if (input.type === 'password') {
-        input.type = 'text';
-        icon.classList.replace('fa-eye', 'fa-eye-slash');
-    } else {
-        input.type = 'password';
-        icon.classList.replace('fa-eye-slash', 'fa-eye');
-    }
-}
 
-// - Password Strength Logic for Vendor
-document.getElementById('vendorPass').addEventListener('input', function () {
-    const val = this.value;
-    const wrap = document.getElementById('strengthWrap');
-    const fill = document.getElementById('strengthFill');
-    const label = document.getElementById('strengthLabel');
+        // - Eye Toggle Function
+        function togglePass(fieldId, btn) {
+            const input = document.getElementById(fieldId);
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
 
-    if (val.length === 0) {
-        wrap.style.display = 'none';
-        return;
-    }
+        // ── Real-time Field Validation with Red Error Lines ──
+        const validators = {
+            vendor_name: {
+                el: document.querySelector('[name="vendor_name"]'),
+                errId: 'err_name',
+                check: v => /^[A-Za-z\s]+$/.test(v.trim()) && v.trim().length > 1,
+                msg: 'Name should only contain letters and spaces.'
+            },
+            email: {
+                el: document.querySelector('[name="email"]'),
+                errId: 'err_email',
+                check: v => /^[a-zA-Z][a-zA-Z0-9._%+-]*@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(v.trim()),
+                msg: 'Enter a valid email starting with a letter (e.g., petcarehub@gmail.com).'
+            },
+            password: {
+                el: document.getElementById('vendorPass'),
+                errId: 'err_password',
+                check: v => /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*_])[A-Za-z\d!@#$%^&*_]{8,16}$/.test(v),
+                msg: 'Password must be 8-16 characters with uppercase, lowercase, number, and a special character (!@#$%^&*_).'
+            },
+            contact: {
+                el: document.querySelector('[name="contact"]'),
+                errId: 'err_contact',
+                check: v => /^[6-9]\d{9}$/.test(v.trim()),
+                msg: 'Enter a valid 10-digit number starting with 6, 7, 8, or 9.'
+            },
+            area_id: {
+                el: document.querySelector('[name="area_id"]'),
+                errId: 'err_area',
+                check: v => v !== '',
+                msg: 'Please select your area.'
+            },
+            address: {
+                el: document.querySelector('[name="address"]'),
+                errId: 'err_address',
+                check: v => v.trim().length >= 10,
+                msg: 'Address must be at least 10 characters.'
+            }
+        };
 
-    wrap.style.display = 'block';
+        // Error span inject karo har field ke baad
+        Object.values(validators).forEach(({ el, errId, check, msg }) => {
+            if (!el) return;
+            const span = document.createElement('small');
+            span.id = errId;
+            span.style.cssText = 'color:#dc3545; font-size:12px; display:none; margin-top:5px; padding-left:4px;';
+            span.textContent = msg;
+            if (el.id === 'vendorPass') {
+                el.parentElement.parentElement.appendChild(span);
+            } else {
+                el.parentElement.appendChild(span);
+            }
+            el.addEventListener('input', () => validate(el, check, errId, false));
+            el.addEventListener('change', () => validate(el, check, errId, false));
+            el.addEventListener('blur', () => validate(el, check, errId, true));
+        });
 
-    let score = 0;
-    if (val.length >= 8) score++;
-    if (/[A-Z]/.test(val)) score++;
-    if (/[0-9]/.test(val)) score++;
-    if (/[^A-Za-z0-9]/.test(val)) score++;
-
-    const levels = [
-        { label: 'Too Weak', color: '#dc3545', width: '25%' },
-        { label: 'Weak',     color: '#fd7e14', width: '50%' },
-        { label: 'Good',     color: '#ffc107', width: '75%' },
-        { label: 'Strong 💪', color: '#28a745', width: '100%' },
-    ];
-    const level = levels[score - 1] || levels[0];
-    fill.style.width = level.width;
-    fill.style.background = level.color;
-    label.textContent = level.label;
-    label.style.color = level.color;
-});
+        function validate(el, check, errId, isBlur = false) {
+            const val = el.value;
+            const span = document.getElementById(errId);
+            const isValid = check(val);
+            if (!isValid && (val.length > 0 || isBlur)) {
+                el.style.borderColor = '#dc3545';
+                span.style.display = 'block';
+            } else {
+                el.style.borderColor = isValid ? '#28a745' : '#f0f0f0';
+                span.style.display = 'none';
+            }
+        }
     </script>
 </body>
 </html>

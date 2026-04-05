@@ -211,7 +211,7 @@
                                 </div>
 
                                 <div class="form-grp">
-                                    <label class="fw-bold" style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Password</label>
+                                    <label class="fw-bold" style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Create Password</label>
                                     <!-- ── Eye Toggle + Strength Bar Added ── -->
                                     <div class="pass-wrapper">
                                         <input type="password" name="password" id="regPassword" placeholder="Create Password" required>
@@ -274,7 +274,7 @@
             }, 5000);
         });
 
-        // Eye toggle — same function used across all 3 pages
+        // - Eye Toggle Function
         function togglePass(fieldId, btn) {
             const input = document.getElementById(fieldId);
             const icon = btn.querySelector('i');
@@ -286,6 +286,7 @@
                 icon.classList.replace('fa-eye-slash', 'fa-eye');
             }
         }
+
         // ── Real-time Field Validation with Red Error Lines ──
         const validators = {
             cust_name: {
@@ -335,7 +336,11 @@
             span.id = errId;
             span.style.cssText = 'color:#dc3545; font-size:12px; display:none; margin-top:5px; padding-left:4px;';
             span.textContent = msg;
-            el.parentElement.appendChild(span);
+            if (el.id === 'regPassword') {
+                el.parentElement.parentElement.appendChild(span); // form-grp mein
+            } else {
+                el.parentElement.appendChild(span); // form-grp mein directly
+            }
 
             // Input/change event pe validate karo
             el.addEventListener('input', () => validate(el, check, errId, false));

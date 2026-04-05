@@ -68,7 +68,7 @@ def register(request):
         
       # 3. Contact Validation: Exactly 10 digits and starts with 6-9
         if not re.match(r'^[6-9]\d{9}$', contact):
-            messages.error(request, "Invalid Contact: Mobile number must be 10 digits and start with 6, 7, 8, or 9.")
+            messages.error(request, "Invalid Contact: Must be 10 digits starting with 6, 7, 8, or 9.")
             return render(request, 'register.html', {'areas': areas})
         
         # --- PASSWORD VALIDATION (New) ---
@@ -101,7 +101,6 @@ def register(request):
                 area_id=area_obj,
                 is_admin=0 
             )
-            
             messages.success(request, "Registration successful! You can now log in to your account. 🐾")
             return redirect('login1')
 

@@ -141,51 +141,29 @@
             padding-right: 40px !important;
         }
         /* - CSS for Eye Toggle and Strength Bar */
-.pass-wrapper {
-    position: relative;
-}
-.pass-wrapper input {
-    padding-right: 52px !important;
-}
-.pass-toggle {
-    position: absolute;
-    right: 18px;
-    top: 50%;
-    transform: translateY(-50%);
-    cursor: pointer;
-    color: #aaa;
-    font-size: 16px;
-    transition: color 0.2s;
-    background: none;
-    border: none;
-    padding: 0;
-    line-height: 1;
-}
-.pass-toggle:hover {
-    color: #894B8D;
-}
-.strength-bar-wrap {
-    margin-top: 10px;
-    display: none;
-    text-align: left; /* Ensure label is left-aligned */
-}
-.strength-bar-bg {
-    height: 6px;
-    background: #f0f0f0;
-    border-radius: 10px;
-    overflow: hidden;
-}
-.strength-bar-fill {
-    height: 100%;
-    width: 0%;
-    border-radius: 10px;
-    transition: width 0.4s ease, background 0.4s ease;
-}
-.strength-label {
-    font-size: 12px;
-    margin-top: 5px;
-    font-weight: 600;
-}
+        .pass-wrapper {
+            position: relative;
+        }
+        .pass-wrapper input {
+            padding-right: 52px !important;
+        }
+        .pass-toggle {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #aaa;
+            font-size: 16px;
+            transition: color 0.2s;
+            background: none;
+            border: none;
+            padding: 0;
+            line-height: 1;
+        }
+        .pass-toggle:hover {
+            color: #894B8D;
+        }
     </style>
 </head>
 
@@ -242,58 +220,40 @@
 
                                 <div class="form-grp">
                                     <label class="fw-bold"
-                                        style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Full
-                                        Name</label>
-                                    <input type="text" name="v_name" placeholder="Enter Full Name" required
-                                        pattern="[A-Za-z\s]+" title="Name should only contain letters and spaces">
+                                        style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Full Name</label>
+                                    <input type="text" name="v_name" placeholder="Enter Full Name" required>
                                 </div>
 
                                 <div class="form-grp">
                                     <label class="fw-bold"
-                                        style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Email
-                                        Address</label>
-                                    <input type="email" name="v_email" placeholder="Enter Email Address" required
-                                        pattern="^[a-zA-Z][a-zA-Z0-9._%+-]*@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
-                                        title="Email should start with a letter (e.g., vet@example.com)">
+                                        style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Email Address</label>
+                                    <input type="email" name="v_email" placeholder="Enter Email Address" required>
                                 </div>
 
-                               <div class="form-grp">
-    <label class="fw-bold" style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Password</label>
-    <div class="pass-wrapper">
-        <input type="password" name="v_pass" id="v_pass"
-            placeholder="Create Password" required
-            minlength="8" maxlength="16"
-            pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,16}"
-            title="Password must be 8-16 characters long and include at least one uppercase letter, one lowercase letter, and one number.">
-        <button type="button" class="pass-toggle" onclick="togglePass('v_pass', this)">
-            <i class="fas fa-eye"></i>
-        </button>
-    </div>
-    <div class="strength-bar-wrap" id="strengthWrap">
-        <div class="strength-bar-bg">
-            <div class="strength-bar-fill" id="strengthFill"></div>
-        </div>
-        <div class="strength-label" id="strengthLabel"></div>
-    </div>
-</div>
+                                <div class="form-grp">
+                                    <label class="fw-bold" style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Create Password</label>
+                                    <div class="pass-wrapper">
+                                        <input type="password" name="v_pass" id="v_pass" placeholder="Create Password" required>
+                                        <button type="button" class="pass-toggle" onclick="togglePass('v_pass', this)">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>                                    
+                                </div>
 
                                 <div class="form-grp">
                                     <label class="fw-bold"
-                                        style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Contact
-                                        Number</label>
+                                        style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Contact Number</label>
                                     <input type="text" name="v_contact" placeholder="Enter Contact Number"
-                                        maxlength="10" minlength="10" pattern="[6-9][0-9]{9}"
-                                        title="Please enter a valid 10-digit mobile number starting with 6-9"
-                                        onkeypress="return event.charCode >= 48 && event.charCode <= 57" required>
+                                        maxlength="10" onkeypress="return event.charCode >= 48 && event.charCode <= 57" required>
                                 </div>
 
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-grp">
                                             <label class="fw-bold"
-                                                style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Specialization</label>
+                                                style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Select Expertise</label>
                                             <select name="v_specialization" required>
-                                                <option value="" disabled selected>Select Primary Expertise</option>
+                                                <option value="" disabled selected>Choose Primary Expertise</option>
                                                 <option value="Dog Specialist">Dog Expert</option>
                                                 <option value="Cat Specialist">Cat Expert</option>
                                                 <option value="General (Both)">General (Both)</option>
@@ -301,12 +261,11 @@
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="fw-bold"
-                                            style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Select
-                                            Area</label>
                                         <div class="form-grp">
+                                            <label class="fw-bold"
+                                                style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Select Area</label>
                                             <select name="area_id" required>
-                                                <option value="" disabled selected>Select Area</option>
+                                                <option value="" disabled selected>Choose Your Area</option>
                                                 {% for area in areas %}
                                                 <option value="{{ area.area_id }}">{{ area.area_name }}</option>
                                                 {% endfor %}
@@ -317,17 +276,13 @@
 
                                 <div class="form-grp">
                                     <label class="fw-bold"
-                                        style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Consultation
-                                        Charges (₹)</label>
-                                    <input type="number" name="v_charges" placeholder="Enter Consultation Charges (₹)"
-                                        min="100" max="5000" step="10"
-                                        title="Standard consultation fees usually range from ₹100 to ₹5000" required>
+                                        style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Consultation Charges (₹)</label>
+                                    <input type="number" name="v_charges" placeholder="Enter Consultation Charges (₹)" required>
                                 </div>
 
                                 <div class="form-grp">
                                     <label class="fw-bold"
-                                        style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Profile
-                                        Photo (JPG/PNG) *</label>
+                                        style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Profile Photo (JPG/PNG) *</label>
                                     <input type="file" name="vet_profile" id="vet_profile" accept="image/jpeg,image/png"
                                         required>
                                     <small style="color: #888;">Max size: 2MB (Formats: JPG, PNG)</small>
@@ -335,8 +290,7 @@
 
                                 <div class="form-grp">
                                     <label class="fw-bold"
-                                        style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Verification
-                                        Documents (PDF/Certificates) *</label>
+                                        style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Verification Documents (PDF/Certificates) *</label>
                                     <input type="file" name="documents" id="documents"
                                         accept=".pdf,image/jpeg,image/png" required>
                                     <small style="color: #888;">Max size: 5MB (Formats: PDF, JPG, PNG)</small>
@@ -344,10 +298,8 @@
 
                                 <div class="form-grp">
                                     <label class="fw-bold"
-                                        style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Clinic
-                                        Address</label>
-                                    <textarea name="v_address" placeholder="Enter Clinic Address" rows="2"
-                                        minlength="10" required></textarea>
+                                        style="color: #555; display: block; margin-bottom: 5px; text-align: left;">Clinic Address</label>
+                                    <textarea name="v_address" placeholder="Enter Clinic Address" rows="2" required></textarea>
                                 </div>
 
                                 <button type="submit" class="btn-brand">Apply for Approval 🐾</button>
@@ -395,51 +347,99 @@
         });
 
         // - Eye Toggle Function
-function togglePass(fieldId, btn) {
-    const input = document.getElementById(fieldId);
-    const icon = btn.querySelector('i');
-    if (input.type === 'password') {
-        input.type = 'text';
-        icon.classList.replace('fa-eye', 'fa-eye-slash');
-    } else {
-        input.type = 'password';
-        icon.classList.replace('fa-eye-slash', 'fa-eye');
-    }
-}
+        function togglePass(fieldId, btn) {
+            const input = document.getElementById(fieldId);
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
 
-// - Password Strength Checker Logic
-document.getElementById('v_pass').addEventListener('input', function () {
-    const val = this.value;
-    const wrap = document.getElementById('strengthWrap');
-    const fill = document.getElementById('strengthFill');
-    const label = document.getElementById('strengthLabel');
+        // ── Real-time Field Validation with Red Error Lines ──
+        const validators = {
+            v_name: {
+                el: document.querySelector('[name="v_name"]'),
+                errId: 'err_name',
+                check: v => /^[A-Za-z\s]+$/.test(v.trim()) && v.trim().length > 1,
+                msg: 'Name should only contain letters and spaces.'
+            },
+            v_email: {
+                el: document.querySelector('[name="v_email"]'),
+                errId: 'err_email',
+                check: v => /^[a-zA-Z][a-zA-Z0-9._%+-]*@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(v.trim()),
+                msg: 'Enter a valid email starting with a letter (e.g., petcarehub@example.com).'
+            },
+            v_pass: {
+                el: document.getElementById('v_pass'),
+                errId: 'err_password',
+                check: v => /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*_])[A-Za-z\d!@#$%^&*_]{8,16}$/.test(v),
+                msg: 'Password must be 8-16 characters with uppercase, lowercase, number, and a special character (!@#$%^&*_).'
+            },
+            v_contact: {
+                el: document.querySelector('[name="v_contact"]'),
+                errId: 'err_contact',
+                check: v => /^[6-9]\d{9}$/.test(v.trim()),
+                msg: 'Enter a valid 10-digit number starting with 6, 7, 8, or 9.'
+            },
+            v_charges: {
+                el: document.querySelector('[name="v_charges"]'),
+                errId: 'err_charges',
+                check: v => v !== '' && parseInt(v) >= 100 && parseInt(v) <= 5000,
+                msg: 'Charges must be between ₹100 and ₹5000.'
+            },
+            v_specialization: {
+                el: document.querySelector('[name="v_specialization"]'),
+                errId: 'err_specialization',
+                check: v => v !== '',
+                msg: 'Please select your expertise.'
+            },
+            area_id: {
+                el: document.querySelector('[name="area_id"]'),
+                errId: 'err_area',
+                check: v => v !== '',
+                msg: 'Please select your area.'
+            },
+            v_address: {
+                el: document.querySelector('[name="v_address"]'),
+                errId: 'err_address',
+                check: v => v.trim().length >= 10,
+                msg: 'Address must be at least 10 characters.'
+            }
+        };
 
-    if (val.length === 0) {
-        wrap.style.display = 'none';
-        return;
-    }
+        // Error span inject karo har field ke baad
+        Object.values(validators).forEach(({ el, errId, check, msg }) => {
+            if (!el) return;
+            const span = document.createElement('small');
+            span.id = errId;
+            span.style.cssText = 'color:#dc3545; font-size:12px; display:none; margin-top:5px; padding-left:4px;';
+            span.textContent = msg;
+            if (el.id === 'v_pass') {
+                el.parentElement.parentElement.appendChild(span);
+            } else {
+                el.parentElement.appendChild(span);
+            }
+            el.addEventListener('input',  () => validate(el, check, errId, false));
+            el.addEventListener('change', () => validate(el, check, errId, false));
+            el.addEventListener('blur',   () => validate(el, check, errId, true));
+        });
 
-    wrap.style.display = 'block';
-
-    let score = 0;
-    if (val.length >= 8) score++;
-    if (/[A-Z]/.test(val)) score++;
-    if (/[0-9]/.test(val)) score++;
-    if (/[^A-Za-z0-9]/.test(val)) score++;
-
-    const levels = [
-        { label: 'Too Weak', color: '#dc3545', width: '25%' },
-        { label: 'Weak',     color: '#fd7e14', width: '50%' },
-        { label: 'Good',     color: '#ffc107', width: '75%' },
-        { label: 'Strong 💪', color: '#28a745', width: '100%' },
-    ];
-    const level = levels[score - 1] || levels[0];
-    fill.style.width = level.width;
-    fill.style.background = level.color;
-    label.textContent = level.label;
-    label.style.color = level.color;
-});
-
+        function validate(el, check, errId, isBlur = false) {
+            const val = el.value;
+            const span = document.getElementById(errId);
+            const isValid = check(val);
+            if (!isValid && (val.length > 0 || isBlur)) {
+                el.style.borderColor = '#dc3545';
+                span.style.display = 'block';
+            } else {
+                el.style.borderColor = isValid ? '#28a745' : '#f0f0f0';
+                span.style.display = 'none';
+            }
+        }
     </script>
 </body>
 
