@@ -52,8 +52,8 @@ def register(request):
             return render(request, 'register.html', {'areas': areas}) # redirect ki jagah render taaki user wahi rahe
         
         # 1. Name Validation: Check if it contains only letters and spaces
-        if not re.match(r'^[a-zA-Z\s]+$', name):
-            messages.error(request, "Invalid Name: Please use alphabets only.")
+        if not (re.match(r'^[A-Za-z\s]+$', name) and len(name) > 1):
+            messages.error(request, "Invalid Name: Please use alphabets and spaces only.")
             return render(request, 'register.html', {'areas': areas})
 
         # 2. Duplicate Email Check: Prevent multiple accounts with the same email address
@@ -72,11 +72,20 @@ def register(request):
             return render(request, 'register.html', {'areas': areas})
         
         # --- PASSWORD VALIDATION (New) ---
-        password_pattern = r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,16}$'
+        password_pattern = r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*_])[A-Za-z\d!@#$%^&*_]{8,16}$'
         if not re.match(password_pattern, password):
-            messages.error(request, "Password must be 8-16 characters long and include at least one uppercase letter, one lowercase letter, and one number.")
+            messages.error(request, "Password must be 8-16 characters with uppercase, lowercase, number, and a special character (!@#$%^&*_).")
             return render(request, 'register.html', {'areas': areas})
         
+        # Address Validation
+        if len(address) < 10:
+            messages.error(request, "Address must be at least 10 characters.")
+            return render(request, 'register.html', {'areas': areas})
+
+        # Area Validation
+        if not area_id:
+            messages.error(request, "Please select your area.")
+            return render(request, 'register.html', {'areas': areas})
         
         # --- DATABASE INSERTION ---
         try:
@@ -1274,9 +1283,10 @@ def reset_password(request):
             messages.error(request, 'OTP must be exactly 6 digits.')
             return render(request, 'reset_password.html')
 
-        # 2. Password length
-        if len(new_password) < 8:
-            messages.error(request, 'Password must be at least 8 characters long.')
+        # 2. Password validation
+        password_pattern = r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*_])[A-Za-z\d!@#$%^&*_]{8,16}$'
+        if not re.match(password_pattern, new_password):
+            messages.error(request, 'Password must be 8-16 characters with uppercase, lowercase, number, and a special character (!@#$%^&*_).')
             return render(request, 'reset_password.html')
 
         # 3. Passwords match

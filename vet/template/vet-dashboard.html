@@ -246,6 +246,10 @@
                                             {% for app in appointments %}
                                             <tr>
                                                 <td>
+                                                    <span class="badge rounded-pill mb-1 d-inline-block"
+                                                        style="background-color: #eef2ff; color: #1a237e; font-size: 10px; font-weight: 700; letter-spacing: 0.5px;">
+                                                        #{{ app.appointment_id }}
+                                                    </span>
                                                     <div class="fw-bold text-dark">{{ app.cust_id.cust_name }}</div>
                                                     <div class="small text-muted">Pet: {{ app.app_for }}</div>
                                                 </td>

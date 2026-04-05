@@ -433,7 +433,7 @@ def vet_dashboard(request):
     # --- GET DATA FETCHING ---
     context = {
         'vet': vet,
-        'appointments': Appointment.objects.filter(vet_id=vet).order_by('-appointment_id'),
+        'appointments': Appointment.objects.filter(vet_id=vet).order_by('-appointment_date'),
         'days_list': days_list,
         'time_slots': time_slots,
         'prefilled_days': prefilled_days,

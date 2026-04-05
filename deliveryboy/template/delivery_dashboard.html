@@ -414,7 +414,11 @@
                                     <!-- Order Header: Customer + Status -->
                                     <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
                                         <div>
-                                            <span class="text-muted small">Customer</span>
+                                            <span class="badge rounded-pill mb-1 d-inline-block"
+                                                style="background-color: #f4eef5; color: #894B8D; font-size: 10px; font-weight: 700; letter-spacing: 0.5px;">
+                                                #{{ group.order.order_id }}
+                                            </span>
+                                            <span class="text-muted small d-block">Customer</span>
                                             <h6 class="fw-bold m-0">{{ group.order.cust_id.cust_name }}</h6>
                                             <small class="text-muted">
                                                 📞 {{ group.order.cust_id.contact }} &nbsp;|&nbsp;
@@ -520,7 +524,11 @@
                                     <!-- Order Header -->
                                     <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
                                         <div>
-                                            <span class="text-muted small">Customer</span>
+                                            <span class="badge rounded-pill mb-1 d-inline-block"
+                                                style="background-color: #f4eef5; color: #894B8D; font-size: 10px; font-weight: 700; letter-spacing: 0.5px;">
+                                                #{{ group.order.order_id }}
+                                            </span>
+                                            <span class="text-muted small d-block">Customer</span>
                                             <h6 class="fw-bold m-0">{{ group.order.cust_id.cust_name }}</h6>
                                             <small class="text-muted">
                                                 📞 {{ group.order.cust_id.contact }} &nbsp;|&nbsp;
