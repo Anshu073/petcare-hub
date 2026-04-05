@@ -246,7 +246,7 @@ class Product(models.Model):
     prod_id = models.AutoField(primary_key=True)
     category_id = models.ForeignKey(ProductCategory, on_delete=models.CASCADE)
     vendor_id = models.ForeignKey(Vendor, on_delete=models.CASCADE)
-    prod_name = models.CharField(max_length=15)
+    prod_name = models.CharField(max_length=60)
     qty = models.IntegerField(default=0) # Default: 0 (Out of stock)
     description = models.CharField(max_length=250)
     price = models.IntegerField()
