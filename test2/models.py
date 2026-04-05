@@ -248,7 +248,7 @@ class Product(models.Model):
     vendor_id = models.ForeignKey(Vendor, on_delete=models.CASCADE)
     prod_name = models.CharField(max_length=15)
     qty = models.IntegerField(default=0) # Default: 0 (Out of stock)
-    description = models.CharField(max_length=50)
+    description = models.CharField(max_length=250)
     price = models.IntegerField()
     cover_img_path = models.ImageField(upload_to='product_covers/')
 
