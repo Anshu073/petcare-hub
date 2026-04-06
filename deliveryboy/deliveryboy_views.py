@@ -3,6 +3,7 @@ from django.contrib.auth.hashers import make_password, check_password
 from test2.models import DeliveryBoy, Vendor, Order,Area #
 from django.contrib import messages
 import os
+import re
 
 # --- 1. REGISTRATION (Redirects to Login) ---
 def delivery_register(request):
@@ -10,44 +11,89 @@ def delivery_register(request):
     areas = Area.objects.all()
 
     if request.method == "POST":
-        v_id = request.POST.get('vendor_id')
-        a_id = request.POST.get('area_id')
-        name = request.POST.get('deliveryboy_name')
-        email = request.POST.get('email')
-        contact = request.POST.get('contact')
-        password = request.POST.get('password')
+        v_id      = request.POST.get('vendor_id')
+        a_id      = request.POST.get('area_id')
+        name      = request.POST.get('deliveryboy_name', '').strip()
+        email     = request.POST.get('email', '').strip()
+        contact   = request.POST.get('contact', '').strip()
+        password  = request.POST.get('password', '')
         profile_img = request.FILES.get('deliveryboy_profile')
 
+        # --- SERVER-SIDE VALIDATION START ---
+
+        # 1. Name Validation
+        if not (re.match(r'^[A-Za-z\s]+$', name) and len(name) > 1):
+            messages.error(request, "Invalid Name: Please use alphabets and spaces only.", extra_tags='del_reg')
+            return render(request, 'registration.html', {'vendors': vendors, 'areas': areas})
+
+        # 2. Email Format Validation
+        if not re.match(r'^[a-zA-Z][a-zA-Z0-9._%+-]*@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
+            messages.error(request, "Invalid Email: Must start with a letter (e.g., petcarehub@gmail.com).", extra_tags='del_reg')
+            return render(request, 'registration.html', {'vendors': vendors, 'areas': areas})
+
+        # 3. Duplicate Email Check
         if DeliveryBoy.objects.filter(email=email).exists():
-            messages.error(request, "This email is already registered!",extra_tags='del_reg')
-            return render(request, 'registration.html', {'vendors': vendors})
+            messages.error(request, "This email is already registered!", extra_tags='del_reg')
+            return render(request, 'registration.html', {'vendors': vendors, 'areas': areas})
+
+        # 4. Contact Validation
+        if not re.match(r'^[6-9]\d{9}$', contact):
+            messages.error(request, "Invalid Contact: Must be 10 digits starting with 6, 7, 8, or 9.", extra_tags='del_reg')
+            return render(request, 'registration.html', {'vendors': vendors, 'areas': areas})
+
+        # 5. Duplicate Contact Check
+        if DeliveryBoy.objects.filter(contact=contact).exists():
+            messages.error(request, "This mobile number is already registered.", extra_tags='del_reg')
+            return render(request, 'registration.html', {'vendors': vendors, 'areas': areas})
+
+        # 6. Password Validation
+        if not re.match(r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*_])[A-Za-z\d!@#$%^&*_]{8,16}$', password):
+            messages.error(request, "Password must be 8-16 characters with uppercase, lowercase, number, and a special character (!@#$%^&*_).", extra_tags='del_reg')
+            return render(request, 'registration.html', {'vendors': vendors, 'areas': areas})
+
+        # 7. Vendor Selection
+        if not v_id:
+            messages.error(request, "Please select your linked store.", extra_tags='del_reg')
+            return render(request, 'registration.html', {'vendors': vendors, 'areas': areas})
+
+        # 8. Area Selection
+        if not a_id:
+            messages.error(request, "Please select your area.", extra_tags='del_reg')
+            return render(request, 'registration.html', {'vendors': vendors, 'areas': areas})
+
+        # 9. Profile Photo Validation
+        if profile_img:
+            allowed_ext = ['jpg', 'jpeg', 'png']
+            ext = profile_img.name.split('.')[-1].lower()
+            if ext not in allowed_ext:
+                messages.error(request, "Profile photo must be JPG or PNG.", extra_tags='del_reg')
+                return render(request, 'registration.html', {'vendors': vendors, 'areas': areas})
+            if profile_img.size > 2 * 1024 * 1024:
+                messages.error(request, "Profile photo must be under 2MB.", extra_tags='del_reg')
+                return render(request, 'registration.html', {'vendors': vendors, 'areas': areas})
 
         try:
-
             vendor_obj = Vendor.objects.get(vendor_id=v_id)
-            area_obj = Area.objects.get(area_id=a_id)
-        
-            new_boy = DeliveryBoy(
+            area_obj   = Area.objects.get(area_id=a_id)
+
+            DeliveryBoy.objects.create(
                 vendor_id=vendor_obj,
                 area_id=area_obj,
                 deliveryboy_name=name,
                 email=email,
                 contact=contact,
                 password=make_password(password),
-                status=0       # Default 0 (Vendor approve karega)
+                deliveryboy_profile=profile_img,
+                status=0
             )
-            if profile_img:
-                new_boy.deliveryboy_profile = profile_img
-            
-            new_boy.save()
-            messages.success(request, "Registration successful! Please wait for Vendor approval before login.",extra_tags='delivery_login')
-            return redirect('delivery_login') # Dashboard ki jagah login par redirect
+            messages.success(request, "Registration successful! Please wait for Vendor approval before login.", extra_tags='delivery_login')
+            return redirect('delivery_login')
 
         except Exception as e:
-            messages.error(request, f"Registration failed: {e}",extra_tags='del_reg')
+            messages.error(request, f"Registration failed: {str(e)}", extra_tags='del_reg')
             return render(request, 'registration.html', {'vendors': vendors, 'areas': areas})
-        
-    return render(request, 'registration.html', {'vendors': vendors,'areas': areas})
+
+    return render(request, 'registration.html', {'vendors': vendors, 'areas': areas})
 
 # --- 2. LOGIN ---
 def delivery_login(request):
@@ -338,40 +384,71 @@ def delivery_forgot_password(request):
                 recipient_list=[email],
                 fail_silently=False,
             )
-            messages.success(request, 'OTP sent! Check your email.', extra_tags='delivery_login')
+            messages.success(request, 'OTP sent to your registered email!', extra_tags='delivery_login')
             return redirect('delivery_reset_password_url')
-        messages.error(request, 'Email not found.', extra_tags='delivery_login')
+        messages.error(request, 'No DeliveryBoy account found with this email.')
     return render(request, 'delivery_forgot_password.html')
 
 def delivery_reset_password(request):
+
+    # Agar session mein email nahi hai toh forgot page pe bhej do
     e = request.session.get('reset_delivery_email')
-    if not e: return redirect('delivery_forgot_password_url')
+    if not e:
+        messages.error(request, 'Session expired. Please start again.')
+        return redirect('delivery_forgot_password_url')
 
-    if request.method == "POST":
-        otp_entered = request.POST.get('otp')
-        new_pass = request.POST.get('new_password')
-        confirm_pass = request.POST.get('confirm_password')
-        
-        if new_pass != confirm_pass:
-            messages.error(request, "Passwords do not match!")
+    if request.method == 'POST':
+        otp_entered  = request.POST.get('otp', '').strip()
+        new_pass     = request.POST.get('new_password', '').strip()
+        confirm_pass = request.POST.get('confirm_password', '').strip()
+
+        # ── Server-side Validations ──────────────────────────────
+
+        # 1. OTP format check
+        if not otp_entered.isdigit() or len(otp_entered) != 6:
+            messages.error(request, 'OTP must be exactly 6 digits.')
             return render(request, 'delivery_reset_password.html')
-        
-        # Regex Validation
-        password_pattern = r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,16}$'
+
+        # 2. Password validation
+        password_pattern = r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*_])[A-Za-z\d!@#$%^&*_]{8,16}$'
         if not re.match(password_pattern, new_pass):
-            messages.error(request, "Password must be 8-16 chars (1 Upper, 1 Lower, 1 Number).")
+            messages.error(request, 'Password must be 8-16 characters with uppercase, lowercase, number, and a special character (!@#$%^&*_).')
             return render(request, 'delivery_reset_password.html')
 
-        user = DeliveryBoy.objects.filter(email=e, otp=otp_entered, otp_used=0).first()
-        if user:
-            user.password = make_password(new_pass)
-            user.otp_used = 1  
-            user.otp = None 
-            user.save()
-            if 'reset_delivery_email' in request.session: del request.session['reset_delivery_email']
-            messages.success(request, "Password updated! Please login.", extra_tags='delivery_login')
-            return redirect('delivery_login')
-        else:
-            messages.error(request, "Invalid or used OTP.")
-            
+        # 3. Passwords match
+        if new_pass != confirm_pass:
+            messages.error(request, 'Passwords do not match. Please try again.')
+            return render(request, 'delivery_reset_password.html')
+
+        # ── Database Checks ──────────────────────────────────────
+
+        try:
+            agent = DeliveryBoy.objects.get(email=e)
+        except DeliveryBoy.DoesNotExist:
+            messages.error(request, 'Invalid session. Please start again.')
+            return redirect('delivery_forgot_password_url')
+
+        # 4. OTP already used check
+        if agent.otp_used == 1:
+            messages.error(request, 'This OTP has already been used. Please request a new one.')
+            return redirect('delivery_forgot_password_url')
+
+        # 5. OTP match check
+        if agent.otp != otp_entered:
+            messages.error(request, 'Invalid OTP. Please enter the correct OTP.')
+            return render(request, 'delivery_reset_password.html')
+
+        # ── All Good: Password Reset ─────────────────────────────
+
+        agent.password = make_password(new_pass)  # Hashed password save karo
+        agent.otp_used = 1                         # OTP use ho gaya, block karo
+        agent.otp = None                           # OTP clear karo
+        agent.save()
+
+        # Session reset email clear karo
+        del request.session['reset_delivery_email']
+
+        messages.success(request, 'Password reset successful! Please login with your new password.', extra_tags='delivery_login')
+        return redirect('delivery_login')
+
     return render(request, 'delivery_reset_password.html')

@@ -70,6 +70,7 @@ def vendor_register(request):
 
         try:
             area_obj = Area.objects.get(area_id=v_area)
+            
             Vendor.objects.create(
                 vendor_name=v_name,
                 email=v_email,
