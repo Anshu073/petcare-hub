@@ -382,7 +382,7 @@ def cart_count(request):
 def logout_view(request):
     logout(request) 
     request.session.flush() 
-    messages.success(request, "Logged out successfully! Come back soon. 🐾", extra_tags='client_logout_succ')
+    messages.success(request, "Logged out successfully! Come back soon. 🐾", extra_tags='login_home')
     return redirect('home')
 
 from django.db import transaction
@@ -555,7 +555,7 @@ def add_to_wishlist(request, prod_id):
     
     if wish_item:
         wish_item.delete()
-        messages.info(request, f"'{product.prod_name}' has been removed from wishlist.")
+        messages.success(request, f"'{product.prod_name}' has been removed from wishlist.")
     else:
         Wishlist.objects.create(cust_id=customer, prod_id=product)
         messages.success(request, f"Item is wishlisted! ❤️") 

@@ -70,7 +70,7 @@ def vendor_register(request):
 
         try:
             area_obj = Area.objects.get(area_id=v_area)
-            
+
             Vendor.objects.create(
                 vendor_name=v_name,
                 email=v_email,
@@ -156,6 +156,26 @@ def vendor_dashboard(request):
             p_desc = request.POST.get('p_desc')
             p_cover = request.FILES.get('p_cover') # Main Image
             p_gallery = request.FILES.getlist('p_gallery') # Multiple Gallery Images
+
+            # Price validation
+            try:
+                p_price_int = int(p_price)
+                if p_price_int < 1 or p_price_int > 99999:
+                    messages.error(request, "Price must be between ₹1 and ₹99,999.", extra_tags='vendor_login')
+                    return redirect('vendor_dashboard')
+            except (ValueError, TypeError):
+                messages.error(request, "Invalid price entered.", extra_tags='vendor_login')
+                return redirect('vendor_dashboard')
+
+            # Qty validation
+            try:
+                p_qty_int = int(p_qty)
+                if p_qty_int < 0 or p_qty_int > 999:
+                    messages.error(request, "Stock quantity must be between 0 and 999.", extra_tags='vendor_login')
+                    return redirect('vendor_dashboard')
+            except (ValueError, TypeError):
+                messages.error(request, "Invalid quantity entered.", extra_tags='vendor_login')
+                return redirect('vendor_dashboard')
 
             try:
                 # Category object fetch karo
@@ -424,7 +444,7 @@ def update_product_qty(request, prod_id):
         new_qty = request.POST.get('new_qty')
         try:
             new_qty = int(new_qty)
-            if new_qty < 0:
+            if new_qty < 0 or new_qty > 999:
                 raise ValueError
             product.qty = new_qty
             product.save()
@@ -514,7 +534,7 @@ def vendor_forgot_password(request):
                 recipient_list=[email],
                 fail_silently=False,
             )
-            messages.success(request, 'OTP sent to your email!', extra_tags='vendor_login')
+            messages.success(request, 'OTP sent to your registered email!', extra_tags='vendor_login')
             return redirect('vendor_reset_password_url')
         messages.error(request, 'No vendor account found with this email.')
     return render(request, 'vendor_forgot_password.html')

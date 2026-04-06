@@ -18,7 +18,7 @@
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h4>Area Table</h4>
-                            <a href="/insert_area_table/" class="btn btn-outline-success">ADD</a>
+                            <a href="{% url 'insert_area_table' %}" class="btn btn-outline-success">ADD</a>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
@@ -43,11 +43,11 @@
                                             <td>{{ item.area_name }}</td>
                                             <td>{{ item.pincode }}</td>
                                             <td>
-                                                <a href="/update_area_table/{{item.area_id}}" class="btn"
+                                                <a href="{% url 'update_area_table' item.area_id %}" class="btn"
                                                     style="border: 1px solid #007bff; color: #007bff; background: transparent;">EDIT</a>
                                             </td>
                                             <td>
-                                                <a href="/area_delete/{{item.area_id}}" class="btn"
+                                                <a href="{% url 'area_delete' item.area_id %}" class="btn"
                                                     style="border: 1px solid #dc3545; color: #dc3545; background: transparent;">REMOVE</a>
                                             </td>
                                         </tr>

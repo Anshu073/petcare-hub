@@ -525,7 +525,7 @@
                                                                         <form method="POST" action="{% url 'update_product_qty' p.prod_id %}">
                                                                             {% csrf_token %}
                                                                             <label class="small fw-bold mb-1">New Quantity</label>
-                                                                            <input type="number" name="new_qty" value="{{ p.qty }}" min="0"
+                                                                            <input type="number" name="new_qty" value="{{ p.qty }}" min="0" max="999"
                                                                                    class="form-control rounded-pill mb-3" required>
                                                                             <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold"
                                                                                     style="background: #894B8D; border: none;">
@@ -921,11 +921,11 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="small fw-bold mb-1">Price (₹)</label>
-                            <input type="number" name="p_price" class="form-control rounded-pill" min="1" required>
+                            <input type="number" name="p_price" class="form-control rounded-pill" min="1" max="99999" required>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="small fw-bold mb-1">Stock Quantity</label>
-                            <input type="number" name="p_qty" class="form-control rounded-pill" min="0" required>
+                            <input type="number" name="p_qty" class="form-control rounded-pill" min="0" max="999" required>
                         </div>
                     </div>
                     <div class="mb-3">

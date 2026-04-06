@@ -17,7 +17,7 @@ def show(request):
 
 
 def area_table(request):
-    items = Area.objects.all() 
+    items = Area.objects.all()
     return render(request, 'area_table.html', {'items': items})
 
 def customer_table(request):
@@ -114,17 +114,20 @@ def update_area_table(request,id):
     e = Area.objects.get(area_id=id)
     if request.method == "POST":
         try:
-             form = updatearea(request.POST,instance=e)
-             print("------------------",form.errors)
-
-             if form.is_valid():
-                 form.save()
-                 return redirect("/area_table/")          
+            form = updatearea(request.POST, instance=e)
+            print("------------------", form.errors)
+            if form.is_valid():
+                form.save()
+                return redirect("/area_table/")
+            else:
+                # Form invalid — wapas edit page pe bhejo with errors
+                return render(request, 'update_area_table.html', {'e': e, 'form': form})
         except:
-            print("---------------------",sys.exc_info())
+            print("---------------------", sys.exc_info())
+            return render(request, 'update_area_table.html', {'e': e})
     else:
         form = updatearea(instance=e)
-        return render(request,'update_area_table.html',{'e':e})
+        return render(request, 'update_area_table.html', {'e': e})
 
 
 def area_delete(request,id):
