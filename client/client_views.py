@@ -1199,9 +1199,7 @@ from django.contrib.auth.hashers import make_password, check_password
 from test2.models import Customer  # apna app name aur model adjust kar lena
 
 
-# ─────────────────────────────────────────
-# FORGOT PASSWORD — Email enter karo
-# ─────────────────────────────────────────
+
 def forgot_password(request):
 
     # Already logged in hai toh direct home pe bhej do
@@ -1259,9 +1257,6 @@ def forgot_password(request):
     return render(request, 'forgot_password.html')
 
 
-# ─────────────────────────────────────────
-# RESET PASSWORD — OTP + New Password
-# ─────────────────────────────────────────
 def reset_password(request):
 
     # Agar session mein email nahi hai toh forgot page pe bhej do
