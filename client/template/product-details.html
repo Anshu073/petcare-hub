@@ -621,6 +621,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 error: function (xhr) {
                     if (xhr.status === 401) {
                         window.location.href = "{% url 'login1' %}";
+                    } else if (xhr.status === 400) {
+                        // Stock limit ya out of stock error
+                        const data = xhr.responseJSON;
+                        Swal.fire({
+                            title: 'Cannot Add!',
+                            text: data.message || 'Stock limit reached.',
+                            icon: 'warning',
+                            confirmButtonColor: '#894B8D'
+                        });
                     }
                 }
             });

@@ -334,16 +334,20 @@ def cart_view(request):
     
 def update_cart(request, cart_id, action):
     item = get_object_or_404(Cart, cart_id=cart_id)
-    
+
     if action == 'plus':
+        # Stock check: cart qty already max stock pe hai?
+        if item.quantity >= item.prod_id.qty:
+            messages.error(request, f"Only {item.prod_id.qty} unit(s) available in stock! You already have max qty in cart.")
+            return redirect('cart')
         item.quantity += 1
     elif action == 'minus':
         if item.quantity > 1:
             item.quantity -= 1
         else:
-            item.delete() 
+            item.delete()
             return redirect('cart')
-            
+
     item.total_price = item.quantity * item.price
     item.save()
     return redirect('cart')
