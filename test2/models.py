@@ -326,9 +326,9 @@ class OrderPayment(models.Model):
 class Feedback(models.Model):
     feedback_id = models.AutoField(primary_key=True)
     cust_id = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    prod_id = models.ForeignKey(Product, on_delete=models.CASCADE,null=True)
-    vet_id = models.ForeignKey(Vet,on_delete=models.CASCADE,null=True)
-    appointment_id = models.ForeignKey(Appointment, on_delete=models.CASCADE, null=True, blank=True)
+    prod_id = models.ForeignKey(Product, on_delete=models.SET_NULL,null=True)
+    vet_id = models.ForeignKey(Vet,on_delete=models.SET_NULL,null=True)
+    appointment_id = models.ForeignKey(Appointment, on_delete=models.SET_NULL, null=True, blank=True)
     order_detail_id = models.ForeignKey('OrderDetail', on_delete=models.SET_NULL, null=True, blank=True)  # NEW
     comments = models.CharField(max_length=200)
     rating = models.IntegerField()
