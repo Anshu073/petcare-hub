@@ -67,8 +67,6 @@ The goal was to simulate a real-world pet-care ecosystem: customers can book vet
 
 ## 🖼️ Screenshots
 
-> _Add your screenshots to a `screenshots/` folder in the project root, then they'll render automatically below. See "Adding Screenshots" further down for exact filenames._
-
 | Home Page | Customer Dashboard |
 |---|---|
 | ![Home](screenshots/home.png) | ![Customer Dashboard](screenshots/customer-dashboard.png) |
@@ -118,8 +116,8 @@ Each role is a self-contained Django app with its own `*_urls.py`, `*_views.py`,
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/Anshu073/petcare.git
-cd petcare
+git clone https://github.com/Anshu073/petcare-hub.git
+cd petcare-hub
 ```
 
 ### 2. Create a virtual environment
