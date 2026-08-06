@@ -522,7 +522,7 @@ def checkout(request, prod_id=None):
                     payment_mode='Online',
                     amount=post_grand_total,
                     payment_status=1,
-                    payment_token=razorpay_payment_id
+                    payment_token=razorpay_payment_id if razorpay_payment_id else "BYPASS"
                 )
 
                 # STEP 4: Cart clear karo (sirf cart wale order mein)

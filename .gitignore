@@ -129,6 +129,7 @@ celerybeat.pid
 
 # Environments
 .env
+.env.local
 .venv
 env/
 venv/
@@ -179,3 +180,25 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+# Editor / IDE
+.vscode/
+.idea/
+
+# Django collected static files
+/static/
+
+# ---- Media: user-uploaded personal data (privacy) ----
+# Keep demo product images (used to showcase the storefront),
+# but never commit real users' profile photos / uploaded documents.
+media/customer_profiles/
+media/profiles/
+media/vendor_profiles/
+media/vet_profiles/
+media/vet_docs/
+media/delivery_profiles/
+media/reports/
+!media/product_covers/
+!media/product_gallery/
+
+# Screenshots working files (keep only final images used in README)
+screenshots/*.psd
