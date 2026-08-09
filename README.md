@@ -10,6 +10,7 @@ Book vet appointments, order pet products, manage vendors and deliveries — all
 [![Django](https://img.shields.io/badge/Django-5.2-092E20?logo=django)](https://www.djangoproject.com/)
 [![SQLite](https://img.shields.io/badge/Database-SQLite-lightgrey)](https://www.sqlite.org/)
 [![Razorpay](https://img.shields.io/badge/Payments-Razorpay-0C2451)](https://razorpay.com/)
+[![AI](https://img.shields.io/badge/AI-Gemini%20API-4285F4?logo=google)](https://ai.google.dev/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![NOC Certified](https://img.shields.io/badge/Partnership-NOC%20Certified-28a745)](#-recognition)
 
@@ -44,6 +45,7 @@ The goal was to simulate a real-world pet-care ecosystem: customers can book vet
 - Secure checkout with **Razorpay** payment integration
 - Order history, appointment history, profile management
 - OTP-based email password reset (Gmail SMTP)
+- **AI-analyzed reviews** — every product, order, and vet feedback comment is automatically classified by sentiment (see [🤖 AI Feature](#-ai-feature-review-sentiment-analysis) below)
 
 **🩺 Vet**
 - Personal dashboard with schedule management
@@ -64,6 +66,9 @@ The goal was to simulate a real-world pet-care ecosystem: customers can book vet
 - Approve/reject Vet & Vendor registrations
 - Manage areas, categories, products, gallery, feedback
 - Full CRUD tables for every entity in the system
+- Feedback table with color-coded **AI sentiment badges** (Positive / Neutral / Negative) for at-a-glance moderation
+
+"## 🖼️ Screenshots" heading se PEHLE, yeh poora naya section paste kar (isme heading bhi shamil hai): ## 🤖 AI Feature — Review Sentiment Analysis PetCareHub integrates **Google's Gemini API** to automatically analyze the sentiment of every customer-submitted comment — product reviews, order reviews, and vet appointment feedback. **How it works:** 1. When a customer submits a review (from the product page, the "My Orders" page after delivery, or after a vet appointment), the comment text is sent to the Gemini API alongside a system prompt that instructs the model to act strictly as a sentiment classifier. 2. The API returns a structured JSON response — `sentiment` (`positive` / `neutral` / `negative`) and a short `reason` — which is parsed and saved to the `Feedback` model. 3. Sentiment is normalized to English regardless of the input language (Hindi, Hinglish, and English comments are all supported). 4. The admin's Feedback table renders each result as a color-coded badge (🟢 Positive / 🟡 Neutral / 🔴 Negative) so low-rated or negative feedback can be spotted at a glance, without reading every comment. **Reliability:** The integration is wrapped in error handling — if the API is unreachable, times out, or returns an unexpected format, the review still saves normally with the sentiment field left blank. A failure in the AI layer never blocks the core review-submission flow. **Tech used:** Gemini API (`gemini-flash-latest`) called via `requests` (no heavyweight SDK dependency), `python-dotenv` for key management, prompt engineering for structured JSON output.
 
 ## 🖼️ Screenshots
 
@@ -88,6 +93,7 @@ The goal was to simulate a real-world pet-care ecosystem: customers can book vet
 | Frontend | HTML5, CSS3, Bootstrap, JavaScript, jQuery, Swiper.js |
 | Auth | Custom role-based auth with hashed passwords + middleware guards |
 | Payments | Razorpay |
+| AI | Google Gemini API — review sentiment classification |
 | Email | Django SMTP backend (Gmail) for OTP flows |
 | Config | `python-dotenv` for environment-based secrets |
 
@@ -141,6 +147,7 @@ copy .env.example .env     # Windows
 Then open `.env` and set:
 - `DJANGO_SECRET_KEY` — any random string (or generate one)
 - `EMAIL_HOST_USER` / `EMAIL_HOST_PASSWORD` — your own Gmail + [App Password](https://myaccount.google.com/apppasswords), only needed if you want OTP emails to work
+- `GEMINI_API_KEY` — free API key from [Google AI Studio](https://aistudio.google.com/), only needed if you want AI sentiment analysis on reviews to work
 
 ### 5. Run migrations
 ```bash
