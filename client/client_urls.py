@@ -54,4 +54,5 @@ urlpatterns = [
     path('adoption/', client_views.adoption, name='adoption'),
     path('developers/', client_views.developers,name='developers'),
     path('future/', client_views.future,name='future'),
+    path('chatbot-reply/', client_views.chatbot_reply, name='chatbot_reply'),
 ]

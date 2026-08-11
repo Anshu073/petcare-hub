@@ -899,12 +899,17 @@ def submit_vet_feedback(request):
                 return redirect('my_appointments')
 
             # 5. CREATE FEEDBACK
+            from test2.ai_helpers import get_sentiment
+            ai_result = get_sentiment(comments)
+
             Feedback.objects.create(
                 cust_id=cust_obj,
                 vet_id=vet_obj,
                 appointment_id=app_obj,
                 rating=rating,
-                comments=comments
+                comments=comments,
+                sentiment=ai_result["sentiment"],
+                sentiment_reason=ai_result["reason"]
             )
 
             messages.success(request, f"Your review for Dr. {vet_obj.vet_name} has been submitted! ⭐")
@@ -1349,12 +1354,17 @@ def submit_order_review(request, prod_id):
             messages.warning(request, "You have already reviewed this product.")
             return redirect('my_orders')
 
+        from test2.ai_helpers import get_sentiment
+        ai_result = get_sentiment(comments)
+
         Feedback.objects.create(
             cust_id=customer,
             prod_id=product,
             order_detail_id=order_detail_obj,
             rating=rating,
-            comments=comments
+            comments=comments,
+            sentiment=ai_result["sentiment"],
+            sentiment_reason=ai_result["reason"]
         )
 
         messages.success(request, f"Review submitted for {product.prod_name}! ⭐")
@@ -1370,3 +1380,25 @@ def developers(request):
 
 def future(request):
     return render(request,'future.html')
+
+import json as json_lib
+
+def chatbot_reply(request):
+    if request.method != "POST":
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+
+    try:
+        data = json_lib.loads(request.body)
+        user_message = data.get('message', '').strip()
+        conversation_history = data.get('history', [])
+
+        if not user_message:
+            return JsonResponse({'status': 'error', 'message': 'Empty message'}, status=400)
+
+        from test2.ai_helpers import get_chat_reply
+        reply = get_chat_reply(user_message, conversation_history)
+
+        return JsonResponse({'status': 'success', 'reply': reply})
+
+    except json_lib.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)

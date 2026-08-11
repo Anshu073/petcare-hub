@@ -202,3 +202,5 @@ media/reports/
 
 # Screenshots working files (keep only final images used in README)
 screenshots/*.psd
+
+test_ai.py

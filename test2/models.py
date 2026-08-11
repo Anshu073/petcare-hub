@@ -333,6 +333,8 @@ class Feedback(models.Model):
     comments = models.CharField(max_length=200)
     rating = models.IntegerField()
     feedback_date = models.DateTimeField(auto_now_add=True)
+    sentiment = models.CharField(max_length=10, null=True, blank=True)
+    sentiment_reason = models.CharField(max_length=150, null=True, blank=True)
 
     class Meta:
         db_table = 'FEEDBACK_TABLE'

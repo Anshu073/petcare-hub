@@ -30,6 +30,8 @@
                                             <th>VET_ID</th>
                                             <th>APPOINTMENT_ID</th>
                                             <th>COMMENTS</th>
+                                            <th>SENTIMENT</th>
+                                            <th>REASON</th>
                                             <th>RATING</th>
                                             <th>FEEDBACK_DATE</th>
                                         </tr>
@@ -43,6 +45,20 @@
                                             <td>{{ item.vet_id.vet_name }}</td>
                                             <td>{{ item.appointment_id_id }}</td>
                                             <td>{{ item.comments }}</td>
+                                            <td>
+                                                {% if item.sentiment == "positive" %}
+                                                    <span class="badge badge-success">Positive</span>
+                                                {% elif item.sentiment == "negative" %}
+                                                    <span class="badge badge-danger">Negative</span>
+                                                {% elif item.sentiment == "neutral" %}
+                                                    <span class="badge badge-warning">Neutral</span>
+                                                {% else %}
+                                                    <span class="badge badge-secondary">—</span>
+                                                {% endif %}
+                                            </td>
+                                            <td style="max-width: 220px; line-height: 1.4;">
+                                                {{ item.sentiment_reason|default:"—" }}
+                                            </td>
                                             <td>{{ item.rating }}</td>
                                             <td>{{ item.feedback_date }}</td>
                                         </tr>
