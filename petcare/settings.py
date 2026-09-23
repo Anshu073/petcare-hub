@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'vet.apps.VetConfig',
     'deliveryboy.apps.DeliveryboyConfig',
     'vendor.apps.VendorConfig',
+    'cloudinary_storage',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -48,10 +49,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'mathfilters',
+    'cloudinary',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -130,7 +133,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 import os
 STATIC_URL = 'static/'
-STATICFILES_DIRS=(os.path.join(BASE_DIR,'test2/static/'),os.path.join(BASE_DIR, 'client/client_static/'),os.path.join(BASE_DIR, 'vet/vet_static/'),os.path.join(BASE_DIR, 'delivery/deliveryboy_static/'),os.path.join(BASE_DIR, 'vendor/vendor_static/'),)
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_DIRS=(os.path.join(BASE_DIR,'test2/static/'),os.path.join(BASE_DIR, 'client/client_static/'),os.path.join(BASE_DIR, 'vet/vet_static/'),os.path.join(BASE_DIR, 'deliveryboy/deliveryboy_static/'),os.path.join(BASE_DIR, 'vendor/vendor_static/'),)
 STATIC_ROOT=os.path.join(BASE_DIR,'static')
 
 # Default primary key field type
@@ -149,3 +154,11 @@ EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 # Media files (user uploads)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
+}
