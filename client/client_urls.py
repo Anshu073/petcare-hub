@@ -19,6 +19,7 @@ from django.urls import path
 from . import client_views
 
 urlpatterns = [
+    path('', client_views.show, name='root'),
     path('home/',client_views.show,name="home"),
     path('register1/',client_views.register,name="register"),
     path('login1/',client_views.login,name="login1"),
