@@ -1,4 +1,4 @@
-from django.db import migrations
+from django.db import migrations, models
 
 def load_areas(apps, schema_editor):
     Area = apps.get_model('test2', 'Area')
@@ -22,5 +22,10 @@ class Migration(migrations.Migration):
         ('test2', '0046_feedback_sentiment_feedback_sentiment_reason'),
     ]
     operations = [
-        migrations.RunPython(load_areas),
+        migrations.AlterField(
+            model_name='area',
+            name='area_name',
+            field=models.CharField(max_length=50),
+        ),
+        migrations.RunPython(load_areas),  # yeh already hai
     ]
