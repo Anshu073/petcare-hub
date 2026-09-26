@@ -28,7 +28,7 @@ class Customer(models.Model):
     cust_name = models.CharField(max_length=15,validators=[name_regex])
     password = models.CharField(max_length=128)  # Increased length for hashed passwords
     email = models.EmailField(max_length=20, unique=True)
-    contact = models.CharField(max_length=10, validators=[phone_regex])
+    contact = models.CharField(max_length=15, validators=[phone_regex])
     address = models.CharField(max_length=200)
     user_profile = models.ImageField(upload_to='customer_profiles/', null=True, blank=True)    # Real-world ImageField
     is_admin = models.IntegerField(default=0) # Default: 0 (Normal User)
@@ -82,7 +82,7 @@ class Vet(models.Model):
             choices=SPECIALIST_CHOICES, # This creates a dropdown in Admin Panel
             default='General (Both)'
         )
-        contact = models.CharField(max_length=10,validators=[phone_regex])
+        contact = models.CharField(max_length=15,validators=[phone_regex])
         documents = models.FileField(upload_to='vet_docs/', null=True, blank=True)
         status = models.IntegerField(default=0) # Default: 0 (Pending approval)
         charges = models.IntegerField()
@@ -147,7 +147,7 @@ class Vendor(models.Model):
     vendor_name = models.CharField(max_length=15)
     password = models.CharField(max_length=128)  # Increased length for hashed passwords
     email = models.EmailField(max_length=20, unique=True)
-    contact = models.CharField(max_length=10)
+    contact = models.CharField(max_length=15)
     address = models.CharField(max_length=200)
     otp = models.CharField(max_length=6, null=True)
     otp_used = models.IntegerField(default=0)
@@ -178,7 +178,7 @@ class DeliveryBoy(models.Model):
     deliveryboy_name = models.CharField(max_length=15)
     password = models.CharField(max_length=128)  # Increased length for hashed passwords
     email = models.EmailField(max_length=20, unique=True)
-    contact = models.CharField(max_length=10)
+    contact = models.CharField(max_length=15)
     status = models.IntegerField(default=0) # 0:Pending, 1:Approved, 2:Rejected, 3:Restricted
     is_available = models.IntegerField(default=0) # Default: 0 (Offline)
     deliveryboy_profile = models.ImageField(upload_to='delivery_profiles/', null=True, blank=True)
