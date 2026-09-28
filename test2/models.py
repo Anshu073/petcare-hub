@@ -28,7 +28,7 @@ class Customer(models.Model):
     area_id = models.ForeignKey(Area, on_delete=models.CASCADE)
     cust_name = models.CharField(max_length=15,validators=[name_regex])
     password = models.CharField(max_length=128)  # Increased length for hashed passwords
-    email = models.EmailField(max_length=20, unique=True)
+    email = models.EmailField(max_length=50, unique=True)
     contact = models.CharField(max_length=15, validators=[phone_regex])
     address = models.CharField(max_length=200)
     # user_profile = models.ImageField(upload_to='customer_profiles/', null=True, blank=True)    # Real-world ImageField
@@ -94,7 +94,7 @@ class Vet(models.Model):
         area_id = models.ForeignKey(Area, on_delete=models.CASCADE)
         vet_name = models.CharField(max_length=15,validators=[name_regex])
         password = models.CharField(max_length=128)  # Increased length for hashed passwords
-        email = models.EmailField(max_length=20, unique=True)
+        email = models.EmailField(max_length=50, unique=True)
         vet_profile = models.ImageField(upload_to='vet_profiles/', null=True, blank=True)
         specialization = models.CharField(
             max_length=20, 
@@ -165,7 +165,7 @@ class Vendor(models.Model):
     area_id = models.ForeignKey(Area, on_delete=models.CASCADE)
     vendor_name = models.CharField(max_length=15)
     password = models.CharField(max_length=128)  # Increased length for hashed passwords
-    email = models.EmailField(max_length=20, unique=True)
+    email = models.EmailField(max_length=50, unique=True)
     contact = models.CharField(max_length=15)
     address = models.CharField(max_length=200)
     otp = models.CharField(max_length=6, null=True)
@@ -196,7 +196,7 @@ class DeliveryBoy(models.Model):
     area_id = models.ForeignKey(Area, on_delete=models.CASCADE)
     deliveryboy_name = models.CharField(max_length=15)
     password = models.CharField(max_length=128)  # Increased length for hashed passwords
-    email = models.EmailField(max_length=20, unique=True)
+    email = models.EmailField(max_length=50, unique=True)
     contact = models.CharField(max_length=15)
     status = models.IntegerField(default=0) # 0:Pending, 1:Approved, 2:Rejected, 3:Restricted
     is_available = models.IntegerField(default=0) # Default: 0 (Offline)
