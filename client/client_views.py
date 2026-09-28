@@ -983,6 +983,9 @@ def edit_profile(request):
         
         # Photo Upload
         elif 'profile_pic' in request.FILES:
+            import cloudinary
+            print("CLOUDINARY CONFIG:", cloudinary.config().cloud_name)
+            print("FILE RECEIVED:", request.FILES['profile_pic'])
             customer.user_profile = request.FILES['profile_pic']
             
         customer.save() 
