@@ -44,25 +44,42 @@ class Customer(models.Model):
         db_table = 'CUSTOMER_TABLE'
         
 # Jab bhi Customer ka data save hoga, ye function purani photo check karega
+# @receiver(pre_save, sender=Customer)
+# def auto_delete_file_on_change(sender, instance, **kwargs):
+#     # Agar ye naya data nahi hai (yani update ho raha hai)
+#     if not instance.pk:
+#         return False
+
+#     try:
+#         # Database se purana record uthao
+#         old_file = sender.objects.get(pk=instance.pk).user_profile
+#     except sender.DoesNotExist:
+#         return False
+
+#     # Nayi file jo upload ho rahi hai
+#     new_file = instance.user_profile
+    
+#     # Agar purani file exist karti hai aur wo nayi file se alag hai
+#     if old_file and old_file != new_file:
+#         if os.path.isfile(old_file.path):
+#             os.remove(old_file.path) # Purani file ko storage se uda do        
+
 @receiver(pre_save, sender=Customer)
 def auto_delete_file_on_change(sender, instance, **kwargs):
-    # Agar ye naya data nahi hai (yani update ho raha hai)
     if not instance.pk:
         return False
-
     try:
-        # Database se purana record uthao
         old_file = sender.objects.get(pk=instance.pk).user_profile
     except sender.DoesNotExist:
         return False
-
-    # Nayi file jo upload ho rahi hai
     new_file = instance.user_profile
-    
-    # Agar purani file exist karti hai aur wo nayi file se alag hai
     if old_file and old_file != new_file:
-        if os.path.isfile(old_file.path):
-            os.remove(old_file.path) # Purani file ko storage se uda do        
+        # CloudinaryField ke liye
+        try:
+            import cloudinary.uploader
+            cloudinary.uploader.destroy(str(old_file))
+        except:
+            pass  # Local file hai toh ignore karo
 
 #3
 class Vet(models.Model):
