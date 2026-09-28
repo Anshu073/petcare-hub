@@ -18,6 +18,7 @@ class Area(models.Model):
         db_table = 'AREA_TABLE'
 
 from django.core.validators import RegexValidator
+from cloudinary.models import CloudinaryField
 #2
 class Customer(models.Model):
     phone_regex = RegexValidator(regex=r'^\d{10}$', message="Contact number must be 10 digits.")
@@ -30,7 +31,8 @@ class Customer(models.Model):
     email = models.EmailField(max_length=20, unique=True)
     contact = models.CharField(max_length=15, validators=[phone_regex])
     address = models.CharField(max_length=200)
-    user_profile = models.ImageField(upload_to='customer_profiles/', null=True, blank=True)    # Real-world ImageField
+    # user_profile = models.ImageField(upload_to='customer_profiles/', null=True, blank=True)    # Real-world ImageField
+    user_profile = CloudinaryField('image', folder='customer_profiles', null=True, blank=True)
     is_admin = models.IntegerField(default=0) # Default: 0 (Normal User)
     otp = models.CharField(max_length=6 , null=True)
     otp_used = models.IntegerField(default=0)
