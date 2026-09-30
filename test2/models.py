@@ -79,7 +79,7 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
             import cloudinary.uploader
             cloudinary.uploader.destroy(str(old_file))
         except:
-            pass  # Local file hai toh ignore karo
+            pass
 
 #3
 class Vet(models.Model):
@@ -95,14 +95,16 @@ class Vet(models.Model):
         vet_name = models.CharField(max_length=15,validators=[name_regex])
         password = models.CharField(max_length=128)  # Increased length for hashed passwords
         email = models.EmailField(max_length=50, unique=True)
-        vet_profile = models.ImageField(upload_to='vet_profiles/', null=True, blank=True)
+        # vet_profile = models.ImageField(upload_to='vet_profiles/', null=True, blank=True)
+        vet_profile = CloudinaryField('image', folder='vet_profiles', null=True, blank=True)
         specialization = models.CharField(
             max_length=20, 
             choices=SPECIALIST_CHOICES, # This creates a dropdown in Admin Panel
             default='General (Both)'
         )
         contact = models.CharField(max_length=15,validators=[phone_regex])
-        documents = models.FileField(upload_to='vet_docs/', null=True, blank=True)
+        # documents = models.FileField(upload_to='vet_docs/', null=True, blank=True)
+        documents = CloudinaryField('raw', folder='vet_docs', null=True, blank=True)
         status = models.IntegerField(default=0) # Default: 0 (Pending approval)
         charges = models.IntegerField()
         address = models.CharField(max_length=200)
@@ -128,8 +130,13 @@ def auto_delete_vet_profile_on_change(sender, instance, **kwargs):
         return False
     new_file = instance.vet_profile
     if old_file and old_file != new_file:
-        if os.path.isfile(old_file.path):
-            os.remove(old_file.path)
+        # if os.path.isfile(old_file.path):
+        #     os.remove(old_file.path)
+        try:
+            import cloudinary.uploader
+            cloudinary.uploader.destroy(str(old_file))
+        except:
+            pass
  
 @receiver(pre_save, sender=Vet)
 def auto_delete_vet_doc_on_change(sender, instance, **kwargs):
@@ -141,8 +148,11 @@ def auto_delete_vet_doc_on_change(sender, instance, **kwargs):
         return False
     new_file = instance.documents
     if old_file and old_file != new_file:
-        if os.path.isfile(old_file.path):
-            os.remove(old_file.path)
+        try:
+            import cloudinary.uploader
+            cloudinary.uploader.destroy(str(old_file), resource_type='raw')
+        except:
+            pass
         
 class VetSchedule(models.Model):
     DAYS = [
@@ -170,7 +180,8 @@ class Vendor(models.Model):
     address = models.CharField(max_length=200)
     otp = models.CharField(max_length=6, null=True)
     otp_used = models.IntegerField(default=0)
-    vendor_profile = models.ImageField(upload_to='vendor_profiles/', null=True, blank=True)
+    # vendor_profile = models.ImageField(upload_to='vendor_profiles/', null=True, blank=True)
+    vendor_profile = CloudinaryField('image', folder='vendor_profiles', null=True, blank=True)
     status = models.IntegerField(default=0)
 
     class Meta:
@@ -186,8 +197,13 @@ def auto_delete_vendor_file_on_change(sender, instance, **kwargs):
         return False
     new_file = instance.vendor_profile
     if old_file and old_file != new_file:
-        if os.path.isfile(old_file.path):
-            os.remove(old_file.path)
+        # if os.path.isfile(old_file.path):
+        #     os.remove(old_file.path)
+        try:
+            import cloudinary.uploader
+            cloudinary.uploader.destroy(str(old_file))
+        except:
+            pass
             
 #5
 class DeliveryBoy(models.Model):
@@ -200,7 +216,8 @@ class DeliveryBoy(models.Model):
     contact = models.CharField(max_length=15)
     status = models.IntegerField(default=0) # 0:Pending, 1:Approved, 2:Rejected, 3:Restricted
     is_available = models.IntegerField(default=0) # Default: 0 (Offline)
-    deliveryboy_profile = models.ImageField(upload_to='delivery_profiles/', null=True, blank=True)
+    # deliveryboy_profile = models.ImageField(upload_to='delivery_profiles/', null=True, blank=True)
+    deliveryboy_profile = CloudinaryField('image', folder='delivery_profiles', null=True, blank=True)
     otp = models.CharField(max_length=6 , null=True)
     otp_used = models.IntegerField(default=0)
 
@@ -217,8 +234,13 @@ def auto_delete_deliveryboy_file_on_change(sender, instance, **kwargs):
         return False
     new_file = instance.deliveryboy_profile
     if old_file and old_file != new_file:
-        if os.path.isfile(old_file.path):
-            os.remove(old_file.path)
+        # if os.path.isfile(old_file.path):
+        #     os.remove(old_file.path)
+        try:
+            import cloudinary.uploader
+            cloudinary.uploader.destroy(str(old_file))
+        except:
+            pass
             
 #6
 class Appointment(models.Model):
@@ -230,7 +252,8 @@ class Appointment(models.Model):
     appointment_date = models.DateTimeField()
     appointment_status = models.IntegerField(default=0) # 0:Pending, 1:Selection, 2:Cancelled, 3:Approved, 4:Done, 5:Absent, 6:Reschedule Requested
     payment_timer_start = models.DateTimeField(null=True, blank=True) # 30-60 min timer
-    medical_report = models.FileField(upload_to='reports/', null=True, blank=True) #
+    # medical_report = models.FileField(upload_to='reports/', null=True, blank=True)
+    medical_report = CloudinaryField('raw', folder='reports', null=True, blank=True)
     payment_mode = models.IntegerField(default=0) # 1: Online, 2: Cash
     charges = models.IntegerField(default=0) # Har appointment ka actual rate yahan save hoga
     cancel_reason = models.TextField(null=True, blank=True)
@@ -249,8 +272,13 @@ def auto_delete_appointment_report_on_change(sender, instance, **kwargs):
         return False
     new_file = instance.medical_report
     if old_file and old_file != new_file:
-        if os.path.isfile(old_file.path):
-            os.remove(old_file.path)
+        # if os.path.isfile(old_file.path):
+        #     os.remove(old_file.path)
+        try:
+            import cloudinary.uploader
+            cloudinary.uploader.destroy(str(old_file), resource_type='raw')
+        except:
+            pass
             
 #7
 class ProductCategory(models.Model):
@@ -269,7 +297,8 @@ class Product(models.Model):
     qty = models.IntegerField(default=0) # Default: 0 (Out of stock)
     description = models.CharField(max_length=250)
     price = models.IntegerField()
-    cover_img_path = models.ImageField(upload_to='product_covers/')
+    # cover_img_path = models.ImageField(upload_to='product_covers/')
+    cover_img_path = CloudinaryField('image', folder='product_covers')
 
     class Meta:
         db_table = 'PRODUCT_TABLE'
@@ -284,8 +313,13 @@ def auto_delete_product_cover_on_change(sender, instance, **kwargs):
         return False
     new_file = instance.cover_img_path
     if old_file and old_file != new_file:
-        if os.path.isfile(old_file.path):
-            os.remove(old_file.path)
+        # if os.path.isfile(old_file.path):
+        #     os.remove(old_file.path)
+        try:
+            import cloudinary.uploader
+            cloudinary.uploader.destroy(str(old_file))
+        except:
+            pass
 
 #9
 class Order(models.Model):
@@ -361,7 +395,8 @@ class Feedback(models.Model):
 class Gallery(models.Model):
     gallery_id = models.AutoField(primary_key=True)
     prod_id = models.ForeignKey(Product, on_delete=models.CASCADE)
-    image_path = models.ImageField(upload_to='product_gallery/')
+    # image_path = models.ImageField(upload_to='product_gallery/')
+    image_path = CloudinaryField('image', folder='product_gallery')
 
     class Meta:
         db_table = 'GALLERY_TABLE'
@@ -376,8 +411,13 @@ def auto_delete_gallery_file_on_change(sender, instance, **kwargs):
         return False
     new_file = instance.image_path
     if old_file and old_file != new_file:
-        if os.path.isfile(old_file.path):
-            os.remove(old_file.path)
+        # if os.path.isfile(old_file.path):
+        #     os.remove(old_file.path)
+        try:
+            import cloudinary.uploader
+            cloudinary.uploader.destroy(str(old_file))
+        except:
+            pass
 
 # 15. WHISLIST_TABLE
 class Wishlist(models.Model):
