@@ -73,8 +73,7 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
     except sender.DoesNotExist:
         return False
     new_file = instance.user_profile
-    if old_file and old_file != new_file:
-        # CloudinaryField ke liye
+    if old_file and str(old_file) != str(new_file):
         try:
             import cloudinary.uploader
             cloudinary.uploader.destroy(str(old_file))
@@ -129,9 +128,7 @@ def auto_delete_vet_profile_on_change(sender, instance, **kwargs):
     except sender.DoesNotExist:
         return False
     new_file = instance.vet_profile
-    if old_file and old_file != new_file:
-        # if os.path.isfile(old_file.path):
-        #     os.remove(old_file.path)
+    if old_file and str(old_file) != str(new_file):
         try:
             import cloudinary.uploader
             cloudinary.uploader.destroy(str(old_file))
@@ -147,10 +144,10 @@ def auto_delete_vet_doc_on_change(sender, instance, **kwargs):
     except sender.DoesNotExist:
         return False
     new_file = instance.documents
-    if old_file and old_file != new_file:
+    if old_file and str(old_file) != str(new_file):
         try:
             import cloudinary.uploader
-            cloudinary.uploader.destroy(str(old_file), resource_type='raw')
+            cloudinary.uploader.destroy(str(old_file))
         except:
             pass
         
@@ -196,9 +193,7 @@ def auto_delete_vendor_file_on_change(sender, instance, **kwargs):
     except sender.DoesNotExist:
         return False
     new_file = instance.vendor_profile
-    if old_file and old_file != new_file:
-        # if os.path.isfile(old_file.path):
-        #     os.remove(old_file.path)
+    if old_file and str(old_file) != str(new_file):
         try:
             import cloudinary.uploader
             cloudinary.uploader.destroy(str(old_file))
@@ -233,9 +228,7 @@ def auto_delete_deliveryboy_file_on_change(sender, instance, **kwargs):
     except sender.DoesNotExist:
         return False
     new_file = instance.deliveryboy_profile
-    if old_file and old_file != new_file:
-        # if os.path.isfile(old_file.path):
-        #     os.remove(old_file.path)
+    if old_file and str(old_file) != str(new_file):
         try:
             import cloudinary.uploader
             cloudinary.uploader.destroy(str(old_file))
@@ -271,12 +264,10 @@ def auto_delete_appointment_report_on_change(sender, instance, **kwargs):
     except sender.DoesNotExist:
         return False
     new_file = instance.medical_report
-    if old_file and old_file != new_file:
-        # if os.path.isfile(old_file.path):
-        #     os.remove(old_file.path)
+    if old_file and str(old_file) != str(new_file):
         try:
             import cloudinary.uploader
-            cloudinary.uploader.destroy(str(old_file), resource_type='raw')
+            cloudinary.uploader.destroy(str(old_file))
         except:
             pass
             
@@ -312,9 +303,7 @@ def auto_delete_product_cover_on_change(sender, instance, **kwargs):
     except sender.DoesNotExist:
         return False
     new_file = instance.cover_img_path
-    if old_file and old_file != new_file:
-        # if os.path.isfile(old_file.path):
-        #     os.remove(old_file.path)
+    if old_file and str(old_file) != str(new_file):
         try:
             import cloudinary.uploader
             cloudinary.uploader.destroy(str(old_file))
@@ -410,9 +399,7 @@ def auto_delete_gallery_file_on_change(sender, instance, **kwargs):
     except sender.DoesNotExist:
         return False
     new_file = instance.image_path
-    if old_file and old_file != new_file:
-        # if os.path.isfile(old_file.path):
-        #     os.remove(old_file.path)
+    if old_file and str(old_file) != str(new_file):
         try:
             import cloudinary.uploader
             cloudinary.uploader.destroy(str(old_file))

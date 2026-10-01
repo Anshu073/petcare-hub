@@ -227,6 +227,12 @@ def vendor_dashboard(request):
                 return redirect('vendor_dashboard')
 
             if 'vendor_profile' in request.FILES:
+                if vendor.vendor_profile:
+                    try:
+                        import cloudinary.uploader
+                        cloudinary.uploader.destroy(str(vendor.vendor_profile))
+                    except:
+                        pass
                 vendor.vendor_profile = request.FILES['vendor_profile']
 
             vendor.vendor_name = v_name

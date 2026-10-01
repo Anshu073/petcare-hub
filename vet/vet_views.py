@@ -214,7 +214,7 @@ def vet_dashboard(request):
                     return redirect('vet_dashboard')
 
                 # 3. Address Validation (Letters, Numbers, Spaces, and symbols like - , / .)
-                if not re.match(r"^[A-Za-z0-9]+([\s\-\,\/\.][A-Za-z0-9]+)*$", new_address):
+                if not re.match(r"^[A-Za-z0-9\s\-\,\/\.]+$", new_address) or len(new_address.strip()) < 5:
                     messages.error(request, "Address must be valid. Use letters, numbers, and basic symbols (-,/.). No leading/trailing spaces.")
                     return redirect('vet_dashboard')
 
@@ -240,7 +240,13 @@ def vet_dashboard(request):
                     # Extension Check
                     ext = os.path.splitext(profile_pic.name)[1].lower()
                     if ext in ['.jpg', '.jpeg', '.png', '.webp']:
-                        vet.vet_profile = profile_pic 
+                        if vet.vet_profile:
+                            try:
+                                import cloudinary.uploader
+                                cloudinary.uploader.destroy(str(vet.vet_profile))
+                            except:
+                                pass
+                        vet.vet_profile = profile_pic
                     else:
                         messages.error(request, "Invalid image format. Use JPG, PNG or WEBP.")
                         return redirect('vet_dashboard')

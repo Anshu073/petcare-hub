@@ -165,6 +165,12 @@ def delivery_dashboard(request):
                 photo = request.FILES['profile_photo']
                 allowed = ['image/jpeg', 'image/jpg', 'image/png']
                 if photo.content_type in allowed and photo.size <= 2 * 1024 * 1024:
+                    if agent.deliveryboy_profile:
+                        try:
+                            import cloudinary.uploader
+                            cloudinary.uploader.destroy(str(agent.deliveryboy_profile))
+                        except:
+                            pass
                     agent.deliveryboy_profile = photo
                 else:
                     messages.error(request, "Only JPG/PNG allowed, max 2MB.")
