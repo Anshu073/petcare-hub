@@ -104,7 +104,7 @@ class Vet(models.Model):
         )
         contact = models.CharField(max_length=15,validators=[phone_regex])
         # documents = models.FileField(upload_to='vet_docs/', null=True, blank=True)
-        documents = CloudinaryField('raw', folder='vet_docs', null=True, blank=True)
+        documents = CloudinaryField(resource_type='raw', folder='vet_docs', null=True, blank=True)
         status = models.IntegerField(default=0) # Default: 0 (Pending approval)
         charges = models.IntegerField()
         address = models.CharField(max_length=200)
