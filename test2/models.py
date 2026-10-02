@@ -289,7 +289,7 @@ class Product(models.Model):
     description = models.CharField(max_length=250)
     price = models.IntegerField()
     # cover_img_path = models.ImageField(upload_to='product_covers/')
-    cover_img_path = CloudinaryField('image', folder='product_covers')
+    cover_img_path = CloudinaryField('image', folder='product_covers', max_length=500)
 
     class Meta:
         db_table = 'PRODUCT_TABLE'
@@ -385,7 +385,7 @@ class Gallery(models.Model):
     gallery_id = models.AutoField(primary_key=True)
     prod_id = models.ForeignKey(Product, on_delete=models.CASCADE)
     # image_path = models.ImageField(upload_to='product_gallery/')
-    image_path = CloudinaryField('image', folder='product_gallery')
+    image_path = CloudinaryField('image', folder='product_gallery', max_length=500)
 
     class Meta:
         db_table = 'GALLERY_TABLE'
