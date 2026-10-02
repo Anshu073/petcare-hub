@@ -160,7 +160,7 @@
             <div class="row">
                 <div class="col-lg-4">
                     <div class="dashboard-card text-center p-4 bg-white shadow-sm rounded-4 mb-4">
-                        <img src="/media/{{ vendor.vendor_profile }}" class="profile-img-main mb-3"
+                        <img src="{% if vendor.vendor_profile %}{{ vendor.vendor_profile.url }}{% else %}{% static 'assets/img/users/default.png' %}{% endif %}" class="profile-img-main mb-3"
                             style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #894B8D;">
                         <h4 class="vet-name-sidebar mb-1 fw-bold text-dark" id="display-name">{{ vendor.vendor_name }}</h4>
                         <p class="text-muted small">
