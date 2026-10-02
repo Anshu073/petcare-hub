@@ -1004,7 +1004,7 @@
                                                 <td>
                                                     <div class="d-flex align-items-center gap-3">
                                                         {% if boy.deliveryboy_profile %}
-                                                            <img src="/media/{{ boy.deliveryboy_profile }}" 
+                                                            <img src="{% if boy.deliveryboy_profile %}{{ boy.deliveryboy_profile.url }}{% else %}{% static 'assets/img/users/default.png' %}{% endif %}" 
                                                                 class="rounded-circle shadow-sm" 
                                                                 style="width: 45px; height: 45px; object-fit: cover; border: 2px solid #fff; outline: 1px solid #eee;">
                                                         {% else %}
@@ -1079,7 +1079,7 @@
                                                     <td>
                                                         <div class="d-flex align-items-center gap-3">
                                                             {% if boy.deliveryboy_profile %}
-                                                                <img src="/media/{{ boy.deliveryboy_profile }}" 
+                                                                <img src="{% if boy.deliveryboy_profile %}{{ boy.deliveryboy_profile.url }}{% else %}{% static 'assets/img/users/default.png' %}{% endif %}"
                                                                     class="rounded-circle shadow-sm" 
                                                                     style="width: 45px; height: 45px; object-fit: cover; border: 1px solid #eee;">
                                                             {% else %}
@@ -1168,7 +1168,7 @@
                             <td>
                                 <div class="d-flex align-items-center gap-3">
                                     {% if boy.deliveryboy_profile %}
-                                        <img src="/media/{{ boy.deliveryboy_profile }}" 
+                                        <img src="{% if boy.deliveryboy_profile %}{{ boy.deliveryboy_profile.url }}{% else %}{% static 'assets/img/users/default.png' %}{% endif %}"
                                              class="rounded-circle shadow-sm" 
                                              style="width: 45px; height: 45px; object-fit: cover; border: 2px solid #fff; outline: 1px solid #eee;">
                                     {% else %}
