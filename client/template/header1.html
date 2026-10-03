@@ -667,18 +667,18 @@
         </div>
     </div>
     
-    <!-- DEMO DISCLAIMER -->
-    <div style="background: #1a1a2e; border-top: 2px solid #894B8D; padding: 12px 0;">
-        <div class="container text-center">
-            <p style="color: #aaa; font-size: 12px; margin: 0;">
-                ⚠️ <strong style="color: #e0b0ff;">Demo Project:</strong>
-                All veterinarians, certificates, medical reports, and data shown are
-                fictitious and AI-generated for academic demonstration purposes only.
-                This platform does not provide real medical or veterinary advice.
-            </p>
+    <!-- DEMO DISCLAIMER MARQUEE -->
+    <div style="background: #894B8D; overflow: hidden; padding: 10px 0; border-top: 1px solid #6d3870; border-bottom: 1px solid #6d3870;">
+        <div style="display: flex; align-items: center; width: fit-content; animation: marquee 30s linear infinite; white-space: nowrap;">
+            {% for i in "12345678" %}
+            <span style="color: #fff; font-size: 13px; font-weight: 600; margin-right: 60px; letter-spacing: 0.5px;">
+                ⚠️ DEMO PROJECT &nbsp;|&nbsp; All veterinarians, certificates, medical reports & data are AI-generated for academic purposes only &nbsp;|&nbsp; Not real medical advice
+                <span style="color: #f8c0ff; margin: 0 20px;">✦</span>
+            </span>
+            {% endfor %}
         </div>
     </div>
-    <!-- DEMO DISCLAIMER END -->
+    <!-- DEMO DISCLAIMER MARQUEE END -->
 
     <div class="footer__bottom">
         <div class="container">
