@@ -385,6 +385,20 @@ body.sidebar-mini .sidebar-brand a img {
         </div>
       </div>
     </div>
+
+    <!-- DEMO DISCLAIMER MARQUEE -->
+    <div style="background: #0d1b4b; overflow: hidden; padding: 20px 0; border-top: 1px solid #ffffff22; border-bottom: 1px solid #ffffff22;">
+        <div style="display: flex; align-items: center; width: fit-content; animation: marquee 90s linear infinite; white-space: nowrap;">
+            {% for i in "12345678" %}
+            <span style="color: #e2c97e; font-size: 13px; font-weight: 600; margin-right: 60px; letter-spacing: 0.5px;">
+                ⚠️ DEMO PROJECT &nbsp;|&nbsp; All veterinarians, certificates, medical reports & data are AI-generated for academic purposes only &nbsp;|&nbsp; Not real medical advice
+                <span style="color: #ffffff66; margin: 0 20px;">✦</span>
+            </span>
+            {% endfor %}
+        </div>
+    </div>
+    <!-- DEMO DISCLAIMER MARQUEE END -->
+
     <footer class="main-footer">
       <div class="footer-left">
         Copyright &copy; 2026 <div class="bullet"></div> Design By <a href="{% url 'developers' %}">PETCAREHUB_TEAM</a>
