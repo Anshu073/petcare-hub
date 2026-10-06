@@ -1032,3 +1032,26 @@ checkAbsentButtons();
 // Har minute check karo — real-time enable hoga
 setInterval(checkAbsentButtons, 60000);
 </script>
+
+<style>
+@keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+</style>
+
+<!-- DEMO DISCLAIMER MARQUEE -->
+<div style="background: #0d1b4b; overflow: hidden; padding: 20px 0; border-top: 1px solid #ffffff22; border-bottom: 1px solid #ffffff22;">
+    <div style="display: flex; align-items: center; width: fit-content; animation: marquee 90s linear infinite; white-space: nowrap;">
+        {% for i in "12345678" %}
+        <span style="color: #e2c97e; font-size: 13px; font-weight: 600; margin-right: 60px; letter-spacing: 0.5px;">
+            ⚠️ DEMO PROJECT &nbsp;|&nbsp; All veterinarians, certificates, medical reports & data are AI-generated for academic purposes only &nbsp;|&nbsp; Not real medical advice
+            <span style="color: #ffffff66; margin: 0 20px;">✦</span>
+        </span>
+        {% endfor %}
+    </div>
+</div>
+<!-- DEMO DISCLAIMER MARQUEE END -->
+
+</body>
+</html>
