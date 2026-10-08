@@ -385,6 +385,19 @@ body.sidebar-mini .sidebar-brand a img {
         </div>
       </div>
     </div>
+    
+    <!-- DEMO DISCLAIMER MARQUEE -->
+    <div class="demo-disclaimer">
+      <div class="demo-disclaimer-track">
+        {% for i in "12345678" %}
+        <span class="demo-disclaimer-text">
+          ⚠️ DEMO PROJECT &nbsp;|&nbsp; All veterinarians, certificates, medical reports & data are AI-generated for academic purposes only &nbsp;|&nbsp; Not real medical advice
+          <span class="sep">✦</span>
+        </span>
+        {% endfor %}
+      </div>
+    </div>
+    <!-- DEMO DISCLAIMER MARQUEE END -->
 
     <footer class="main-footer">
       <div class="footer-left">
@@ -554,6 +567,47 @@ body.sidebar-mini .sidebar-brand a img {
     .navbar-right {
       margin-left: auto;
     }
+
+    /* ===== Demo Disclaimer Marquee ===== */
+    @keyframes marquee {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    .demo-disclaimer {
+      background: #0d1b4b;
+      overflow: hidden;
+      padding: 20px 0;
+      margin-left: 250px;               /* sidebar width */
+      border-top: 1px solid #ffffff22;
+      border-bottom: 1px solid #ffffff22;
+      transition: margin-left 0.5s ease;
+    }
+    body.sidebar-mini .demo-disclaimer { margin-left: 65px; }
+    body.sidebar-gone .demo-disclaimer { margin-left: 0; }
+    @media (max-width: 1024px) {
+      .demo-disclaimer { margin-left: 0; }
+    }
+
+    .demo-disclaimer-track {
+      display: flex;
+      align-items: center;
+      width: fit-content;
+      animation: marquee 90s linear infinite;
+      white-space: nowrap;
+    }
+    .demo-disclaimer-text {
+      color: #e2c97e;
+      font-size: 13px;
+      font-weight: 600;
+      margin-right: 60px;
+      letter-spacing: 0.5px;
+    }
+    .demo-disclaimer-text .sep {
+      color: #ffffff66;
+      margin: 0 20px;
+    }
+
   </style>
 
 <!-- STEP 2: jQuery ready — events + active classes -->
