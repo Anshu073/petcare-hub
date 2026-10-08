@@ -203,9 +203,9 @@
                         <label class="small fw-bold mb-1">Set Availability Status:</label>
                         <select id="statusSelector" class="form-select form-select-sm rounded-pill shadow-sm"
                             onchange="handleStatusToggle(this)">
-                            <option value="1" {% if vet.availability_status==1 %}selected{% endif %}>Online (Available)
+                            <option value="1" {% if vet.availability_status == 1 %}selected{% endif %}>Online (Available)
                             </option>
-                            <option value="0" {% if vet.availability_status==0 or vet.availability_status==2
+                            <option value="0" {% if vet.availability_status == 0 or vet.availability_status == 2
                                 %}selected{% endif %}>Offline / Schedule Leave</option>
                         </select>
                     </div>
@@ -788,7 +788,7 @@
                                             {% for slot in time_slots %}
                                             {% if not slot.is_midnight %}
                                             <option value="{{ slot.value }}" data-index="{{ slot.index }}" {% if
-                                                day.open_val==slot.value %}selected{% endif %}>
+                                                day.open_val == slot.value %}selected{% endif %}>
                                                 {{ slot.display }}
                                             </option>
                                             {% endif %}
@@ -802,7 +802,7 @@
                                             <option value="">Select Closing</option>
                                             {% for slot in time_slots %}
                                             <option value="{{ slot.value }}" data-index="{{ slot.index }}" {% if
-                                                day.close_val==slot.value %}selected{% endif %}>
+                                                day.close_val == slot.value %}selected{% endif %}>
                                                 {{ slot.display }}
                                             </option>
                                             {% endfor %}
