@@ -17,6 +17,7 @@ Book vet appointments, order pet products, manage vendors and deliveries — all
 [![NOC Certified](https://img.shields.io/badge/Partnership-NOC%20Certified-28a745)](#-recognition)
 
 ### 🌐 [Live Demo → petcare-hub-uw49.onrender.com](https://petcare-hub-uw49.onrender.com)
+<sub>💡 Tip: Ctrl + Click (Mac: Cmd + Click) to open in a new tab</sub>
 
 > ⚠️ **Demo Disclaimer:** This is an academic demonstration project. All veterinarians, certificates, medical reports, prescriptions, and user data shown are fictitious and AI-generated for demonstration purposes only. Any resemblance to real persons, institutions, or organizations is purely coincidental. The platform is not intended to provide real medical, veterinary, or financial advice.
 
