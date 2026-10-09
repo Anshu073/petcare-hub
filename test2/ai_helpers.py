@@ -1,12 +1,11 @@
 import os
 import json
-import time
 import requests
 from dotenv import load_dotenv
 
 load_dotenv()
 
-GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent"
+MODELS = ["gemini-flash-lite-latest", "gemini-flash-latest"]
 
 
 def _post_gemini(body, timeout):
@@ -20,15 +19,18 @@ def _post_gemini(body, timeout):
         "x-goog-api-key": api_key
     }
 
-    for attempt in range(2):
-        response = requests.post(GEMINI_URL, headers=headers, json=body, timeout=timeout)
-        if response.status_code in (429, 500, 503) and attempt == 0:
-            print(f"[AI Helper] Gemini {response.status_code}, retrying once...")
-            time.sleep(1.5)
+    for model in MODELS:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+        try:
+            response = requests.post(url, headers=headers, json=body, timeout=timeout)
+        except requests.exceptions.RequestException as e:
+            print(f"[AI Helper] {model} failed: {e}")
             continue
-        if response.status_code != 200:
-            print(f"[AI Helper] Gemini error {response.status_code}: {response.text[:300]}")
-        return response.json()
+
+        if response.status_code == 200:
+            return response.json()
+        print(f"[AI Helper] {model} error {response.status_code}: {response.text[:200]}")
+
     return None
 
 
