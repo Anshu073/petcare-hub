@@ -30,12 +30,12 @@ Use these to explore the platform without registering:
 
 | Role | Email | Password |
 |---|---|---|
-| **Customer** | `customer@petcare.demo` | `Demo@123` |
-| **Vendor 1** | `vendor1@petcare.demo` | `Demo@123` |
-| **Vendor 2** | `vendor2@petcare.demo` | `Demo@123` |
-| **Vet** | `vet@petcare.demo` | `Demo@123` |
-| **Delivery Boy** | `delivery@petcare.demo` | `Demo@123` |
-| **Admin** | `admin@petcare.demo` | `Demo@123` |
+| **Customer** | `ganesh123@gmail.com` | `Ganesh@123` |
+| **Vendor 1** | `Furryfriend08@gmail.com` | `Furry@08` |
+| **Vendor 2** | `Petzone33@gmail.com` | `Petzone@33` |
+| **Vet** | `Sumit89@gmail.com` | `Sumit@89` |
+| **Delivery Boy** | `yashtrivedi04@gmail.com` | `Yash@004` |
+| **Admin** | `officialpetcare@gmail.com` | `Petcare@9998` |
 
 > 💡 First load may take **30–50 seconds** — the free Render instance spins down after inactivity (handled by UptimeRobot to minimize this).
 
