@@ -1389,8 +1389,11 @@ def chatbot_reply(request):
 
     try:
         data = json_lib.loads(request.body)
-        user_message = data.get('message', '').strip()
-        conversation_history = data.get('history', [])
+        user_message = data.get('message', '').strip()[:500]
+        conversation_history = [
+            t for t in data.get('history', [])[-10:]
+            if t.get('role') in ('user', 'model') and isinstance(t.get('text'), str)
+        ]
 
         if not user_message:
             return JsonResponse({'status': 'error', 'message': 'Empty message'}, status=400)
