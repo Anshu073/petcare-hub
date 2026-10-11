@@ -2,7 +2,7 @@
 
 # 🐾 PetCareHub
 
-**A full-stack, multi-role Pet Care & E-commerce platform built with Django**
+**A multi-role Pet Care & E-commerce platform built with Django (Bootstrap UI)**
 
 Book vet appointments, order pet products, manage vendors and deliveries — all in one system with five dedicated roles.
 
@@ -38,6 +38,8 @@ Use these to explore the platform without registering:
 | **Delivery Boy** | `yashtrivedi04@gmail.com` | `Yash@004` |
 | **Admin** | `officialpetcare@gmail.com` | `Petcare@9998` |
 
+> 🔒 These are demo accounts. Please do not use "Forgot password" on them, and do not enter any real personal data.
+
 > 💡 First load may take **30–50 seconds** — the free Render instance spins down after inactivity (handled by UptimeRobot to minimize this).
 
 ---
@@ -46,7 +48,7 @@ Use these to explore the platform without registering:
 
 PetCareHub's pet-adoption initiative is backed by a real-world animal-welfare partnership:
 
-- 📜 **No Objection Certificate** — issued by **Adoption Home Ahmedabad**, authorizing PetCareHub to feature their platform and connect adopters to genuine, verified rescue listings.
+- 📜 **No Objection Certificate** — issued by **Adoption Home Ahmedabad**, authorizing PetCareHub to feature their platform and link adopters to their website and Instagram for genuine rescue listings.
 - 🤝 **Letter of Appreciation** — from **Adoption Home Ahmedabad**, recognizing PetCareHub's contribution toward responsible pet adoption and animal welfare.
 
 > Special thanks to **Naitik Bhatt** and the team at **Adoption Home Ahmedabad** ([@adoptionhome_ahmedabad](https://instagram.com/adoptionhome_ahmedabad)) for trusting this project and supporting it as a genuine animal-welfare initiative.
@@ -72,7 +74,7 @@ The goal was to simulate a real-world pet-care ecosystem: customers can book vet
 - Order history, appointment history, profile management
 - OTP-based email password reset (Gmail SMTP)
 - **AI-analyzed reviews** — every product, order, and vet feedback comment is automatically classified by sentiment
-- **AI support chatbot** — a floating assistant on every page answers questions about bookings, orders, and payment policies
+- **AI support chatbot** — a floating assistant on every customer-facing page answers questions about bookings, orders, cancellations, refunds and payment policies
 
 **🩺 Vet**
 - Personal dashboard with schedule management
@@ -111,7 +113,7 @@ PetCareHub integrates **Google's Gemini API** to automatically analyze the senti
 
 **Reliability:** The integration is wrapped in error handling — if the API is unreachable, times out, or returns an unexpected format, the review still saves normally with the sentiment field left blank.
 
-**Tech used:** Gemini API (`gemini-flash-latest`) called via `requests`, `python-dotenv` for key management, prompt engineering for structured JSON output.
+**Tech used:** Gemini API (`gemini-flash-lite-latest`, with `gemini-flash-latest` as fallback) called via `requests`, `python-dotenv` for key management, prompt engineering for structured JSON output.
 
 ---
 
@@ -121,11 +123,11 @@ A floating chat widget (bottom-right corner, available on every customer-facing 
 
 **How it works:**
 1. The chatbot maintains full conversation context — each message sent to the API includes the prior turns, so follow-up questions are understood correctly.
-2. A system prompt gives the model platform-specific knowledge: payment methods, and the strike system that governs repeated no-shows on cash-based appointments.
+2. A system prompt gives the model platform-specific knowledge: payment methods, order cancellation and refund rules, automatic appointment cancellation, the strike system for cash-based no-shows, and our adoption partnership with Adoption Home Ahmedabad. If a question is not covered, the bot is told not to guess.
 3. Responses automatically match the language the customer is typing in (English, Hindi, or Hinglish).
 4. The widget opens with a personalized greeting using the logged-in customer's first name, and shows an animated typing indicator while a response is being generated.
 
-**Tech used:** Gemini API (`gemini-flash-latest`) via `requests`, a Django JSON endpoint (`/client/chatbot-reply/`) for the AJAX exchange, and vanilla JavaScript (`fetch`) on the frontend.
+**Tech used:** Gemini API (`gemini-flash-lite-latest`, with `gemini-flash-latest` as fallback) via `requests`, a Django JSON endpoint (`/chatbot-reply/`) for the AJAX exchange, and vanilla JavaScript (`fetch`) on the frontend.
 
 ---
 
